@@ -1,7 +1,7 @@
 function intersecting_boundary(p::Point{2}, r::Rectangle)
     (; origin, h, l) = r
     ox, oy = origin
-    px, py = p.p 
+    px, py = p.p
     # Make sure the point is within the rectangle
     @assert ox ≤ px ≤ ox + h
     @assert oy ≤ py ≤ oy + l
