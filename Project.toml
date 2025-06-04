@@ -1,0 +1,4 @@
+name = "GridGeometryUtils"
+uuid = "6f784e4f-3d6e-439e-b87e-1b67132dd330"
+authors = ["Albert de Montserrat <albert.de.montserrat@gmail.com>"]
+version = "0.1.0"
