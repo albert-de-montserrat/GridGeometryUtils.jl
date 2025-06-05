@@ -28,7 +28,7 @@ for op in (:+, :-, :*, :/, :^)
     @eval begin
         @inline Base.$op(p::Point, x::Number) = Point(broadcast($op, p.p, x)...)
         @inline Base.$op(x::Number, p::Point) = Point(broadcast($op, x, p.p)...)
-        @inline Base.$op(p1::Point{N}, p2::Point{N}) where {N} = Point(broadcast($op, p1.p, p2.p)...)
+        @inline Base.$op(p1::Point, p2::Point) = Point(broadcast($op, p1.p, p2.p)...)
     end
 end
 

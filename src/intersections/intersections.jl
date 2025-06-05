@@ -3,8 +3,8 @@ function intersecting_boundary(p::Point{2}, r::Rectangle)
     ox, oy = origin
     px, py = p.p
     # Make sure the point is within the rectangle
-    @assert ox ≤ px ≤ ox + h
-    @assert oy ≤ py ≤ oy + l
+    # @assert ox ≤ px ≤ ox + h
+    # @assert oy ≤ py ≤ oy + l
 
     # Check if the point is on any boundary
     intersect = intersecting_boundary(px, py, r)
@@ -17,9 +17,11 @@ end
 function intersecting_boundary(px, py, r::Rectangle)
     (; origin, h, l) = r
     ox, oy = origin
-    px == ox     && return :left
-    px == ox + h && return :right
-    py == oy     && return :bot
-    py == oy + l && return :top
+    if oy ≤ py ≤ oy + l
+        px ≈ ox     && return :left
+        px ≈ ox + h && return :right
+    end
+    py < oy     && return :bot
+    py > oy + l && return :top
     return :inside
 end
