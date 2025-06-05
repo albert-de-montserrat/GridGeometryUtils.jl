@@ -1,4 +1,4 @@
-# CellArraysIndexing.jl
+# GridGeometryUtils.jl
 
 This package utility functions to do geometry operations on rectangular grids, such as intersections between different geomtric objects.
 
