@@ -3,8 +3,9 @@ uuid = "6f784e4f-3d6e-439e-b87e-1b67132dd330"
 authors = ["Albert de Montserrat <albert.de.montserrat@gmail.com>"]
 version = "0.1.0"
 
+[compat]
+Test = "1.10, 1.11"
+julia = "1.10, 1.11"
+
 [extras]
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
-
-[compat]
-Test = "1.11.0"
