@@ -1,6 +1,6 @@
 # GridGeometryUtils.jl
 
-This package utility functions to do geometry operations on rectangular grids, such as intersections between different geomtric objects.
+This package utility functions to do geometry operations on rectangular grids, such as intersections between different geometric objects.
 
 ## Example: segment-segment intersection
 
