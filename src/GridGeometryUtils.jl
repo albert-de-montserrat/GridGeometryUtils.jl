@@ -1,12 +1,9 @@
 module GridGeometryUtils
 
 include("points.jl")
-public AbstractPoint
 export Point, distance
 
 include("lines.jl")
-public AbstractLine
-
 export Line, Segment, line, dointersect, intersection
 
 include("polygons.jl")
