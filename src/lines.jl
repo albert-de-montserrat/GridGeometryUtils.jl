@@ -23,7 +23,6 @@ end
 
 @inline line(l::Line, x::Number) = muladd(l.slope, x, l.intercept)
 
-
 struct Segment{N, T} <: AbstractLine{T}
     p1::Point{N, T}
     p2::Point{N, T}
