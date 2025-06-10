@@ -1,5 +1,7 @@
 module GridGeometryUtils
 
+using Adapt
+
 include("points.jl")
 export Point, distance
 

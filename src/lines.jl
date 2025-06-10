@@ -21,6 +21,8 @@ function Line(p1::Point{2}, p2::Point{2})
     return Line(slope, intercept)
 end
 
+Adapt.@adapt_structure Line
+
 @inline line(l::Line, x::Number) = muladd(l.slope, x, l.intercept)
 
 struct Segment{N, T} <: AbstractLine{T}
@@ -31,6 +33,8 @@ struct Segment{N, T} <: AbstractLine{T}
         return new{N, T}(p1, p2)
     end
 end
+
+Adapt.@adapt_structure Segment
 
 Line(s::Segment) = Line(s.p1, s.p2)
 

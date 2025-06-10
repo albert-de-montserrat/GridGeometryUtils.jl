@@ -20,6 +20,8 @@ end
 
 @inline Point(pᵢ::NTuple{N, Number}) where {N} = Point(pᵢ...)
 
+Adapt.@adapt_structure Point
+
 Base.length(::Point{N}) where {N} = N
 
 Base.getindex(p::Point{N}, i::Int) where {N} = (@assert i ≤ N; p.p[i])
