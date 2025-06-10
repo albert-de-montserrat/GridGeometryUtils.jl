@@ -33,6 +33,8 @@ end
 
 @inline Triangle(p1::NTuple{2}, p2::NTuple{2}, p3::NTuple{2}) = Triangle(Point(p1), Point(p2), Point(p3))
 
+Adapt.@adapt_structure Triangle
+
 @inline function area(t::Triangle{T}) where {T}
     a = distance(t.p1, t.p2)
     b = distance(t.p2, t.p3)
@@ -57,14 +59,16 @@ A parametric type representing a rectangle with elements of type `T`.
 """
 struct Rectangle{T} <: AbstractPolygon{T}
     origin::NTuple{2, T}
-    h::T # height
     l::T # length
-    function Rectangle(origin::NTuple{2, T1}, h::T2, l::T3) where {T1, T2, T3}
+    h::T # height
+    function Rectangle(origin::NTuple{2, T1}, l::T2, h::T3) where {T1, T2, T3}
         T = promote_type(T1, T2, T3)
         origin_promoted = ntuple(i -> T(origin[i]), Val(2))
-        return new{T}(origin_promoted, promote(h, l)...)
+        return new{T}(origin_promoted, promote(l, h)...)
     end
 end
+
+Adapt.@adapt_structure Rectangle
 
 @inline area(r::Rectangle) = r.h * r.l
 @inline perimeter(r::Rectangle) = 2 * (r.h + r.l)
@@ -90,6 +94,8 @@ struct Prism{T} <: AbstractPolygon{T}
     end
 end
 
+Adapt.@adapt_structure Prism
+
 @inline volume(r::Prism) = r.h * r.l * r.d
 @inline area(r::Prism) = 2 * ((r.h + r.l) + (r.h + r.d) + (r.d + r.l))
 
@@ -104,6 +110,8 @@ struct Trapezoid{T} <: AbstractPolygon{T}
         return new{T}(origin_promoted, promote(h, l1, l2)...)
     end
 end
+
+Adapt.@adapt_structure Trapezoid
 
 @inline area(t::Trapezoid) = (t.h1 + t.h2) * t.l / 2
 @inline perimeter(t::Trapezoid) = t.l + t.h1 + t.h2 + √(t.l^2 + (t.h1 - t.h2)^2)
