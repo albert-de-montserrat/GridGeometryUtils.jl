@@ -19,9 +19,9 @@ function intersecting_boundary(px, py, r::Rectangle)
     ox, oy = origin
     if oy ≤ py ≤ oy + l
         px ≈ ox     && return :left
-        px ≈ ox + h && return :right
+        px ≈ ox + l && return :right
     end
-    py < oy     && return :bot
-    py > oy + l && return :top
+    py ≤ oy     && return :bot
+    py ≥ oy + h && return :top
     return :inside
 end

@@ -10,10 +10,10 @@ function intersecting_area(p1, p2, r::Rectangle)
 
         s1 = Segment(p1, p2)
         # find intersection with bottom boundary
-        s2 = Segment(r.origin, r.origin .+ (r.l, 0))
+        s2 = Segment(Point(r.origin), Point(r.origin .+ (r.l, 0)))
         pbot = intersection(s1, s2)
         # find intersection with top boundary
-        s2 = Segment(r.origin .+ (0, r.h), r.origin .+ (r.l, r.h))
+        s2 = Segment(Point(r.origin .+ (0, r.h)), Point(r.origin .+ (r.l, r.h)))
         ptop = intersection(s1, s2)
         # compute area
         area_top_bot(ptop, pbot, r)
@@ -22,7 +22,7 @@ function intersecting_area(p1, p2, r::Rectangle)
         
         s1 = Segment(p1, p2)
         # find intersection with bottom boundary
-        s2 = Segment(r.origin, r.origin .+ (r.l, 0))
+        s2 = Segment(Point(r.origin), Point(r.origin .+ (r.l, 0)))
         pbot = intersection(s1, s2)
         # find intersection with top boundary
         s2 = Segment(
@@ -72,8 +72,8 @@ end
 
 @inline intersecting_area(s::Segment, r::Rectangle) = intersecting_area(s.p1, s.p2, r)
 
-@inline area_left_bot(p1::Point{2}, p2::Point{2}, r::Rectangle) = area(Triangle(r.origin, p1, p2))
-@inline area_bot_right(p1::Point{2}, p2::Point{2}, r::Rectangle) = area(Triangle(Point(r.origin .+ (r.l, 0)), p1, p2))
+@inline area_left_bot(p1::Point{2}, p2::Point{2}, r::Rectangle) = area(Triangle(Point(r.origin), p1, p2))
+@inline area_bot_right(p1::Point{2}, p2::Point{2}, r::Rectangle{T}) where T = area(Triangle(Point(r.origin .+ (r.l, zero(T))), p1, p2))
 
 @inline function area_left_right(p1, p2, r::Rectangle)
     polygon = Trapezoid(

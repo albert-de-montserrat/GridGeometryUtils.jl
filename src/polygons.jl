@@ -59,12 +59,12 @@ A parametric type representing a rectangle with elements of type `T`.
 """
 struct Rectangle{T} <: AbstractPolygon{T}
     origin::NTuple{2, T}
-    h::T # height
     l::T # length
-    function Rectangle(origin::NTuple{2, T1}, h::T2, l::T3) where {T1, T2, T3}
+    h::T # height
+    function Rectangle(origin::NTuple{2, T1}, l::T2, h::T3) where {T1, T2, T3}
         T = promote_type(T1, T2, T3)
         origin_promoted = ntuple(i -> T(origin[i]), Val(2))
-        return new{T}(origin_promoted, promote(h, l)...)
+        return new{T}(origin_promoted, promote(l, h)...)
     end
 end
 
