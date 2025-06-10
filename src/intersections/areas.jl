@@ -3,10 +3,10 @@ function intersecting_area(p1, p2, r::Rectangle)
     intersect_2 = intersecting_boundary(p2, r)
     intersections = intersect_1, intersect_2
 
-    area = if intersections === (:left, :right)
+    area = if intersections === (1, 2)
         area_left_right(p1, p2, r)
 
-    elseif intersections === (:top, :bot)
+    elseif intersections === (4, 3)
 
         s1 = Segment(p1, p2)
         # find intersection with bottom boundary
@@ -18,7 +18,7 @@ function intersecting_area(p1, p2, r::Rectangle)
         # compute area
         area_top_bot(ptop, pbot, r)
 
-    elseif intersections === (:bot, :top)
+    elseif intersections === (3, 4)
         
         s1 = Segment(p1, p2)
         # find intersection with bottom boundary
@@ -32,7 +32,7 @@ function intersecting_area(p1, p2, r::Rectangle)
         # compute area
         area_bot_top(pbot, ptop, r)
 
-    elseif intersections === (:left, :bot)
+    elseif intersections === (1, 3)
         # find intersection with bottom boundary
         s1 = Segment(p1, p2)
         s2 = Segment(Point(r.origin), Point(r.origin .+ (r.l, 0)))
@@ -40,7 +40,7 @@ function intersecting_area(p1, p2, r::Rectangle)
         # compute area
         area_left_bot(p1, pbot, r)
 
-    elseif intersections === (:bot, :right)
+    elseif intersections === (3, 2)
         # find intersection with bottom boundary
         s1   = Segment(p1, p2)
         s2   = Segment(Point(r.origin), Point(r.origin .+ (r.l, 0)))
@@ -48,7 +48,7 @@ function intersecting_area(p1, p2, r::Rectangle)
         # compute area
         area_bot_right(pbot, p2, r)
 
-    elseif intersections === (:left, :top)
+    elseif intersections === (1, 4)
         # find intersection with bottom boundary
         s1   = Segment(p1, p2)
         s2   = Segment(Point(r.origin .+ (0, r.h)), Point(r.origin .+ (r.l, r.h)))
@@ -56,7 +56,7 @@ function intersecting_area(p1, p2, r::Rectangle)
         # compute area
         area_left_top(p1, ptop, r)
 
-    elseif intersections === (:top, :right)
+    elseif intersections === (4, 2)
         # find intersection with bottom boundary
         s1   = Segment(p1, p2)
         s2   = Segment(Point(r.origin .+ (0, r.h)), Point(r.origin .+ (r.l, r.h)))
@@ -67,6 +67,7 @@ function intersecting_area(p1, p2, r::Rectangle)
     else # it should have crashed before anyway
         throw("Unsupported intersection case")
     end
+
     return area
 end
 
