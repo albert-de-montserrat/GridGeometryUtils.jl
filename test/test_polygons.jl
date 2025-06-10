@@ -26,8 +26,8 @@ end
     rect   = Rectangle(origin, 2, 4)
     
     @test rect.origin     == origin
-    @test rect.h          == 2
-    @test rect.l          == 4
+    @test rect.h          == 4
+    @test rect.l          == 2
     @test area(rect)      == 8
     @test perimeter(rect) == 12
 end
@@ -37,8 +37,8 @@ end
     rect   = Rectangle(origin, 2, 4)
     
     @test rect.origin     == origin
-    @test rect.h          == 2
-    @test rect.l          == 4
+    @test rect.h          == 4
+    @test rect.l          == 2
     @test area(rect)      == 8
     @test perimeter(rect) == 12
 end
