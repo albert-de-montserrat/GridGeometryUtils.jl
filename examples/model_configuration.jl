@@ -20,6 +20,14 @@ let
 
         𝐱 = @SVector([xc[I[1]], yc[I[2]]])
 
+        # check if inside bounding box
+        for igeom in eachindex(geometries)
+            if inside(𝐱, geometries[igeom].box)
+                phase[I] = 3
+            end
+        end
+
+        # Check if inside rectangle
         for igeom in eachindex(geometries)
             if inside(𝐱, geometries[igeom])
                 phase[I] = 2

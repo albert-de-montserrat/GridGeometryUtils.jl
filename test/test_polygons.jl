@@ -21,6 +21,17 @@ using Test
     @test perimeter(t) == 3.414213562373095
 end
 
+@testset "BBox" begin
+    origin = (0, 0)
+    bbox   = BBox(origin, 2, 4)
+
+    @test bbox.origin     == Point(Float64.(origin))
+    @test bbox.l          == 2
+    @test bbox.h          == 4
+    @test area(bbox)      == 8
+    @test perimeter(bbox) == 12
+end
+
 @testset "Rectangle" begin
     origin = (0, 0)
     rect   = Rectangle(origin, 2, 4; θ=π/3)
