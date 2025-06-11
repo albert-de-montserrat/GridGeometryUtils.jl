@@ -1,13 +1,6 @@
 function intersecting_boundary(p::Point{2}, r::Rectangle)
-    (; origin, h, l) = r
-    ox, oy = origin
-    px, py = p.p
-    # Make sure the point is within the rectangle
-    # @assert ox ≤ px ≤ ox + h
-    # @assert oy ≤ py ≤ oy + l
-
     # Check if the point is on any boundary
-    intersect = intersecting_boundary(px, py, r)
+    intersect = intersecting_boundary(p[1], p[2], r)
     # If the point is inside the rectangle, we throw an error
     iszero(intersect) && throw("Point is inside the rectangle, no intersection")
     # Otherwise, return the boundary
