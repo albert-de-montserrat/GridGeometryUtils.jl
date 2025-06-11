@@ -1,4 +1,16 @@
-@testset "Point" begin    
+using StaticArrays
+
+p1 = Point(1e0, 2e0)
+p2 = Point(2e0, 3e0)
+p3 = SA[3e0, 4e0]
+
+p1 + p2 == SA[3e0, 5e0]
+p1 + p3 == SA[4e0, 6e0]
+
+p1 - p2 == SA[-1e0, -1e0]
+p1 - p3 == SA[-2e0, -2e0]
+
+@testset "Point" begin
     @test Point(1,   2f0) isa Point{2, Float32}
     @test Point(1,   2e0) isa Point{2, Float64}
     @test Point(1f0, 2e0) isa Point{2, Float64}

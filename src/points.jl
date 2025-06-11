@@ -10,11 +10,11 @@ A parametric type representing a point in N-dimensional space, where `N` is the 
 - `T`: The type of each coordinate.
 """
 struct Point{N, T}
-    p::NTuple{N, T}
+    p::SVector{N, T}
 
     function Point(pᵢ::Vararg{Number, N}) where {N}
         T = promote_type(typeof.(pᵢ)...)
-        return new{N, T}(T.(pᵢ))
+        return new{N, T}(SA[T.(pᵢ)...])
     end
 end
 
@@ -29,6 +29,14 @@ for op in (:+, :-, :*, :/, :^)
         @inline Base.$op(p::Point, x::Number) = Point(broadcast($op, p.p, x)...)
         @inline Base.$op(x::Number, p::Point) = Point(broadcast($op, x, p.p)...)
         @inline Base.$op(p1::Point, p2::Point) = Point(broadcast($op, p1.p, p2.p)...)
+    end
+end
+
+for op in (:+, :-, :*)
+    @eval begin
+        @inline Base.$op(p1::Point, p2::Point)   = Base.$op(p1.p, p2.p) 
+        @inline Base.$op(p1::Point, p2::SVector) = Base.$op(p1.p, p2) 
+        @inline Base.$op(p1::SVector, p2::Point) = Base.$op(p1, p2.p) 
     end
 end
 
