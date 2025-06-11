@@ -25,7 +25,7 @@ end
     origin = (0, 0)
     rect   = Rectangle(origin, 2, 4)
     
-    @test rect.origin     == Point(origin)
+    @test rect.origin     == Point(Float64.(origin))
     @test rect.h          == 4
     @test rect.l          == 2
     @test area(rect)      == 8
@@ -36,7 +36,7 @@ end
     origin = (0, 0)
     rect   = Rectangle(origin, 2, 4)
     
-    @test rect.origin     == origin
+    @test rect.origin     == Point(Float64.(origin))
     @test rect.h          == 4
     @test rect.l          == 2
     @test area(rect)      == 8
@@ -47,7 +47,7 @@ end
     origin = (0, 0)
     trap   = Trapezoid(origin, 2, 3, 4)
 
-    @test trap.origin     == origin
+    @test trap.origin     == Point(origin)
     @test trap.l          == 2
     @test trap.h1         == 3
     @test trap.h2         == 4
