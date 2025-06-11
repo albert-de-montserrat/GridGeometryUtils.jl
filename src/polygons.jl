@@ -114,13 +114,13 @@ Adapt.@adapt_structure Prism
 @inline area(r::Prism) = 2 * ((r.h + r.l) + (r.h + r.d) + (r.d + r.l))
 
 struct Trapezoid{T} <: AbstractPolygon{T}
-    origin::NTuple{2, T}
+    origin::Point{2, T}
     l::T
     h1::T
     h2::T
     function Trapezoid(origin::NTuple{2, T1}, h::T2, l1::T3, l2::T4) where {T1, T2, T3, T4}
         T = promote_type(T1, T2, T3, T4)
-        origin_promoted = ntuple(i -> T(origin[i]), Val(2))
+        origin_promoted = Point(ntuple(i -> T(origin[i]), Val(2))...)
         return new{T}(origin_promoted, promote(h, l1, l2)...)
     end
 end

@@ -10,16 +10,15 @@ let
     phase = ones(Int64, nc...)
 
     geometries = (
-        Rectangle((0, 0), 0.1, 0.4, 0),
-        Rectangle((1.0, 0.6), 0.1, 0.4, π/3),
-        Rectangle((-1.0, -0.3), 0.6, 0.4, π/6),
-        Rectangle((-.8, 0.3), 0.2, 0.2, π/10),
+        Rectangle((   0,    0), 0.1, 0.4; θ=   0),
+        Rectangle(( 1.0,  0.6), 0.1, 0.4; θ= π/3),
+        Rectangle((-1.0, -0.3), 0.6, 0.4; θ= π/6),
+        Rectangle((-0.8,  0.3), 0.2, 0.2; θ=π/10),
     )
 
     @time for I in CartesianIndices(phase)
 
-        # 𝐱 = @SVector([xc[I[1]], yc[I[2]]]) # TODO: once SArrays activates
-        𝐱 = Point(xc[I[1]], yc[I[2]])
+        𝐱 = @SVector([xc[I[1]], yc[I[2]]])
 
         for igeom in eachindex(geometries)
             if inside(𝐱, geometries[igeom])
@@ -27,7 +26,6 @@ let
             end
         end
     end
-
 
     heatmap(xc, yc, phase')
 

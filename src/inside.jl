@@ -1,6 +1,6 @@
 using GridGeometryUtils
 
-function inside(p::Point, rect::Rectangle)
+function inside(p::Union{Point,SArray}, rect::Rectangle)
     (; origin, h, l,  cosθ, sinθ) = rect
 
     # Shift
