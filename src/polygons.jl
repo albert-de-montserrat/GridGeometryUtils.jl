@@ -32,6 +32,7 @@ struct Triangle{T} <: AbstractPolygon{T}
 end
 
 @inline Triangle(p1::NTuple{2}, p2::NTuple{2}, p3::NTuple{2}) = Triangle(Point(p1), Point(p2), Point(p3))
+@inline Triangle(p1::SVector{2}, p2::SVector{2}, p3::SVector{2}) = Triangle(Point(p1), Point(p2), Point(p3))
 
 Adapt.@adapt_structure Triangle
 
