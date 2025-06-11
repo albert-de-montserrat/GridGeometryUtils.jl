@@ -115,7 +115,7 @@ struct Rectangle{T} <: AbstractPolygon{T}
         𝐱′ = 𝐑 * 𝐱
         lbox, hbox = maximum(𝐱′[1, :]) - minimum(𝐱′[1, :]), maximum(𝐱′[2, :]) - minimum(𝐱′[2, :])
 
-        # shift origin to make futher computations faster
+        # shift origin to make further computations faster
         origin_bbox = origin .+ @SVector([-lbox / 2, -hbox / 2])
         box = BBox(origin_bbox, lbox, hbox)
 
