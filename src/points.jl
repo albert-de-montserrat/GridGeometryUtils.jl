@@ -21,7 +21,7 @@ end
 @inline Point(pᵢ::NTuple{N}) where {N} = Point(pᵢ...)
 @inline Point(pᵢ::SVector{N}) where {N} = Point(pᵢ.data...)
 
-@inline totuple(p::Point)= p.p.data
+@inline totuple(p::Point) = p.p.data
 
 Base.length(::Point{N}) where {N} = N
 
