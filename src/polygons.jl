@@ -101,7 +101,7 @@ struct Rectangle{T} <: AbstractPolygon{T}
     h::T # height
     sinθ::T
     cosθ::T
-    box::BBox
+    box::BBox{T}
     function Rectangle(origin::NTuple{2, T1}, l::T2, h::T3; θ::T4 = 0.0) where {T1, T2, T3, T4}
         T = promote_type(T1, T2, T3, T4)
         origin_promoted = Point(ntuple(ix -> T(origin[ix]), Val(2))...)
