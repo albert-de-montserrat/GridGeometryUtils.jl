@@ -2,9 +2,8 @@ using GridGeometryUtils
 
 function inside(p::Point, rect::Rectangle)
 
-    (; origin, h, l, θ) = rect
+    (; origin, h, l,  cosθ, sinθ) = rect
 
-    cosθ, sinθ = cos(-θ), sin(-θ)             # TODO: remove once update structure works 
     x_temp = [p[1]-origin[1], p[2]-origin[2]] # TODO: remove once all inputs are SArrays
 
     # Shift
