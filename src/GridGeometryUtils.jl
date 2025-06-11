@@ -1,6 +1,6 @@
 module GridGeometryUtils
 
-using Adapt, StaticArrays
+using Adapt, StaticArrays, LinearAlgebra
 
 include("points.jl")
 export Point, distance

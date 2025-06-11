@@ -18,7 +18,8 @@ struct Point{N, T}
     end
 end
 
-@inline Point(pᵢ::NTuple{N, Number}) where {N} = Point(pᵢ...)
+@inline Point(pᵢ::NTuple{N}) where {N} = Point(pᵢ...)
+@inline Point(pᵢ::SVector{N}) where {N} = Point(pᵢ.data...)
 
 Base.length(::Point{N}) where {N} = N
 
@@ -26,18 +27,30 @@ Base.getindex(p::Point{N}, i::Int) where {N} = (@assert i ≤ N; p.p[i])
 
 for op in (:+, :-, :*, :/, :^)
     @eval begin
-        @inline Base.$op(p::Point, x::Number) = Point(broadcast($op, p.p, x)...)
-        @inline Base.$op(x::Number, p::Point) = Point(broadcast($op, x, p.p)...)
-        @inline Base.$op(p1::Point, p2::Point) = Point(broadcast($op, p1.p, p2.p)...)
+        Base.$op(p::Point, x::Number) = Point(broadcast($op, p.p, x)...)
+        Base.$op(x::Number, p::Point) = Point(broadcast($op, x, p.p)...)
     end
 end
 
-for op in (:+, :-, :*)
+for op in (:*, :/, :^)
     @eval begin
-        @inline Base.$op(p1::Point, p2::Point)   = Base.$op(p1.p, p2.p) 
-        @inline Base.$op(p1::Point, p2::SVector) = Base.$op(p1.p, p2) 
-        @inline Base.$op(p1::SVector, p2::Point) = Base.$op(p1, p2.p) 
+        Base.$op(p1::Point, p2::Point) =  Point(broadcast($op, p1.p, p2.p)...)
     end
 end
+
+for op in (:+, :-)
+    @eval begin
+        Base.$op(p1::Point, p2::Point)   = Point(Base.$op(p1.p, p2.p)...)
+        Base.$op(p1::Point, p2::SVector) = Base.$op(p1.p, p2) 
+        Base.$op(p1::SVector, p2::Point) = Base.$op(p1, p2.p) 
+    end
+end
+
+
+Base.:*(p1::SMatrix, p2::Point) = p1 * p2.p
+Base.:*(p1::Point, p2::SMatrix) = p2 * p1
+
+LinearAlgebra.adjoint(p::Point) = Adjoint(p.p)
+
 
 @inline distance(p1::Point{N}, p2::Point{N}) where {N} = √sum(((p1.p[i] - p2.p[i])^2) for i in 1:N)

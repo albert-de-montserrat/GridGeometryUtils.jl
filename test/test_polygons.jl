@@ -12,7 +12,7 @@ using Test
     @test t.p2 == p2
     @test t.p3 == p3
 
-    t = Triangle(p1.p, p2.p, p3.p)
+    t = Triangle(p1, p2, p3)
     @test t.p1 == p1
     @test t.p2 == p2
     @test t.p3 == p3
@@ -25,7 +25,7 @@ end
     origin = (0, 0)
     rect   = Rectangle(origin, 2, 4)
     
-    @test rect.origin     == origin
+    @test rect.origin     == Point(origin)
     @test rect.h          == 4
     @test rect.l          == 2
     @test area(rect)      == 8
