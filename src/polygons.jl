@@ -69,6 +69,25 @@ struct Rectangle{T} <: AbstractPolygon{T}
     end
 end
 
+# struct Rectangle{T} <: AbstractPolygon{T}
+#     origin::NTuple{2, T}
+#     l::T # length
+#     h::T # height
+#     sinθ::T
+#     cosθ::T
+#     function Rectangle(origin::NTuple{2, T1}, l::T2, h::T3, θ::T4) where {T1, T2, T3, T4}
+#         T = promote_type(T1, T2, T3, T4)
+#         origin_promoted = ntuple(ix -> T(origin[ix]), Val(2))
+
+#         sinθ, cosθ = if iszero(θ) 
+#             zero(T), one(T)
+#         else
+#             sincos(θ)
+#         end
+#         return new{T}(origin_promoted, promote(l, h, sinθ, cosθ )...)
+#     end
+# end
+
 Adapt.@adapt_structure Rectangle
 
 @inline area(r::Rectangle) = r.h * r.l

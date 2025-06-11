@@ -1,18 +1,21 @@
-using GridGeometryUtils, UnPack
+using GridGeometryUtils
 
 function inside(p::Point, rect::Rectangle)
 
-    @unpack origin, h, l, θ = rect
+    (; origin, h, l, θ) = rect
+
+    cosθ, sinθ = cos(-θ), sin(-θ)             # TODO: remove once update structure works 
+    x_temp = [p[1]-origin[1], p[2]-origin[2]] # TODO: remove once all inputs are SArrays
 
     # Shift
-    Δx = p[1] - origin[1]      # This could be a static vector - should we do that?
-    Δy = p[2] - origin[2]
+    𝐱 = SVector{2}(x_temp)
 
-    # Rotate 
-    cosθ, sinθ = cos(-θ), sin(-θ) 
-    x′ = Δx * cosθ - Δy * sinθ # This could be a static mat-vec product - should we do that?
-    y′ = Δx * sinθ + Δy * cosθ
+    # Rotation matrix
+    𝐑  = @SMatrix([ cosθ -sinθ; sinθ cosθ])
+
+    # Rotate geometry
+    𝐱′ = 𝐑*𝐱
 
     # Check if inside
-    return abs(x′) ≤ l/2 && abs(y′) ≤ h/2
+    return abs(𝐱′[1]) ≤ l/2 && abs(𝐱′[2]) ≤ h/2
 end
