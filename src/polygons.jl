@@ -32,6 +32,7 @@ struct Triangle{T} <: AbstractPolygon{T}
 end
 
 @inline Triangle(p1::NTuple{2}, p2::NTuple{2}, p3::NTuple{2}) = Triangle(Point(p1), Point(p2), Point(p3))
+@inline Triangle(p1::SVector{2}, p2::SVector{2}, p3::SVector{2}) = Triangle(Point(p1), Point(p2), Point(p3))
 
 Adapt.@adapt_structure Triangle
 
@@ -58,21 +59,13 @@ A parametric type representing a rectangle with elements of type `T`.
 
 """
 struct Rectangle{T} <: AbstractPolygon{T}
-    origin::NTuple{2, T}
+    origin::Point{2, T}
     l::T # length
     h::T # height
-    sinθ::T
-    cosθ::T
-    function Rectangle(origin::NTuple{2, T1}, l::T2, h::T3, θ::T4) where {T1, T2, T3, T4}
-        T = promote_type(T1, T2, T3, T4)
-        origin_promoted = ntuple(ix -> T(origin[ix]), Val(2))
-
-        sinθ, cosθ = if iszero(θ) 
-            zero(T), one(T)
-        else
-            sincos(θ)
-        end
-        return new{T}(origin_promoted, promote(l, h, sinθ, cosθ )...)
+    function Rectangle(origin::NTuple{2, T1}, l::T2, h::T3) where {T1, T2, T3}
+        T = promote_type(T1, T2, T3)
+        origin_promoted = Point(ntuple(i -> T(origin[i]), Val(2))...)
+        return new{T}(origin_promoted, promote(l, h)...)
     end
 end
 
@@ -91,13 +84,13 @@ A parametric type representing a rectangle with elements of type `T`.
 
 """
 struct Prism{T} <: AbstractPolygon{T}
-    origin::NTuple{3, T}
+    origin::Point{3, T}
     h::T # height
     l::T # length
     d::T # depth
     function Prism(origin::NTuple{3, T1}, h::T2, l::T3, d::T4) where {T1, T2, T3, T4}
         T = promote_type(T1, T2, T3, T4)
-        origin_promoted = ntuple(i -> T(origin[i]), Val(3))
+        origin_promoted = Point(ntuple(i -> T(origin[i]), Val(3))...)
         return new{T}(origin_promoted, promote(h, l, d)...)
     end
 end
@@ -108,13 +101,13 @@ Adapt.@adapt_structure Prism
 @inline area(r::Prism) = 2 * ((r.h + r.l) + (r.h + r.d) + (r.d + r.l))
 
 struct Trapezoid{T} <: AbstractPolygon{T}
-    origin::NTuple{2, T}
+    origin::Point{2, T}
     l::T
     h1::T
     h2::T
     function Trapezoid(origin::NTuple{2, T1}, h::T2, l1::T3, l2::T4) where {T1, T2, T3, T4}
         T = promote_type(T1, T2, T3, T4)
-        origin_promoted = ntuple(i -> T(origin[i]), Val(2))
+        origin_promoted = Point(ntuple(i -> T(origin[i]), Val(2))...)
         return new{T}(origin_promoted, promote(h, l1, l2)...)
     end
 end
