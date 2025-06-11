@@ -22,24 +22,15 @@ struct BBox{T} <: AbstractPolygon{T}
     origin::Point{2, T}
     l::T # length
     h::T # height
-    sinθ::T  # @Albert: need your help to remove theta from BBox
-    cosθ::T 
-    function BBox(origin::NTuple{2, T1}, l::T2, h::T3; θ::T4 = 0.0) where {T1, T2, T3, T4}
-        T = promote_type(T1, T2, T3, T4)
+    function BBox(origin::NTuple{2, T1}, l::T2, h::T3) where {T1, T2, T3}
+        T = promote_type(T1, T2, T3)
         origin_promoted = Point(ntuple(ix -> T(origin[ix]), Val(2))...)
-        # All of this is not needed for BBox but all attempts to remove breaks the code
-        sinθ, cosθ = if iszero(θ)
-            zero(T), one(T)
-        else
-            sincos(θ)
-        end
-        # All of this is not needed for BBox but all attempts to remove breaks the code
-        return new{T}(origin_promoted, promote(l, h, sinθ, cosθ)...)
+        return new{T}(origin_promoted, promote(l, h)...)
     end
 end
 
-BBox(origin::Point{2}, l::Number, h::Number; θ::T = 0.0) where {T} = BBox(totuple(origin), l, h; θ = θ)
-BBox(origin::SVector{2}, l::Number, h::Number; θ::T = 0.0) where {T} = BBox(origin.data, l, h; θ = θ)
+BBox(origin::Point{2}, l::Number, h::Number  ) = BBox(totuple(origin), l, h)
+BBox(origin::SVector{2}, l::Number, h::Number) = BBox(origin.data, l, h)
 
 Adapt.@adapt_structure BBox
 

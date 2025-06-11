@@ -1,5 +1,3 @@
-using Test
-
 @testset "Triangle" begin
     p1 = Point(1,2)
     p2 = Point(1,3)
@@ -25,7 +23,7 @@ end
     origin = (0, 0)
     bbox   = BBox(origin, 2, 4)
 
-    @test bbox.origin     == Point(Float64.(origin))
+    @test bbox.origin     == Point(origin)
     @test bbox.l          == 2
     @test bbox.h          == 4
     @test area(bbox)      == 8
