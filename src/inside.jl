@@ -19,8 +19,9 @@ function inside(p::Union{Point, SArray}, rect::Rectangle)
         # Rotate geometry
         𝐱′ = 𝐑 * 𝐱
         # Check if inside
-        return abs(𝐱′[1]) ≤ l / 2 && abs(𝐱′[2]) ≤ h / 2
+        return leq_r(abs(𝐱′[1]), l / 2) && leq_r(abs(𝐱′[2]), h / 2)
     else
         return false
     end
+
 end
