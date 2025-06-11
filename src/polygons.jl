@@ -61,11 +61,11 @@ struct Rectangle{T} <: AbstractPolygon{T}
     origin::NTuple{2, T}
     l::T # length
     h::T # height
-    t::T # tilt             TODO: call this θ. If `t` is called `θ` then it does not work, why ?? 
-    function Rectangle(origin::NTuple{2, T1}, l::T2, h::T3, t::T4) where {T1, T2, T3, T4}
+    θ::T # tilt            
+    function Rectangle(origin::NTuple{2, T1}, l::T2, h::T3, θ::T4) where {T1, T2, T3, T4}
         T = promote_type(T1, T2, T3, T4)
-        origin_promoted = ntuple(ix -> T(origin[i]), Val(2))
-        return new{T}(origin_promoted, promote(l, h, t)...)
+        origin_promoted = ntuple(i -> T(origin[i]), Val(2))
+        return new{T}(origin_promoted, promote(l, h, θ)...)
     end
 end
 
