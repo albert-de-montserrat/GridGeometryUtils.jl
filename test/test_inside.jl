@@ -1,3 +1,12 @@
+@testset "In BBox?    " begin
+
+    o2   = @SVector([0., 0.])
+
+    p    = @SVector([0., 0.])
+    box  = BBox(o2, 2, 4)
+    @test inside(p, box) ≈ true
+end
+
 @testset "In Rectangle?" begin
 
     o2   = @SVector([0., 0.])

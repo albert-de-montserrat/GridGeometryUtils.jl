@@ -10,6 +10,34 @@ perimeter(::T) where {T <: AbstractPolygon} = throw("Perimeter not defined for t
 perimeter(::T) where {T} = throw("$T is not an AbstractPolygon")
 
 """
+    BBox{T} <: AbstractPolygon{T}
+
+A parametric type representing a rectangle with elements of type `T`. 
+
+# Type Parameters
+- `T`: The numeric type used for the rectangle's coordinates (e.g., `Float64`, `Int`).
+
+"""
+struct BBox{T} <: AbstractPolygon{T}
+    origin::Point{2, T}
+    l::T # length
+    h::T # height
+    function BBox(origin::NTuple{2, T1}, l::T2, h::T3) where {T1, T2, T3}
+        T = promote_type(T1, T2, T3)
+        origin_promoted = Point(ntuple(ix -> T(origin[ix]), Val(2))...)
+        return new{T}(origin_promoted, promote(l, h)...)
+    end
+end
+
+BBox(origin::Point{2}, l::Number, h::Number) = BBox(totuple(origin), l, h)
+BBox(origin::SVector{2}, l::Number, h::Number) = BBox(origin.data, l, h)
+
+Adapt.@adapt_structure BBox
+
+@inline area(r::BBox) = r.h * r.l
+@inline perimeter(r::BBox) = 2 * (r.h + r.l)
+
+"""
     Triangle{T} <: AbstractPolygon{T}
 
 A parametric type representing a triangle with vertices of type `T`. 
@@ -64,6 +92,7 @@ struct Rectangle{T} <: AbstractPolygon{T}
     h::T # height
     sinθ::T
     cosθ::T
+    box::BBox{T}
     function Rectangle(origin::NTuple{2, T1}, l::T2, h::T3; θ::T4 = 0.0) where {T1, T2, T3, T4}
         T = promote_type(T1, T2, T3, T4)
         origin_promoted = Point(ntuple(ix -> T(origin[ix]), Val(2))...)
@@ -73,7 +102,24 @@ struct Rectangle{T} <: AbstractPolygon{T}
         else
             sincos(θ)
         end
-        return new{T}(origin_promoted, promote(l, h, sinθ, cosθ)...)
+
+        # Define bounding box
+        𝐑 = @SMatrix([ cosθ -sinθ; sinθ cosθ])
+        𝐱SW = origin .+ @SVector([-l / 2, -h / 2])
+        𝐱SE = origin .+ @SVector([l / 2, -h / 2])
+        𝐱NW = origin .+ @SVector([-l / 2, h / 2])
+        𝐱NE = origin .+ @SVector([l / 2, h / 2])
+
+        # Rotate geometry
+        𝐱 = SMatrix{2, 4}([ 𝐱SW 𝐱SE 𝐱NW 𝐱NE])
+        𝐱′ = 𝐑 * 𝐱
+        lbox, hbox = maximum(𝐱′[1, :]) - minimum(𝐱′[1, :]), maximum(𝐱′[2, :]) - minimum(𝐱′[2, :])
+
+        # shift origin to make further computations faster
+        origin_bbox = origin .+ @SVector([-lbox / 2, -hbox / 2])
+        box = BBox(origin_bbox, lbox, hbox)
+
+        return new{T}(origin_promoted, promote(l, h, sinθ, cosθ)..., box)
     end
 end
 
