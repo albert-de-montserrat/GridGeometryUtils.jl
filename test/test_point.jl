@@ -1,5 +1,3 @@
-# using GridGeometryUtils
-# using Test
 using StaticArrays
 
 @testset "Point" begin

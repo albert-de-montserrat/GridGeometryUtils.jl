@@ -2,7 +2,7 @@
 
     o    = @SVector([0., 0.])
     p    = @SVector([0., 0.])
-    rect = Rectangle(o, 2, 4, 0)
+    rect = Rectangle(o, 2, 4, θ=0)
     @test inside(p, rect) ≈ true
 
     # p    = Point(-0.99, 0)
