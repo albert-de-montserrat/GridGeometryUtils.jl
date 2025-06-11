@@ -27,13 +27,13 @@ struct BBox{T} <: AbstractPolygon{T}
     function BBox(origin::NTuple{2, T1}, l::T2, h::T3; θ::T4 = 0.0) where {T1, T2, T3, T4}
         T = promote_type(T1, T2, T3, T4)
         origin_promoted = Point(ntuple(ix -> T(origin[ix]), Val(2))...)
-        # All of this is not needed fo BBox but all attempts to remove breaks the code
+        # All of this is not needed for BBox but all attempts to remove breaks the code
         sinθ, cosθ = if iszero(θ)
             zero(T), one(T)
         else
             sincos(θ)
         end
-        # All of this is not needed fo BBox but all attempts to remove breaks the code
+        # All of this is not needed for BBox but all attempts to remove breaks the code
         return new{T}(origin_promoted, promote(l, h, sinθ, cosθ)...)
     end
 end
