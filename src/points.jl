@@ -48,11 +48,9 @@ for op in (:+, :-)
     end
 end
 
-
 Base.:*(p1::SMatrix, p2::Point) = p1 * p2.p
 Base.:*(p1::Point, p2::SMatrix) = p2 * p1
 
 LinearAlgebra.adjoint(p::Point) = Adjoint(p.p)
-
 
 @inline distance(p1::Point{N}, p2::Point{N}) where {N} = √sum(((p1.p[i] - p2.p[i])^2) for i in 1:N)
