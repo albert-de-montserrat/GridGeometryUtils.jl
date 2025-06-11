@@ -1,4 +1,4 @@
-using Test
+using Test, StaticArrays
 using GridGeometryUtils
 
 function main()
