@@ -32,25 +32,25 @@ end
     @test perimeter(rect) == 12
 end
 
-# @testset "Prism" begin
-#     origin = (0, 0)
-#     rect   = Rectangle(origin, 2, 4, 0)
+@testset "Prism" begin
+    origin = (0, 0)
+    rect   = Rectangle(origin, 2, 4, 0)
     
-#     @test rect.origin     == origin
-#     @test rect.h          == 4
-#     @test rect.l          == 2
-#     @test area(rect)      == 8
-#     @test perimeter(rect) == 12
-# end
+    @test rect.origin     == origin
+    @test rect.h          == 4
+    @test rect.l          == 2
+    @test area(rect)      == 8
+    @test perimeter(rect) == 12
+end
 
-# @testset "Trapezoid" begin
-#     origin = (0, 0)
-#     trap   = Trapezoid(origin, 2, 3, 4)
+@testset "Trapezoid" begin
+    origin = (0, 0)
+    trap   = Trapezoid(origin, 2, 3, 4)
 
-#     @test trap.origin     == origin
-#     @test trap.l          == 2
-#     @test trap.h1         == 3
-#     @test trap.h2         == 4
-#     @test area(trap)      == 7.0
-#     @test perimeter(trap) == 11.23606797749979
-# end
+    @test trap.origin     == origin
+    @test trap.l          == 2
+    @test trap.h1         == 3
+    @test trap.h2         == 4
+    @test area(trap)      == 7.0
+    @test perimeter(trap) == 11.23606797749979
+end
