@@ -62,12 +62,23 @@ struct Rectangle{T} <: AbstractPolygon{T}
     origin::Point{2, T}
     l::T # length
     h::T # height
-    function Rectangle(origin::NTuple{2, T1}, l::T2, h::T3) where {T1, T2, T3}
-        T = promote_type(T1, T2, T3)
-        origin_promoted = Point(ntuple(i -> T(origin[i]), Val(2))...)
-        return new{T}(origin_promoted, promote(l, h)...)
+    sinθ::T
+    cosθ::T
+    function Rectangle(origin::NTuple{2, T1}, l::T2, h::T3; θ::T4=0.0) where {T1, T2, T3, T4}
+        T = promote_type(T1, T2, T3, T4)
+        origin_promoted = Point(ntuple(ix -> T(origin[ix]), Val(2))...)
+
+        sinθ, cosθ = if iszero(θ) 
+            zero(T), one(T)
+        else
+            sincos(θ)
+        end
+        return new{T}(origin_promoted, promote(l, h, sinθ, cosθ )...)
     end
 end
+
+Rectangle(origin::Point{2}, l::Number, h::Number; θ::T=0.0) where T  = Rectangle(totuple(origin), l, h; θ = θ)
+Rectangle(origin::SVector{2}, l::Number, h::Number; θ::T=0.0) where T = Rectangle(origin.data, l, h; θ = θ)
 
 Adapt.@adapt_structure Rectangle
 
@@ -85,15 +96,18 @@ A parametric type representing a rectangle with elements of type `T`.
 """
 struct Prism{T} <: AbstractPolygon{T}
     origin::Point{3, T}
-    h::T # height
     l::T # length
+    h::T # height
     d::T # depth
-    function Prism(origin::NTuple{3, T1}, h::T2, l::T3, d::T4) where {T1, T2, T3, T4}
+    function Prism(origin::NTuple{3, T1}, l::T2, h::T3, d::T4) where {T1, T2, T3, T4}
         T = promote_type(T1, T2, T3, T4)
         origin_promoted = Point(ntuple(i -> T(origin[i]), Val(3))...)
-        return new{T}(origin_promoted, promote(h, l, d)...)
+        return new{T}(origin_promoted, promote(l, h, d)...)
     end
 end
+
+Prism(origin::Point{2}, l::Number, h::Number, d::Number)   = Prism(totuple(origin), l, h, d)
+Prism(origin::SVector{2}, l::Number, h::Number, d::Number) = Prism(origin.data, l, h, d)
 
 Adapt.@adapt_structure Prism
 
@@ -111,6 +125,9 @@ struct Trapezoid{T} <: AbstractPolygon{T}
         return new{T}(origin_promoted, promote(h, l1, l2)...)
     end
 end
+
+Trapezoid(origin::Point{2},   h::Number, l1::Number, l2::Number) = Trapezoid(totuple(origin), h, l1, l2)
+Trapezoid(origin::SVector{2}, h::Number, l1::Number, l2::Number) = Trapezoid(origin.data, h, l1, l2)
 
 Adapt.@adapt_structure Trapezoid
 
