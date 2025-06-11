@@ -29,7 +29,7 @@ struct BBox{T} <: AbstractPolygon{T}
     end
 end
 
-BBox(origin::Point{2}, l::Number, h::Number  ) = BBox(totuple(origin), l, h)
+BBox(origin::Point{2}, l::Number, h::Number) = BBox(totuple(origin), l, h)
 BBox(origin::SVector{2}, l::Number, h::Number) = BBox(origin.data, l, h)
 
 Adapt.@adapt_structure BBox
@@ -104,19 +104,19 @@ struct Rectangle{T} <: AbstractPolygon{T}
         end
 
         # Define bounding box
-        𝐑   = @SMatrix([ cosθ -sinθ; sinθ cosθ])
-        𝐱SW  = origin .+ @SVector([-l/2, -h/2])
-        𝐱SE  = origin .+ @SVector([ l/2, -h/2])
-        𝐱NW  = origin .+ @SVector([-l/2,  h/2])
-        𝐱NE  = origin .+ @SVector([ l/2,  h/2])
+        𝐑 = @SMatrix([ cosθ -sinθ; sinθ cosθ])
+        𝐱SW = origin .+ @SVector([-l / 2, -h / 2])
+        𝐱SE = origin .+ @SVector([l / 2, -h / 2])
+        𝐱NW = origin .+ @SVector([-l / 2, h / 2])
+        𝐱NE = origin .+ @SVector([l / 2, h / 2])
 
         # Rotate geometry
-        𝐱  = SMatrix{2,4}([ 𝐱SW 𝐱SE 𝐱NW 𝐱NE])
+        𝐱 = SMatrix{2, 4}([ 𝐱SW 𝐱SE 𝐱NW 𝐱NE])
         𝐱′ = 𝐑 * 𝐱
-        lbox, hbox = maximum(𝐱′[1,:]) - minimum(𝐱′[1,:]), maximum(𝐱′[2,:]) - minimum(𝐱′[2,:])
+        lbox, hbox = maximum(𝐱′[1, :]) - minimum(𝐱′[1, :]), maximum(𝐱′[2, :]) - minimum(𝐱′[2, :])
 
         # shift origin to make futher computations faster
-        origin_bbox = origin .+ @SVector([-lbox/2, -hbox/2])
+        origin_bbox = origin .+ @SVector([-lbox / 2, -hbox / 2])
         box = BBox(origin_bbox, lbox, hbox)
 
         return new{T}(origin_promoted, promote(l, h, sinθ, cosθ)..., box)
