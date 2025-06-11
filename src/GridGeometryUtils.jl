@@ -17,4 +17,7 @@ include("intersections/intersections.jl")
 include("intersections/areas.jl")
 export intersecting_area
 
+include("inside.jl")
+export inside
+
 end # module GridGeometryUtils

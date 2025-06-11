@@ -23,11 +23,11 @@ end
 
 @testset "Rectangle" begin
     origin = (0, 0)
-    rect   = Rectangle(origin, 2, 4)
-    
+    rect   = Rectangle(origin, 2, 4; θ=π/3)
+
     @test rect.origin     == Point(Float64.(origin))
-    @test rect.h          == 4
     @test rect.l          == 2
+    @test rect.h          == 4
     @test area(rect)      == 8
     @test perimeter(rect) == 12
 end
