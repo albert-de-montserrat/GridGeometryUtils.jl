@@ -43,13 +43,13 @@ function dointersect(s1::Segment, s2::Segment)
     p = intersection(s1, s2)
 
     # Check if intersect
-    return p1[1] ≤ p[1] ≤ p2[1]
+    return leq_r(p1[1], p[1]) && leq_r(p[1], p2[1])
 end
 
 function intersection(s1::Segment, s2::Segment)
     l1, l2 = Line(s1), Line(s2)
     x = (l2.intercept - l1.intercept) / (l1.slope - l2.slope)
-    y = l1.slope * x + l1.intercept
+    y = muladd(l1.slope, x, l1.intercept)
 
     return Point(x, y)
 end
