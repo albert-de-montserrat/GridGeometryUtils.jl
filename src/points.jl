@@ -34,15 +34,15 @@ end
 
 for op in (:*, :/, :^)
     @eval begin
-        Base.$op(p1::Point, p2::Point) =  Point(broadcast($op, p1.p, p2.p)...)
+        Base.$op(p1::Point, p2::Point) = Point(broadcast($op, p1.p, p2.p)...)
     end
 end
 
 for op in (:+, :-)
     @eval begin
-        Base.$op(p1::Point, p2::Point)   = Point(Base.$op(p1.p, p2.p)...)
-        Base.$op(p1::Point, p2::SVector) = Base.$op(p1.p, p2) 
-        Base.$op(p1::SVector, p2::Point) = Base.$op(p1, p2.p) 
+        Base.$op(p1::Point, p2::Point) = Point(Base.$op(p1.p, p2.p)...)
+        Base.$op(p1::Point, p2::SVector) = Base.$op(p1.p, p2)
+        Base.$op(p1::SVector, p2::Point) = Base.$op(p1, p2.p)
     end
 end
 
