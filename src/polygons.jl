@@ -22,8 +22,8 @@ struct BBox{T} <: AbstractPolygon{T}
     origin::Point{2, T}
     l::T # length
     h::T # height
-    sinθ::T
-    cosθ::T
+    sinθ::T  # @Albert: need your help to remove theta from BBox
+    cosθ::T 
     function BBox(origin::NTuple{2, T1}, l::T2, h::T3; θ::T4 = 0.0) where {T1, T2, T3, T4}
         T = promote_type(T1, T2, T3, T4)
         origin_promoted = Point(ntuple(ix -> T(origin[ix]), Val(2))...)
@@ -118,19 +118,15 @@ struct Rectangle{T} <: AbstractPolygon{T}
         𝐱SE  = origin .+ @SVector([ l/2, -h/2])
         𝐱NW  = origin .+ @SVector([-l/2,  h/2])
         𝐱NE  = origin .+ @SVector([ l/2,  h/2])
-        # Rotate geometry
-        𝐱SW′ = 𝐑 * 𝐱SW
-        𝐱SE′ = 𝐑 * 𝐱SE
-        𝐱NW′ = 𝐑 * 𝐱NW
-        𝐱NE′ = 𝐑 * 𝐱NE
 
-        # 𝐱  = SMatrix{2,4}([ 𝐱SW 𝐱SE 𝐱NW 𝐱NE])
-        # 𝐱′ = 𝐑 * 𝐱
-        # lbox, hbox = maximum(𝐱'[1,:]) - minimum(𝐱'[1,:]), maximum(𝐱'[2,:]) - minimum(𝐱'[2,:])
-        # lbox, hbox = abs(𝐱SW′[1]-𝐱NE′[1]), abs(𝐱SW′[2]-𝐱NE′[2])
-        lbox = max(𝐱SW′[1], 𝐱SE′[1], 𝐱NW′[1], 𝐱NE′[1]) - min(𝐱SW′[1], 𝐱SE′[1], 𝐱NW′[1], 𝐱NE′[1])
-        hbox = max(𝐱SW′[2], 𝐱SE′[2], 𝐱NW′[2], 𝐱NE′[2]) - min(𝐱SW′[2], 𝐱SE′[2], 𝐱NW′[2], 𝐱NE′[2])
-        box = BBox(origin, lbox, hbox)
+        # Rotate geometry
+        𝐱  = SMatrix{2,4}([ 𝐱SW 𝐱SE 𝐱NW 𝐱NE])
+        𝐱′ = 𝐑 * 𝐱
+        lbox, hbox = maximum(𝐱′[1,:]) - minimum(𝐱′[1,:]), maximum(𝐱′[2,:]) - minimum(𝐱′[2,:])
+
+        # shift origin to make futher computations faster
+        origin_bbox = origin .+ @SVector([-lbox/2, -hbox/2])
+        box = BBox(origin_bbox, lbox, hbox)
 
         return new{T}(origin_promoted, promote(l, h, sinθ, cosθ)..., box)
     end

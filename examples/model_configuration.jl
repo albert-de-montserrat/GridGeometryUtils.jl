@@ -3,7 +3,7 @@ using GridGeometryUtils, Plots, StaticArrays
 let
     x = (min = -1.5, max = 1.5)
     y = (min = -1, max = 1)
-    nc = (x = 1000, y = 1000)
+    nc = (x = 2000, y = 2000)
     Δ = (x = (x.max - x.min) / nc.x, y = (y.max - y.min) / nc.y)
     xc = LinRange(x.min + Δ.x / 2, x.max - Δ.x / 2, nc.x)
     yc = LinRange(y.min + Δ.y / 2, y.max - Δ.y / 2, nc.y)
