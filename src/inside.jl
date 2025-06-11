@@ -1,5 +1,3 @@
-using GridGeometryUtils
-
 function inside(p::Union{Point,SArray}, rect::Rectangle)
     (; origin, h, l,  cosθ, sinθ) = rect
 
