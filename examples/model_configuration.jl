@@ -1,7 +1,7 @@
 using GridGeometryUtils, Plots, StaticArrays
 
-let
-    show_bounding_box = false
+function main()
+    show_bounding_box = true
 
     x = (min = -1.5, max = 1.5)
     y = (min = -1, max = 1)
@@ -11,12 +11,15 @@ let
     yc = LinRange(y.min + Δ.y / 2, y.max - Δ.y / 2, nc.y)
     phase = ones(Int64, nc...)
 
-    geometries = (
+    rects = (
         Rectangle((0, 0), 0.1, 0.4; θ = 0),
         Rectangle((1.0, 0.6), 0.1, 0.4; θ = π / 3),
         Rectangle((-1.0, -0.3), 0.6, 0.4; θ = π / 6),
         Rectangle((-0.8, 0.3), 0.2, 0.2; θ = π / 10),
+    )
+    hexs = (
         Hexagon((0.8, -0.3), 0.2; θ = π / 10),
+        Hexagon((0.1, 0.5), 0.2; θ = 6π / 10),
     )
     
     @time for I in CartesianIndices(phase)
@@ -25,16 +28,26 @@ let
 
         if show_bounding_box
             # check if inside bounding box
-            for igeom in eachindex(geometries)
-                if inside(𝐱, geometries[igeom].box)
+            for igeom in eachindex(rects)
+                if inside(𝐱, rects[igeom].box)
+                    phase[I] = 3
+                end
+            end
+            for igeom in eachindex(hexs)
+                if inside(𝐱, hexs[igeom].box)
                     phase[I] = 3
                 end
             end
         end
 
         # Check if inside geometry
-        for igeom in eachindex(geometries)
-            if inside(𝐱, geometries[igeom])
+        for igeom in eachindex(rects)
+            if inside(𝐱, rects[igeom])
+                phase[I] = 2
+            end
+        end
+        for igeom in eachindex(hexs)
+            if inside(𝐱, hexs[igeom])
                 phase[I] = 2
             end
         end
@@ -43,9 +56,14 @@ let
     # Visualise
     p = plot()
     p = heatmap!(xc, yc, phase')
-    for igeom in eachindex(geometries)
-        p = scatter!(geometries[igeom].vertices[1,:], geometries[igeom].vertices[2,:], label=:none)
+    for igeom in eachindex(rects)
+        p = scatter!(rects[igeom].vertices[1,:], rects[igeom].vertices[2,:], label=:none)
+    end
+    for igeom in eachindex(hexs)
+        p = scatter!(hexs[igeom].vertices[1,:], hexs[igeom].vertices[2,:], label=:none)
     end
     display(p)
 
 end
+
+main()

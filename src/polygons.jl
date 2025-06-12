@@ -118,10 +118,10 @@ struct Rectangle{T} <: AbstractPolygon{T}
             vertices = 𝐱
         else
             # Define bounding box
-            𝐑 = @SMatrix([ cos(θ) -sin(θ); sin(θ) cos(θ)])
+            𝐑 = @SMatrix([ cos(θ) sin(θ); -sin(θ) cos(θ)])
 
             # Rotate geometry
-            𝐱′ = 𝐑 * 𝐱
+            𝐱′ = 𝐑' * (𝐱 .- origin) .+ origin
 
             lbox, hbox = (maximum(𝐱′[1, :]) - minimum(𝐱′[1, :])), maximum(𝐱′[2, :]) - minimum(𝐱′[2, :])
 

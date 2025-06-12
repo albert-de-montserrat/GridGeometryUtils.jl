@@ -17,7 +17,7 @@ function inside(p::Union{Point, SArray}, rect::Rectangle)
         # Shift
         𝐱 = p - origin
         # Rotation matrix
-        𝐑 = @SMatrix([ cosθ -sinθ; sinθ cosθ])
+        𝐑 = @SMatrix([ cosθ sinθ; -sinθ cosθ])
         # Rotate geometry
         𝐱′ = 𝐑 * 𝐱
         # Check if inside

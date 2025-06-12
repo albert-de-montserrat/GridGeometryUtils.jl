@@ -7,6 +7,19 @@
     @test inside(p, box) === true
 end
 
+@testset "In Hexagon? " begin
+
+    o2   = @SVector([0., 0.])
+
+    p    = @SVector([0., 0.])
+    hex  = Hexagon(o2, 2; θ=10)
+    @test inside(p, hex) === true
+
+    p    = @SVector([-14, 0.])
+    hex  = Hexagon(o2, 2; θ=10)
+    @test inside(p, hex) === false
+end
+
 @testset "In Rectangle?" begin
 
     o2   = @SVector([0., 0.])
