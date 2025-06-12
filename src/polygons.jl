@@ -123,7 +123,7 @@ struct Rectangle{T} <: AbstractPolygon{T}
             # Rotate geometry
             𝐱′ = 𝐑' * (𝐱 .- origin) .+ origin
 
-            lbox, hbox = (maximum(𝐱′[1, :]) - minimum(𝐱′[1, :])), maximum(𝐱′[2, :]) - minimum(𝐱′[2, :])
+            lbox, hbox = maximum(𝐱′[1, :]) - minimum(𝐱′[1, :]), maximum(𝐱′[2, :]) - minimum(𝐱′[2, :])
 
             # shift origin to make further computations faster
             origin_bbox = origin .+ @SVector([-lbox / 2, -hbox / 2])
