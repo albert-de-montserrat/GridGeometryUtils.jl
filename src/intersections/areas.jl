@@ -110,7 +110,7 @@ end
 
 @inline function area_top_bot(p1, p2, r::Rectangle{T}) where {T}
     polygon = Trapezoid(
-        r.origin + (r.h, zero(T)),
+        r.origin + SA[r.h, zero(T)],
         r.h,
         p1[1],  # l1
         p2[1],  # l2
