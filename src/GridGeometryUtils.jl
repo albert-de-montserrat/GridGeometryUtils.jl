@@ -11,7 +11,7 @@ include("lines.jl")
 export Line, Segment, line, dointersect, intersection
 
 include("polygons.jl")
-export Triangle, Rectangle, Prism, Trapezoid, BBox
+export Triangle, Rectangle, Prism, Trapezoid, BBox, Hexagon
 export area, volume, perimeter
 
 include("intersections/intersections.jl")
