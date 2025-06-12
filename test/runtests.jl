@@ -7,6 +7,7 @@ function main()
     for f in test_files
         include(f)
     end
+    return
 end
 
 main()
