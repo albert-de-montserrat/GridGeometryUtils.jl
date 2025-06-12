@@ -58,3 +58,17 @@ end
     @test !inside(p4, ellipse2) # false
 end
 
+@testset "In circle?" begin
+    center = 0e0, 0e0
+    r      = 1e0
+
+    circle = Circle(center, r)
+
+    p1 = Point(0e0, 0e0)
+    p2 = Point(2e0, 0e0)
+    p3 = Point(0.5, 0.5)
+
+    @test  inside(p1, circle) # true
+    @test !inside(p2, circle) # false
+    @test  inside(p3, circle) # true
+end

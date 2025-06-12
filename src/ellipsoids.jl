@@ -26,11 +26,11 @@ struct Ellipse{T} <: AbstractEllipsoid{T}
     center::Point{2, T}
     a::T # semi-axis 1
     b::T # semi-axis 2
-    sinθ:: T
-    cosθ:: T
+    sinθ::T
+    cosθ::T
     box::BBox{T}
 
-    function Ellipse(center::NTuple{2, T1}, a::T2, b::T3; θ::T4=0e0) where {T1, T2, T3, T4}
+    function Ellipse(center::NTuple{2, T1}, a::T2, b::T3; θ::T4 = 0.0e0) where {T1, T2, T3, T4}
         T = promote_type(T1, T2, T3, T4)
         center_promoted = Point(ntuple(i -> T(center[i]), Val(2))...)
 
@@ -48,9 +48,9 @@ struct Ellipse{T} <: AbstractEllipsoid{T}
             # Define bounding box
             𝐑 = rotation_matrix(sinθ, cosθ)
             𝐱SW = center .+ @SVector([-a, -b])
-            𝐱SE = center .+ @SVector([ a, -b])
-            𝐱NW = center .+ @SVector([-a,  b])
-            𝐱NE = center .+ @SVector([ a,  b])
+            𝐱SE = center .+ @SVector([a, -b])
+            𝐱NW = center .+ @SVector([-a, b])
+            𝐱NE = center .+ @SVector([a, b])
 
             # Rotate geometry
             𝐱 = SMatrix{2, 4}([ 𝐱SW 𝐱SE 𝐱NW 𝐱NE])
@@ -66,7 +66,7 @@ struct Ellipse{T} <: AbstractEllipsoid{T}
     end
 end
 
-Ellipse(center::Point{2},   a::Number, b::Number; θ::T=0e0) where T = Ellipse(totuple(center), a, b; θ=θ)
-Ellipse(center::SVector{2}, a::Number, b::Number; θ::T=0e0) where T = Ellipse(center.data, a, b; θ=θ)
+Ellipse(center::Point{2}, a::Number, b::Number; θ::T = 0.0e0) where {T} = Ellipse(totuple(center), a, b; θ = θ)
+Ellipse(center::SVector{2}, a::Number, b::Number; θ::T = 0.0e0) where {T} = Ellipse(center.data, a, b; θ = θ)
 
 Adapt.@adapt_structure Ellipse

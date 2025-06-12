@@ -13,6 +13,7 @@ struct BBox{T} <: AbstractPolygon{T}
     origin::Point{2, T}
     l::T # length
     h::T # height
+
     function BBox(origin::NTuple{2, T1}, l::T2, h::T3) where {T1, T2, T3}
         T = promote_type(T1, T2, T3)
         origin_promoted = Point(ntuple(ix -> T(origin[ix]), Val(2))...)
@@ -85,7 +86,7 @@ struct Rectangle{T} <: AbstractPolygon{T}
 
         else
             # Define bounding box
-            𝐑 = rotation_matrix(sinθ, cosθ) 
+            𝐑 = rotation_matrix(sinθ, cosθ)
             𝐱SW = origin .+ @SVector([-l / 2, -h / 2])
             𝐱SE = origin .+ @SVector([l / 2, -h / 2])
             𝐱NW = origin .+ @SVector([-l / 2, h / 2])
@@ -124,6 +125,7 @@ struct Prism{T} <: AbstractPolygon{T}
     l::T # length
     h::T # height
     d::T # depth
+
     function Prism(origin::NTuple{3, T1}, l::T2, h::T3, d::T4) where {T1, T2, T3, T4}
         T = promote_type(T1, T2, T3, T4)
         origin_promoted = Point(ntuple(i -> T(origin[i]), Val(3))...)
@@ -141,6 +143,7 @@ struct Trapezoid{T} <: AbstractPolygon{T}
     l::T
     h1::T
     h2::T
+
     function Trapezoid(origin::NTuple{2, T1}, h::T2, l1::T3, l2::T4) where {T1, T2, T3, T4}
         T = promote_type(T1, T2, T3, T4)
         origin_promoted = Point(ntuple(i -> T(origin[i]), Val(2))...)

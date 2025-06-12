@@ -10,6 +10,12 @@ function inside(p::Union{Point, SArray}, ellipse::Ellipse)
     return inside(p, ellipse.box) ? _inside(p, ellipse) : false
 end
 
+function inside(p::Union{Point, SArray}, circle::Circle)
+    (; center, radius) = circle
+
+    return inside(p, circle.box) ? _inside(p, circle) : false
+end
+
 function inside(p::Union{Point, SArray}, box::BBox)
     (; origin, h, l) = box
     # assumes origin is the SW vertex!
@@ -38,7 +44,7 @@ end
 function _inside(p::Union{Point, SArray}, ellipse::Ellipse)
     (; center, a, b, cosθ, sinθ) = ellipse
 
-    @inline inside_ellipse(p) = leq_r(((p[1]-center[1]) / a)^2 + ((p[2] - center[2]) / b)^2, 1)
+    @inline inside_ellipse(p) = leq_r(((p[1] - center[1]) / a)^2 + ((p[2] - center[2]) / b)^2, 1)
 
     iswithin = if iszero(sinθ) # No rotation, just check bounding box
         inside_ellipse(p)
@@ -54,5 +60,12 @@ function _inside(p::Union{Point, SArray}, ellipse::Ellipse)
         inside_ellipse(Point(𝐱′))
     end
 
+    return iswithin
+end
+
+function _inside(p::Union{Point, SArray}, circle::Circle)
+    (; center, radius) = circle
+
+    iswithin = leq_r(sum(@. ((p.p - center.p) / radius)^2), 1)
     return iswithin
 end
