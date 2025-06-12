@@ -21,6 +21,10 @@ function main()
         Hexagon((0.8, -0.3), 0.2; θ = π / 10),
         Hexagon((0.1, 0.5), 0.2; θ = 6π / 10),
     )
+
+    ells = (
+        Ellipse((-1.1, 0.7), 0.2, 0.1; θ = 1*π / 4),
+    )
     
     @time for I in CartesianIndices(phase)
 
@@ -38,6 +42,11 @@ function main()
                     phase[I] = 3
                 end
             end
+            for igeom in eachindex(ells)
+                if inside(𝐱, ells[igeom].box)
+                    phase[I] = 3
+                end
+            end
         end
 
         # Check if inside geometry
@@ -51,17 +60,26 @@ function main()
                 phase[I] = 2
             end
         end
+        for igeom in eachindex(ells)
+            if inside(𝐱, ells[igeom])
+                phase[I] = 2
+            end
+        end
     end
 
     # Visualise
     p = plot()
-    p = heatmap!(xc, yc, phase')
+    p = heatmap!(xc, yc, phase', aspect_ratio=1)
     for igeom in eachindex(rects)
         p = scatter!(rects[igeom].vertices[1,:], rects[igeom].vertices[2,:], label=:none)
     end
     for igeom in eachindex(hexs)
         p = scatter!(hexs[igeom].vertices[1,:], hexs[igeom].vertices[2,:], label=:none)
     end
+    for igeom in eachindex(ells)
+        p = scatter!(ells[igeom].vertices[1,:], ells[igeom].vertices[2,:], label=:none)
+    end
+
     display(p)
 
 end

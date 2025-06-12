@@ -95,7 +95,7 @@ struct Rectangle{T} <: AbstractPolygon{T}
             vertices, box
         else
             # Define bounding box
-            𝐑 = @SMatrix([ cos(θ) sin(θ); -sin(θ) cos(θ)])
+            𝐑 = rotation_matrix(sinθ, cosθ)
 
             # Rotate geometry
             𝐱′ = 𝐑' * (𝐱 .- origin) .+ origin

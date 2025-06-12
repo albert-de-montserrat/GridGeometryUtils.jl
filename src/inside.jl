@@ -61,7 +61,7 @@ function _inside(p::Union{Point, SArray}, ellipse::Ellipse)
         # Rotation matrix
         𝐑 = rotation_matrix(sinθ, cosθ)
         # Rotate geometry
-        𝐱′ = 𝐑 * 𝐱
+        𝐱′ = 𝐑 * 𝐱 + center
         # Check if inside
         inside_ellipse(Point(𝐱′))
     end
