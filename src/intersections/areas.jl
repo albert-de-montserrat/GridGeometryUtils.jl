@@ -11,7 +11,7 @@ function intersecting_area(p1, p2, r::Rectangle{T}) where {T}
         s1 = Segment(p1, p2)
         # find intersection with bottom boundary
         s2 = Segment(
-            Point(r.origin),
+            r.origin,
             Point(r.origin + SA[r.l, zero(T)])
         )
         pbot = intersection(s1, s2)
@@ -29,7 +29,7 @@ function intersecting_area(p1, p2, r::Rectangle{T}) where {T}
         s1 = Segment(p1, p2)
         # find intersection with bottom boundary
         s2 = Segment(
-            Point(r.origin),
+            r.origin,
             Point(r.origin + SA[r.l, zero(T)])
         )
         pbot = intersection(s1, s2)
@@ -46,7 +46,7 @@ function intersecting_area(p1, p2, r::Rectangle{T}) where {T}
         # find intersection with bottom boundary
         s1 = Segment(p1, p2)
         s2 = Segment(
-            Point(r.origin),
+            r.origin,
             Point(r.origin + SA[r.l, zero(T)])
         )
         pbot = intersection(s1, s2)
@@ -57,7 +57,7 @@ function intersecting_area(p1, p2, r::Rectangle{T}) where {T}
         # find intersection with bottom boundary
         s1 = Segment(p1, p2)
         s2 = Segment(
-            Point(r.origin),
+            r.origin,
             Point(r.origin + SA[r.l, zero(T)])
         )
         pbot = intersection(s1, s2)
@@ -95,7 +95,7 @@ end
 
 @inline intersecting_area(s::Segment, r::Rectangle) = intersecting_area(s.p1, s.p2, r)
 
-@inline area_left_bot(p1::Point{2}, p2::Point{2}, r::Rectangle) = area(Triangle(Point(r.origin), p1, p2))
+@inline area_left_bot(p1::Point{2}, p2::Point{2}, r::Rectangle) = area(Triangle(r.origin, p1, p2))
 @inline area_bot_right(p1::Point{2}, p2::Point{2}, r::Rectangle{T}) where {T} = area(Triangle(Point(r.origin + SA[r.l, zero(T)]), p1, p2))
 
 @inline function area_left_right(p1, p2, r::Rectangle)
@@ -110,7 +110,7 @@ end
 
 @inline function area_top_bot(p1, p2, r::Rectangle{T}) where {T}
     polygon = Trapezoid(
-        r.origin + (r.h, zero(T)),
+        r.origin + SA[r.h, zero(T)],
         r.h,
         p1[1],  # l1
         p2[1],  # l2

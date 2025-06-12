@@ -11,4 +11,4 @@
     @test !GridGeometryUtils.isequal_r(a, b) # false
     @test  GridGeometryUtils.leq_r(a, b) # true
     @test !GridGeometryUtils.geq_r(a, b) # false
-end 
+end

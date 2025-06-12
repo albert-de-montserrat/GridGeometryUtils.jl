@@ -4,7 +4,12 @@ using StaticArrays
     @test Point(1, 2.0f0) isa Point{2, Float32}
     @test Point(1, 2.0e0) isa Point{2, Float64}
     @test Point(1.0f0, 2.0e0) isa Point{2, Float64}
+    @test Point(1, 2.0f0) isa Point{2, Float32}
+    @test Point(1, 2.0e0) isa Point{2, Float64}
+    @test Point(1.0f0, 2.0e0) isa Point{2, Float64}
 
+    @test Point(1, 2.0f0, 3) isa Point{3, Float32}
+    @test Point(1, 2.0f0, 3.0e0) isa Point{3, Float64}
     @test Point(1, 2.0f0, 3) isa Point{3, Float32}
     @test Point(1, 2.0f0, 3.0e0) isa Point{3, Float64}
 
@@ -16,7 +21,6 @@ using StaticArrays
     @test length(p1) == 2
     @test p1[1] == 1
     @test p1[2] == 2
-    @test_throws AssertionError p1[3]
 
     p2 = Point(1, 2, 3)
 
@@ -27,7 +31,6 @@ using StaticArrays
     @test p2[1] == 1
     @test p2[2] == 2
     @test p2[3] == 3
-    @test_throws AssertionError p2[4]
 
     @test p1 + 1 == Point(2, 3)
     @test p1 - 1 == Point(0, 1)

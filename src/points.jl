@@ -18,14 +18,15 @@ struct Point{N, T}
     end
 end
 
-@inline Point(pᵢ::NTuple{N}) where {N} = Point(pᵢ...)
-@inline Point(pᵢ::SVector{N}) where {N} = Point(pᵢ.data...)
+@inline Point(p::Point) = p
+@inline Point(p::NTuple) = Point(p...)
+@inline Point(p::SVector) = Point(p.data...)
 
 @inline totuple(p::Point) = p.p.data
 
 Base.length(::Point{N}) where {N} = N
 
-Base.getindex(p::Point{N}, i::Int) where {N} = (@assert i ≤ N; p.p[i])
+Base.getindex(p::Point, i::Int) = p.p[i]
 
 for op in (:+, :-, :*, :/, :^)
     @eval begin
