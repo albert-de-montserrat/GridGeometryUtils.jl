@@ -105,7 +105,8 @@ struct Rectangle{T} <: AbstractPolygon{T}
         end
 
         box = if iszero(θ)
-            BBox(origin, l, h)
+            origin_bbox = origin .+ @SVector([-l / 2, -h / 2])
+            BBox(origin_bbox, l, h)
         else
             # Define bounding box
             𝐑 = @SMatrix([ cosθ -sinθ; sinθ cosθ])
