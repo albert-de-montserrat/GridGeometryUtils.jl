@@ -4,7 +4,7 @@
 
     p    = @SVector([0., 0.])
     box  = BBox(o2, 2, 4)
-    @test inside(p, box) ≈ true
+    @test inside(p, box) === true
 end
 
 @testset "In Rectangle?" begin
@@ -13,23 +13,23 @@ end
 
     p    = @SVector([0., 0.])
     rect = Rectangle(o2, 2, 4; θ=0)
-    @test inside(p, rect) ≈ true
+    @test inside(p, rect) === true
 
     p    = @SVector([-0.99, 0.])
     rect = Rectangle(o2, 2, 4; θ=0)
-    @test inside(p, rect) ≈ true
+    @test inside(p, rect) === true
 
     p    = @SVector([-1.001, 0.])
     rect = Rectangle(o2, 2, 4; θ=0)
-    @test inside(p, rect) ≈ false
+    @test inside(p, rect) === false
 
     p    = @SVector([0, 1.6])
     rect = Rectangle(o2, 2, 4; θ=0)
-    @test inside(p, rect) ≈ true
+    @test inside(p, rect) === true
 
     p    = @SVector([0, 2.001])
     rect = Rectangle(o2, 2, 4; θ=0)
-    @test inside(p, rect) ≈ false
+    @test inside(p, rect) === false
 
 end
 
