@@ -12,6 +12,8 @@ function inside(p::Union{Point, SArray}, rect::Rectangle)
     (; origin, h, l, cosθ, sinθ) = rect
 
     if inside(p, rect.box)
+        iszero(sinθ) && return true # No rotation, just check bounding box
+
         # Shift
         𝐱 = p - origin
         # Rotation matrix

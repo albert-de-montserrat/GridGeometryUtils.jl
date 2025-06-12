@@ -93,6 +93,7 @@ struct Rectangle{T} <: AbstractPolygon{T}
     sinθ::T
     cosθ::T
     box::BBox{T}
+
     function Rectangle(origin::NTuple{2, T1}, l::T2, h::T3; θ::T4 = 0.0) where {T1, T2, T3, T4}
         T = promote_type(T1, T2, T3, T4)
         origin_promoted = Point(ntuple(ix -> T(origin[ix]), Val(2))...)
@@ -103,21 +104,25 @@ struct Rectangle{T} <: AbstractPolygon{T}
             sincos(θ)
         end
 
-        # Define bounding box
-        𝐑 = @SMatrix([ cosθ -sinθ; sinθ cosθ])
-        𝐱SW = origin .+ @SVector([-l / 2, -h / 2])
-        𝐱SE = origin .+ @SVector([l / 2, -h / 2])
-        𝐱NW = origin .+ @SVector([-l / 2, h / 2])
-        𝐱NE = origin .+ @SVector([l / 2, h / 2])
+        box = if iszero(θ)
+            BBox(origin, l, h)
+        else
+            # Define bounding box
+            𝐑 = @SMatrix([ cosθ -sinθ; sinθ cosθ])
+            𝐱SW = origin .+ @SVector([-l / 2, -h / 2])
+            𝐱SE = origin .+ @SVector([l / 2, -h / 2])
+            𝐱NW = origin .+ @SVector([-l / 2, h / 2])
+            𝐱NE = origin .+ @SVector([l / 2, h / 2])
 
-        # Rotate geometry
-        𝐱 = SMatrix{2, 4}([ 𝐱SW 𝐱SE 𝐱NW 𝐱NE])
-        𝐱′ = 𝐑 * 𝐱
-        lbox, hbox = maximum(𝐱′[1, :]) - minimum(𝐱′[1, :]), maximum(𝐱′[2, :]) - minimum(𝐱′[2, :])
+            # Rotate geometry
+            𝐱 = SMatrix{2, 4}([ 𝐱SW 𝐱SE 𝐱NW 𝐱NE])
+            𝐱′ = 𝐑 * 𝐱
+            lbox, hbox = maximum(𝐱′[1, :]) - minimum(𝐱′[1, :]), maximum(𝐱′[2, :]) - minimum(𝐱′[2, :])
 
-        # shift origin to make further computations faster
-        origin_bbox = origin .+ @SVector([-lbox / 2, -hbox / 2])
-        box = BBox(origin_bbox, lbox, hbox)
+            # shift origin to make further computations faster
+            origin_bbox = origin .+ @SVector([-lbox / 2, -hbox / 2])
+            BBox(origin_bbox, lbox, hbox)
+        end
 
         return new{T}(origin_promoted, promote(l, h, sinθ, cosθ)..., box)
     end
