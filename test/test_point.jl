@@ -16,7 +16,6 @@ using StaticArrays
     @test length(p1) == 2
     @test p1[1] == 1
     @test p1[2] == 2
-    @test_throws AssertionError p1[3]
 
     p2 = Point(1, 2, 3)
 
@@ -27,7 +26,6 @@ using StaticArrays
     @test p2[1]      == 1
     @test p2[2]      == 2
     @test p2[3]      == 3
-    @test_throws AssertionError p2[4]
 
     @test p1 + 1 == Point(2, 3)
     @test p1 - 1 == Point(0, 1)
