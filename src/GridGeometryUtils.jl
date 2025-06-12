@@ -3,6 +3,7 @@ module GridGeometryUtils
 using Adapt, StaticArrays, LinearAlgebra
 
 include("comparisons.jl")
+include("rotation_matrices.jl")
 
 include("points.jl")
 export Point, distance
@@ -12,6 +13,11 @@ export Line, Segment, line, dointersect, intersection
 
 include("polygons.jl")
 export Triangle, Rectangle, Prism, Trapezoid, BBox
+
+include("ellipsoids.jl")
+export Ellipse, Circle
+
+include("areas.jl")
 export area, volume, perimeter
 
 include("intersections/intersections.jl")

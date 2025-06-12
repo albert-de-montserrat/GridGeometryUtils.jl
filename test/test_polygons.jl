@@ -63,3 +63,31 @@ end
     @test area(trap)      == 7.0
     @test perimeter(trap) == 11.23606797749979
 end
+
+@testset "Ellipsoids" begin
+  
+    center = 0e0, 0e0
+    a, b   = 1e0, 2e0
+
+    ellipse1 = Ellipse(center, a, b)
+
+    @test area(ellipse1) == π * a * b 
+    @test perimeter(ellipse1) == π * (3 * (a + b) - √((3 * a + b)*(a + 3 * b)))
+
+    p1 = Point(0e0, 0e0)
+    p2 = Point(2e0, 0e0)
+    p3 = Point(1e0, 0e0)
+    p4 = Point(0e0, 2e0)
+
+    @test  inside(p1, ellipse1) # true
+    @test !inside(p2, ellipse1) # false
+    @test  inside(p3, ellipse1) # true
+    @test  inside(p4, ellipse1) # true
+
+    ellipse2 = Ellipse(center, a, b; θ = π / 2)
+
+    @test  inside(p1, ellipse2) # true
+    @test  inside(p2, ellipse2) # true
+    @test  inside(p3, ellipse2) # true
+    @test !inside(p4, ellipse2) # false
+end
