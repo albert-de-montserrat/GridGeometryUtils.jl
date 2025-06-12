@@ -16,6 +16,12 @@ function inside(p::Union{Point, SArray}, circle::Circle)
     return inside(p, circle.box) ? _inside(p, circle) : false
 end
 
+function inside(p::Union{Point, SArray}, hex::Hexagon)
+    (; origin, radius) = hex
+
+    return inside(p, hex.box) ? _inside(p, hex) : false
+end
+
 function inside(p::Union{Point, SArray}, box::BBox)
     (; origin, h, l) = box
     # assumes origin is the SW vertex!
@@ -70,12 +76,12 @@ function _inside(p::Union{Point, SArray}, circle::Circle)
     return iswithin
 end
 
-function inside(p::Union{Point, SArray}, hex::Hexagon)
+function _inside(p::Union{Point, SArray}, hex::Hexagon)
     (; origin, radius, cosθ, sinθ, box, vertices) = hex
 
     # Ray-casting algorithm
     n = size(vertices, 2)
-    inside = false
+    iswithin = false
 
     j = n
     for i in 1:n
@@ -83,10 +89,10 @@ function inside(p::Union{Point, SArray}, hex::Hexagon)
         xj, yj = vertices[:, j]
         if ((yi > p[2]) != (yj > p[2])) &&
                 (p[1] < (xj - xi) * (p[2] - yi) / (yj - yi + 1.0e-10) + xi)  # add small number to avoid divide-by-zero
-            inside = !inside
+            iswithin = !iswithin
         end
         j = i
     end
 
-    return inside
+    return iswithin
 end
