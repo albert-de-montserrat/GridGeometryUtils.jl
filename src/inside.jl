@@ -32,20 +32,20 @@ end
 function inside(p::Union{Point, SArray}, hex::Hexagon)
     (; origin, radius, cosθ, sinθ, box, vertices) = hex
 
-    # Ray-casting algorithm 
+    # Ray-casting algorithm
     n = size(vertices, 2)
     inside = false
 
     j = n
     for i in 1:n
-        xi, yi = vertices[:,i]
-        xj, yj = vertices[:,j]
-    if ( (yi > p[2]) != (yj > p[2])) &&
-        (p[1] < (xj - xi) * (p[2] - yi) / (yj - yi + 1e-10) + xi)  # add small number to avoid divide-by-zero
-        inside = !inside
-    end
+        xi, yi = vertices[:, i]
+        xj, yj = vertices[:, j]
+        if ((yi > p[2]) != (yj > p[2])) &&
+                (p[1] < (xj - xi) * (p[2] - yi) / (yj - yi + 1.0e-10) + xi)  # add small number to avoid divide-by-zero
+            inside = !inside
+        end
         j = i
     end
 
-    return inside    
+    return inside
 end

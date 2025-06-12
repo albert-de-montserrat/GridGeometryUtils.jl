@@ -93,7 +93,7 @@ struct Rectangle{T} <: AbstractPolygon{T}
     sinθ::T
     cosθ::T
     box::BBox{T}
-    vertices::SMatrix{2,4,T,8}
+    vertices::SMatrix{2, 4, T, 8}
 
     function Rectangle(origin::NTuple{2, T1}, l::T2, h::T3; θ::T4 = 0.0) where {T1, T2, T3, T4}
         T = promote_type(T1, T2, T3, T4)
@@ -127,8 +127,8 @@ struct Rectangle{T} <: AbstractPolygon{T}
 
             # shift origin to make further computations faster
             origin_bbox = origin .+ @SVector([-lbox / 2, -hbox / 2])
-            box = BBox(origin_bbox, lbox, hbox) 
-           
+            box = BBox(origin_bbox, lbox, hbox)
+
             # Store vertices
             vertices = 𝐱′
         end
@@ -156,11 +156,11 @@ A parametric type representing a hexagon with elements of type `T`.
 """
 struct Hexagon{T} <: AbstractPolygon{T}
     origin::Point{2, T}
-    radius::T 
+    radius::T
     sinθ::T
     cosθ::T
     box::BBox{T}
-    vertices::SMatrix{2,6,T,12}
+    vertices::SMatrix{2, 6, T, 12}
 
     function Hexagon(origin::NTuple{2, T1}, radius::T2; θ::T3 = 0.0) where {T1, T2, T3}
         T = promote_type(T1, T2, T3)
@@ -172,21 +172,21 @@ struct Hexagon{T} <: AbstractPolygon{T}
             sincos(θ)
         end
 
-            # Compute vertices of the hexagon
-            α   = @SVector([i * π/3 + θ for i in 0:5])  # 6 corners
+        # Compute vertices of the hexagon
+        α = @SVector([i * π / 3 + θ for i in 0:5])  # 6 corners
 
-            vertices = hcat(
-                (@SVector [origin[1] + radius * cos(α[i]) for i in 1:6]),
-                (@SVector [origin[2] + radius * sin(α[i]) for i in 1:6]),
-            )      
-            vertices = vertices'
+        vertices = hcat(
+            (@SVector [origin[1] + radius * cos(α[i]) for i in 1:6]),
+            (@SVector [origin[2] + radius * sin(α[i]) for i in 1:6]),
+        )
+        vertices = vertices'
 
-            # Define bounding box
-            lbox, hbox = maximum(vertices[1, :]) - minimum(vertices[1, :]), maximum(vertices[2, :]) - minimum(vertices[2, :])
+        # Define bounding box
+        lbox, hbox = maximum(vertices[1, :]) - minimum(vertices[1, :]), maximum(vertices[2, :]) - minimum(vertices[2, :])
 
-            # shift origin to make further computations faster
-            origin_bbox = origin .+ @SVector([-lbox / 2, -hbox / 2])
-            box = BBox(origin_bbox, lbox, hbox)
+        # shift origin to make further computations faster
+        origin_bbox = origin .+ @SVector([-lbox / 2, -hbox / 2])
+        box = BBox(origin_bbox, lbox, hbox)
 
         return new{T}(origin_promoted, promote(radius, sinθ, cosθ)..., box, vertices)
     end
@@ -197,8 +197,8 @@ Hexagon(origin::SVector{2}, radius::Number; θ::T = 0.0) where {T} = Hexagon(ori
 
 Adapt.@adapt_structure Hexagon
 
-@inline area(h::Hexagon) = 6*h.radius
-@inline perimeter(h::Hexagon) = 3/2*sqrt(3)*h.radius^2
+@inline area(h::Hexagon) = 6 * h.radius
+@inline perimeter(h::Hexagon) = 3 / 2 * sqrt(3) * h.radius^2
 
 """
     Prism{T} <: AbstractPolygon{T}

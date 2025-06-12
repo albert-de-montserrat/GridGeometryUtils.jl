@@ -11,13 +11,13 @@ function intersecting_area(p1, p2, r::Rectangle{T}) where {T}
         s1 = Segment(p1, p2)
         # find intersection with bottom boundary
         s2 = Segment(
-            Point(r.origin), 
+            Point(r.origin),
             Point(r.origin + SA[r.l, zero(T)])
         )
         pbot = intersection(s1, s2)
         # find intersection with top boundary
         s2 = Segment(
-            Point(r.origin + SA[zero(T), r.h]), 
+            Point(r.origin + SA[zero(T), r.h]),
             Point(r.origin + SA[r.l, r.h])
         )
         ptop = intersection(s1, s2)
@@ -29,13 +29,13 @@ function intersecting_area(p1, p2, r::Rectangle{T}) where {T}
         s1 = Segment(p1, p2)
         # find intersection with bottom boundary
         s2 = Segment(
-            Point(r.origin), 
+            Point(r.origin),
             Point(r.origin + SA[r.l, zero(T)])
         )
         pbot = intersection(s1, s2)
         # find intersection with top boundary
         s2 = Segment(
-            Point(r.origin + SA[zero(T), r.h]), 
+            Point(r.origin + SA[zero(T), r.h]),
             Point(r.origin + SA[r.l, r.h])
         )
         ptop = intersection(s1, s2)
@@ -46,7 +46,7 @@ function intersecting_area(p1, p2, r::Rectangle{T}) where {T}
         # find intersection with bottom boundary
         s1 = Segment(p1, p2)
         s2 = Segment(
-            Point(r.origin), 
+            Point(r.origin),
             Point(r.origin + SA[r.l, zero(T)])
         )
         pbot = intersection(s1, s2)
@@ -57,7 +57,7 @@ function intersecting_area(p1, p2, r::Rectangle{T}) where {T}
         # find intersection with bottom boundary
         s1 = Segment(p1, p2)
         s2 = Segment(
-            Point(r.origin), 
+            Point(r.origin),
             Point(r.origin + SA[r.l, zero(T)])
         )
         pbot = intersection(s1, s2)
@@ -68,7 +68,7 @@ function intersecting_area(p1, p2, r::Rectangle{T}) where {T}
         # find intersection with bottom boundary
         s1 = Segment(p1, p2)
         s2 = Segment(
-            Point(r.origin + SA[zero(T), r.h]), 
+            Point(r.origin + SA[zero(T), r.h]),
             Point(r.origin + SA[r.l, r.h])
         )
         ptop = intersection(s1, s2)
@@ -79,7 +79,7 @@ function intersecting_area(p1, p2, r::Rectangle{T}) where {T}
         # find intersection with bottom boundary
         s1 = Segment(p1, p2)
         s2 = Segment(
-            Point(r.origin + SA[zero(T), r.h]), 
+            Point(r.origin + SA[zero(T), r.h]),
             Point(r.origin + SA[r.l, r.h])
         )
         ptop = intersection(s1, s2)

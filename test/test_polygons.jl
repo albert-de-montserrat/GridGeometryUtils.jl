@@ -1,7 +1,7 @@
 @testset "Triangle" begin
-    p1 = Point(1,2)
-    p2 = Point(1,3)
-    p3 = Point(2,2)
+    p1 = Point(1, 2)
+    p2 = Point(1, 3)
+    p3 = Point(2, 2)
 
     @test_throws AssertionError Triangle(p1, p1, p1)
 
@@ -21,55 +21,55 @@ end
 
 @testset "BBox" begin
     origin = (0, 0)
-    bbox   = BBox(origin, 2, 4)
+    bbox = BBox(origin, 2, 4)
 
-    @test bbox.origin     == Point(origin)
-    @test bbox.l          == 2
-    @test bbox.h          == 4
-    @test area(bbox)      == 8
+    @test bbox.origin == Point(origin)
+    @test bbox.l == 2
+    @test bbox.h == 4
+    @test area(bbox) == 8
     @test perimeter(bbox) == 12
 end
 
 @testset "Rectangle" begin
     origin = (0, 0)
-    rect   = Rectangle(origin, 2, 4; θ=π/3)
+    rect = Rectangle(origin, 2, 4; θ = π / 3)
 
-    @test rect.origin     == Point(Float64.(origin))
-    @test rect.l          == 2
-    @test rect.h          == 4
-    @test area(rect)      == 8
+    @test rect.origin == Point(Float64.(origin))
+    @test rect.l == 2
+    @test rect.h == 4
+    @test area(rect) == 8
     @test perimeter(rect) == 12
 end
 
 @testset "Hexagon" begin
     origin = (-1, 1)
-    hex    = Hexagon(origin, 2; θ=π/3)
+    hex = Hexagon(origin, 2; θ = π / 3)
 
-    @test hex.origin      == Point(Float64.(origin))
-    @test hex.radius      == 2
-    @test area(hex)       == 12.0
-    @test perimeter(hex)  == 10.392304845413264
+    @test hex.origin == Point(Float64.(origin))
+    @test hex.radius == 2
+    @test area(hex) == 12.0
+    @test perimeter(hex) == 10.392304845413264
 end
 
 @testset "Prism" begin
     origin = (0, 0)
-    rect   = Rectangle(origin, 2, 4)
-    
-    @test rect.origin     == Point(Float64.(origin))
-    @test rect.h          == 4
-    @test rect.l          == 2
-    @test area(rect)      == 8
+    rect = Rectangle(origin, 2, 4)
+
+    @test rect.origin == Point(Float64.(origin))
+    @test rect.h == 4
+    @test rect.l == 2
+    @test area(rect) == 8
     @test perimeter(rect) == 12
 end
 
 @testset "Trapezoid" begin
     origin = (0, 0)
-    trap   = Trapezoid(origin, 2, 3, 4)
+    trap = Trapezoid(origin, 2, 3, 4)
 
-    @test trap.origin     == Point(origin)
-    @test trap.l          == 2
-    @test trap.h1         == 3
-    @test trap.h2         == 4
-    @test area(trap)      == 7.0
+    @test trap.origin == Point(origin)
+    @test trap.l == 2
+    @test trap.h1 == 3
+    @test trap.h2 == 4
+    @test area(trap) == 7.0
     @test perimeter(trap) == 11.23606797749979
 end
