@@ -1,14 +1,5 @@
 abstract type AbstractPolygon{T} end
 
-area(::T) where {T <: AbstractPolygon} = throw("Area not defined for the AbstractPolygon of type $T")
-area(::T) where {T} = throw("$T is not an AbstractPolygon")
-
-volume(::T) where {T <: AbstractPolygon} = throw("Volume not defined for the AbstractPolygon of type $T")
-volume(::T) where {T} = throw("$T is not an AbstractPolygon")
-
-perimeter(::T) where {T <: AbstractPolygon} = throw("Perimeter not defined for the AbstractPolygon of type $T")
-perimeter(::T) where {T} = throw("$T is not an AbstractPolygon")
-
 """
     BBox{T} <: AbstractPolygon{T}
 
@@ -22,6 +13,7 @@ struct BBox{T} <: AbstractPolygon{T}
     origin::Point{2, T}
     l::T # length
     h::T # height
+
     function BBox(origin::NTuple{2, T1}, l::T2, h::T3) where {T1, T2, T3}
         T = promote_type(T1, T2, T3)
         origin_promoted = Point(ntuple(ix -> T(origin[ix]), Val(2))...)
@@ -33,9 +25,6 @@ BBox(origin::Point{2}, l::Number, h::Number) = BBox(totuple(origin), l, h)
 BBox(origin::SVector{2}, l::Number, h::Number) = BBox(origin.data, l, h)
 
 Adapt.@adapt_structure BBox
-
-@inline area(r::BBox) = r.h * r.l
-@inline perimeter(r::BBox) = 2 * (r.h + r.l)
 
 """
     Triangle{T} <: AbstractPolygon{T}
@@ -63,19 +52,6 @@ end
 @inline Triangle(p1::SVector{2}, p2::SVector{2}, p3::SVector{2}) = Triangle(Point(p1), Point(p2), Point(p3))
 
 Adapt.@adapt_structure Triangle
-
-@inline function area(t::Triangle{T}) where {T}
-    a = distance(t.p1, t.p2)
-    b = distance(t.p2, t.p3)
-    c = distance(t.p3, t.p1)
-    # semiperimeter
-    s = (a + b + c) / 2
-    # Heron's formula for area of triangle
-    #      √(s * (s - a) * (s - b) * (s - c))
-    return √(muladd(s, muladd(s - a, muladd(s - b, s - c, zero(T)), zero(T)), zero(T)))
-end
-
-@inline perimeter(t::Triangle{T}) where {T} = distance(t.p1, t.p2) + distance(t.p2, t.p3) + distance(t.p3, t.p1)
 
 """
     Rectangle{T} <: AbstractPolygon{T}
@@ -107,9 +83,10 @@ struct Rectangle{T} <: AbstractPolygon{T}
         box = if iszero(θ)
             origin_bbox = origin .+ @SVector([-l / 2, -h / 2])
             BBox(origin_bbox, l, h)
+
         else
             # Define bounding box
-            𝐑 = @SMatrix([ cosθ -sinθ; sinθ cosθ])
+            𝐑 = rotation_matrix(sinθ, cosθ)
             𝐱SW = origin .+ @SVector([-l / 2, -h / 2])
             𝐱SE = origin .+ @SVector([l / 2, -h / 2])
             𝐱NW = origin .+ @SVector([-l / 2, h / 2])
@@ -134,9 +111,6 @@ Rectangle(origin::SVector{2}, l::Number, h::Number; θ::T = 0.0) where {T} = Rec
 
 Adapt.@adapt_structure Rectangle
 
-@inline area(r::Rectangle) = r.h * r.l
-@inline perimeter(r::Rectangle) = 2 * (r.h + r.l)
-
 """
     Prism{T} <: AbstractPolygon{T}
 
@@ -151,6 +125,7 @@ struct Prism{T} <: AbstractPolygon{T}
     l::T # length
     h::T # height
     d::T # depth
+
     function Prism(origin::NTuple{3, T1}, l::T2, h::T3, d::T4) where {T1, T2, T3, T4}
         T = promote_type(T1, T2, T3, T4)
         origin_promoted = Point(ntuple(i -> T(origin[i]), Val(3))...)
@@ -163,14 +138,12 @@ Prism(origin::SVector{2}, l::Number, h::Number, d::Number) = Prism(origin.data, 
 
 Adapt.@adapt_structure Prism
 
-@inline volume(r::Prism) = r.h * r.l * r.d
-@inline area(r::Prism) = 2 * ((r.h + r.l) + (r.h + r.d) + (r.d + r.l))
-
 struct Trapezoid{T} <: AbstractPolygon{T}
     origin::Point{2, T}
     l::T
     h1::T
     h2::T
+
     function Trapezoid(origin::NTuple{2, T1}, h::T2, l1::T3, l2::T4) where {T1, T2, T3, T4}
         T = promote_type(T1, T2, T3, T4)
         origin_promoted = Point(ntuple(i -> T(origin[i]), Val(2))...)
@@ -182,6 +155,3 @@ Trapezoid(origin::Point{2}, h::Number, l1::Number, l2::Number) = Trapezoid(totup
 Trapezoid(origin::SVector{2}, h::Number, l1::Number, l2::Number) = Trapezoid(origin.data, h, l1, l2)
 
 Adapt.@adapt_structure Trapezoid
-
-@inline area(t::Trapezoid) = (t.h1 + t.h2) * t.l / 2
-@inline perimeter(t::Trapezoid) = t.l + t.h1 + t.h2 + √(t.l^2 + (t.h1 - t.h2)^2)
