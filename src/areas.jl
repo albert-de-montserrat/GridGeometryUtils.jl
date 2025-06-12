@@ -17,6 +17,7 @@ end
 @inline area(r::Rectangle) = r.h * r.l
 @inline area(r::Prism) = 2 * ((r.h + r.l) + (r.h + r.d) + (r.d + r.l))
 @inline area(t::Trapezoid) = (t.h1 + t.h2) * t.l / 2
+@inline area(h::Hexagon) = 6 * h.radius
 @inline area(circle::Circle) = π * circle.radius^2
 @inline area(ellipse::Ellipse) = π * ellipse.a * ellipse.b
 
@@ -26,6 +27,7 @@ perimeter(::T) where {T} = throw("$T is not an AbstractPolygon")
 @inline perimeter(r::BBox) = 2 * (r.h + r.l)
 @inline perimeter(t::Triangle{T}) where {T} = distance(t.p1, t.p2) + distance(t.p2, t.p3) + distance(t.p3, t.p1)
 @inline perimeter(r::Rectangle) = 2 * (r.h + r.l)
+@inline perimeter(h::Hexagon) = 3 / 2 * √3 * h.radius^2
 @inline perimeter(t::Trapezoid) = t.l + t.h1 + t.h2 + √(t.l^2 + (t.h1 - t.h2)^2)
 @inline perimeter(circle::Circle) = 2 * π * circle.radius
 

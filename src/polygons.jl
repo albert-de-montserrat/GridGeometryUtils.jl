@@ -88,11 +88,11 @@ struct Rectangle{T} <: AbstractPolygon{T}
         𝐱NE = origin .+ @SVector([l / 2, h / 2])
         𝐱 = SMatrix{2, 4}([ 𝐱SW 𝐱NW 𝐱NE 𝐱SE])
 
-        if iszero(θ)
+        vertices, box = if iszero(θ)
             origin_bbox = origin .+ @SVector([-l / 2, -h / 2])
             box = BBox(origin_bbox, l, h)
-
             vertices = 𝐱
+            vertices, box
         else
             # Define bounding box
             𝐑 = @SMatrix([ cos(θ) sin(θ); -sin(θ) cos(θ)])
@@ -108,6 +108,7 @@ struct Rectangle{T} <: AbstractPolygon{T}
 
             # Store vertices
             vertices = 𝐱′
+            vertices, box
         end
 
         return new{T}(origin_promoted, promote(l, h, sinθ, cosθ)..., box, vertices)
@@ -118,9 +119,6 @@ Rectangle(origin::Point{2}, l::Number, h::Number; θ::T = 0.0) where {T} = Recta
 Rectangle(origin::SVector{2}, l::Number, h::Number; θ::T = 0.0) where {T} = Rectangle(origin.data, l, h; θ = θ)
 
 Adapt.@adapt_structure Rectangle
-
-@inline area(r::Rectangle) = r.h * r.l
-@inline perimeter(r::Rectangle) = 2 * (r.h + r.l)
 
 """
     Hexagon{T} <: AbstractPolygon{T}
@@ -173,9 +171,6 @@ Hexagon(origin::Point{2}, radius::Number; θ::T = 0.0) where {T} = Hexagon(totup
 Hexagon(origin::SVector{2}, radius::Number; θ::T = 0.0) where {T} = Hexagon(origin.data, radius; θ = θ)
 
 Adapt.@adapt_structure Hexagon
-
-@inline area(h::Hexagon) = 6 * h.radius
-@inline perimeter(h::Hexagon) = 3 / 2 * sqrt(3) * h.radius^2
 
 """
     Prism{T} <: AbstractPolygon{T}
