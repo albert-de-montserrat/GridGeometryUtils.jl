@@ -42,9 +42,9 @@ struct Ellipse{T} <: AbstractEllipsoid{T}
         end
 
         𝐱W = center .+ @SVector([-a, 0])
-        𝐱N = center .+ @SVector([ 0, b])
-        𝐱E = center .+ @SVector([ a, 0])
-        𝐱S = center .+ @SVector([ 0,-b])
+        𝐱N = center .+ @SVector([0, b])
+        𝐱E = center .+ @SVector([a, 0])
+        𝐱S = center .+ @SVector([0, -b])
         𝐱 = SMatrix{2, 4}([ 𝐱W 𝐱N 𝐱E 𝐱S])
 
         vertices, box = if iszero(θ)
@@ -56,18 +56,18 @@ struct Ellipse{T} <: AbstractEllipsoid{T}
             # Define bounding box
             𝐑 = rotation_matrix(sinθ, cosθ)
             𝐱W = @SVector([-a, 0])
-            𝐱N = @SVector([ 0, b])
-            𝐱E = @SVector([ a, 0])
-            𝐱S = @SVector([ 0,-b])
+            𝐱N = @SVector([0, b])
+            𝐱E = @SVector([a, 0])
+            𝐱S = @SVector([0, -b])
 
             # Rotate geometry
             𝐱 = SMatrix{2, 4}([ 𝐱W 𝐱N 𝐱E 𝐱S])
             𝐱′ = 𝐑' * 𝐱 .+ center
 
             # Define bounding box
-            lbox = 2*sqrt(a^2*cosθ^2 + b^2*sinθ^2)
-            hbox = 2*sqrt(a^2*sinθ^2 + b^2*cosθ^2)
-            origin_bbox = center .+ @SVector([-lbox / 2, -hbox / 2])            
+            lbox = 2 * sqrt(a^2 * cosθ^2 + b^2 * sinθ^2)
+            hbox = 2 * sqrt(a^2 * sinθ^2 + b^2 * cosθ^2)
+            origin_bbox = center .+ @SVector([-lbox / 2, -hbox / 2])
             box = BBox(origin_bbox, lbox, hbox)
             vertices = 𝐱′
             vertices, box
