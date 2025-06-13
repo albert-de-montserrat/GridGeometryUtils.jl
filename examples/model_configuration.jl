@@ -24,6 +24,7 @@ function main()
 
     ells = (
         Ellipse((-1.1, 0.7), 0.2, 0.1; θ = 1*π / 4),
+        Ellipse((-0.4, -0.7), 0.2, 0.1; θ = 3*π / 4),
     )
     
     @time for I in CartesianIndices(phase)
