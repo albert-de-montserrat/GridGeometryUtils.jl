@@ -12,7 +12,7 @@ include("lines.jl")
 export Line, Segment, line, dointersect, intersection
 
 include("polygons.jl")
-export Triangle, Rectangle, Prism, Trapezoid, BBox
+export Triangle, Rectangle, Prism, Trapezoid, Hexagon, BBox
 
 include("ellipsoids.jl")
 export Ellipse, Circle

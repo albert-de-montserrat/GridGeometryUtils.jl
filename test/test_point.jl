@@ -4,7 +4,12 @@ using StaticArrays
     @test Point(1, 2.0f0) isa Point{2, Float32}
     @test Point(1, 2.0e0) isa Point{2, Float64}
     @test Point(1.0f0, 2.0e0) isa Point{2, Float64}
+    @test Point(1, 2.0f0) isa Point{2, Float32}
+    @test Point(1, 2.0e0) isa Point{2, Float64}
+    @test Point(1.0f0, 2.0e0) isa Point{2, Float64}
 
+    @test Point(1, 2.0f0, 3) isa Point{3, Float32}
+    @test Point(1, 2.0f0, 3.0e0) isa Point{3, Float64}
     @test Point(1, 2.0f0, 3) isa Point{3, Float32}
     @test Point(1, 2.0f0, 3.0e0) isa Point{3, Float64}
 

@@ -69,6 +69,7 @@ struct Rectangle{T} <: AbstractPolygon{T}
     sinθ::T
     cosθ::T
     box::BBox{T}
+    vertices::SMatrix{2, 4, T, 8}
 
     function Rectangle(origin::NTuple{2, T1}, l::T2, h::T3; θ::T4 = 0.0) where {T1, T2, T3, T4}
         T = promote_type(T1, T2, T3, T4)
@@ -80,29 +81,37 @@ struct Rectangle{T} <: AbstractPolygon{T}
             sincos(θ)
         end
 
-        box = if iszero(θ)
-            origin_bbox = origin .+ @SVector([-l / 2, -h / 2])
-            BBox(origin_bbox, l, h)
+        # Vertices
+        𝐱SW = origin .+ @SVector([-l / 2, -h / 2])
+        𝐱SE = origin .+ @SVector([l / 2, -h / 2])
+        𝐱NW = origin .+ @SVector([-l / 2, h / 2])
+        𝐱NE = origin .+ @SVector([l / 2, h / 2])
+        𝐱 = SMatrix{2, 4}([ 𝐱SW 𝐱NW 𝐱NE 𝐱SE])
 
+        vertices, box = if iszero(θ)
+            origin_bbox = origin .+ @SVector([-l / 2, -h / 2])
+            box = BBox(origin_bbox, l, h)
+            vertices = 𝐱
+            vertices, box
         else
             # Define bounding box
             𝐑 = rotation_matrix(sinθ, cosθ)
-            𝐱SW = origin .+ @SVector([-l / 2, -h / 2])
-            𝐱SE = origin .+ @SVector([l / 2, -h / 2])
-            𝐱NW = origin .+ @SVector([-l / 2, h / 2])
-            𝐱NE = origin .+ @SVector([l / 2, h / 2])
 
             # Rotate geometry
-            𝐱 = SMatrix{2, 4}([ 𝐱SW 𝐱SE 𝐱NW 𝐱NE])
-            𝐱′ = 𝐑 * 𝐱
+            𝐱′ = 𝐑' * (𝐱 .- origin) .+ origin
+
             lbox, hbox = maximum(𝐱′[1, :]) - minimum(𝐱′[1, :]), maximum(𝐱′[2, :]) - minimum(𝐱′[2, :])
 
             # shift origin to make further computations faster
             origin_bbox = origin .+ @SVector([-lbox / 2, -hbox / 2])
-            BBox(origin_bbox, lbox, hbox)
+            box = BBox(origin_bbox, lbox, hbox)
+
+            # Store vertices
+            vertices = 𝐱′
+            vertices, box
         end
 
-        return new{T}(origin_promoted, promote(l, h, sinθ, cosθ)..., box)
+        return new{T}(origin_promoted, promote(l, h, sinθ, cosθ)..., box, vertices)
     end
 end
 
@@ -110,6 +119,58 @@ Rectangle(origin::Point{2}, l::Number, h::Number; θ::T = 0.0) where {T} = Recta
 Rectangle(origin::SVector{2}, l::Number, h::Number; θ::T = 0.0) where {T} = Rectangle(origin.data, l, h; θ = θ)
 
 Adapt.@adapt_structure Rectangle
+
+"""
+    Hexagon{T} <: AbstractPolygon{T}
+
+A parametric type representing a hexagon with elements of type `T`. 
+
+# Type Parameters
+- `T`: The numeric type used for the hexagon's coordinates (e.g., `Float64`, `Int`).
+
+"""
+struct Hexagon{T} <: AbstractPolygon{T}
+    origin::Point{2, T}
+    radius::T
+    sinθ::T
+    cosθ::T
+    box::BBox{T}
+    vertices::SMatrix{2, 6, T, 12}
+
+    function Hexagon(origin::NTuple{2, T1}, radius::T2; θ::T3 = 0.0) where {T1, T2, T3}
+        T = promote_type(T1, T2, T3)
+        origin_promoted = Point(ntuple(ix -> T(origin[ix]), Val(2))...)
+
+        sinθ, cosθ = if iszero(θ)
+            zero(T), one(T)
+        else
+            sincos(θ)
+        end
+
+        # Compute vertices of the hexagon
+        α = @SVector([i * π / 3 + θ for i in 0:5])  # 6 corners
+
+        vertices = hcat(
+            (@SVector [origin[1] + radius * cos(α[i]) for i in 1:6]),
+            (@SVector [origin[2] + radius * sin(α[i]) for i in 1:6]),
+        )
+        vertices = vertices'
+
+        # Define bounding box
+        lbox, hbox = maximum(vertices[1, :]) - minimum(vertices[1, :]), maximum(vertices[2, :]) - minimum(vertices[2, :])
+
+        # shift origin to make further computations faster
+        origin_bbox = origin .+ @SVector([-lbox / 2, -hbox / 2])
+        box = BBox(origin_bbox, lbox, hbox)
+
+        return new{T}(origin_promoted, promote(radius, sinθ, cosθ)..., box, vertices)
+    end
+end
+
+Hexagon(origin::Point{2}, radius::Number; θ::T = 0.0) where {T} = Hexagon(totuple(origin), radius; θ = θ)
+Hexagon(origin::SVector{2}, radius::Number; θ::T = 0.0) where {T} = Hexagon(origin.data, radius; θ = θ)
+
+Adapt.@adapt_structure Hexagon
 
 """
     Prism{T} <: AbstractPolygon{T}

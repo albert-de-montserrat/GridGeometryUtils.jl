@@ -33,12 +33,27 @@ end
 @testset "Rectangle" begin
     origin = (0, 0)
     rect = Rectangle(origin, 2, 4; θ = π / 3)
+    rect = Rectangle(origin, 2, 4; θ = π / 3)
 
     @test rect.origin == Point(Float64.(origin))
     @test rect.l == 2
     @test rect.h == 4
     @test area(rect) == 8
+    @test rect.origin == Point(Float64.(origin))
+    @test rect.l == 2
+    @test rect.h == 4
+    @test area(rect) == 8
     @test perimeter(rect) == 12
+end
+
+@testset "Hexagon" begin
+    origin = (-1, 1)
+    hex = Hexagon(origin, 2; θ = π / 3)
+
+    @test hex.origin == Point(Float64.(origin))
+    @test hex.radius == 2
+    @test area(hex) == 12.0
+    @test perimeter(hex) == 10.392304845413264
 end
 
 @testset "Prism" begin
