@@ -63,18 +63,12 @@ struct Ellipse{T} <: AbstractEllipsoid{T}
             # Rotate geometry
             𝐱 = SMatrix{2, 4}([ 𝐱W 𝐱N 𝐱E 𝐱S])
             𝐱′ = 𝐑' * 𝐱 .+ center
-            # lbox, hbox = maximum(𝐱′[1, :]) - minimum(𝐱′[1, :]), maximum(𝐱′[2, :]) - minimum(𝐱′[2, :])
-            
-            # # Need to strecth a bit not to cut ellipses!
-            # lbox += 0.4*lbox
-            # hbox += 0.4*hbox
 
-            # # shift center to make further computations faster
-            # origin_bbox = center .+ @SVector([-lbox / 2, -hbox / 2])
-
-            # box = BBox(origin_bbox, lbox, hbox)
-            origin = center .+ @SVector([-max(a,b), -max(a,b)])
-            box = BBox(origin, 2 * max(a,b), 2 * max(a,b))
+            # Define bounding box
+            lbox = 2*sqrt(a^2*cosθ^2 + b^2*sinθ^2)
+            hbox = 2*sqrt(a^2*sinθ^2 + b^2*cosθ^2)
+            origin_bbox = center .+ @SVector([-lbox / 2, -hbox / 2])            
+            box = BBox(origin_bbox, lbox, hbox)
             vertices = 𝐱′
             vertices, box
         end
