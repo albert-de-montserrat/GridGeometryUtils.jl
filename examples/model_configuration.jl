@@ -4,7 +4,7 @@ function main()
     show_bounding_box = true
 
     x = (min = -1.5, max = 1.5)
-    y = (min = -1, max = 1)
+    y = (min = -1, max = 2.0)
     nc = (x = 2000, y = 2000)
     Δ = (x = (x.max - x.min) / nc.x, y = (y.max - y.min) / nc.y)
     xc = LinRange(x.min + Δ.x / 2, x.max - Δ.x / 2, nc.x)
@@ -25,6 +25,11 @@ function main()
     ells = (
         Ellipse((-1.1, 0.7), 0.2, 0.1; θ = 1*π / 4),
         Ellipse((-0.4, -0.7), 0.2, 0.1; θ = 3*π / 4),
+    )
+
+    lays = (
+        Layering((-1.1, 0.7), 0.2, 0.1, 0.1; θ = 1*π / 4),        
+        Layering((-0.0, 0.7), 0.14, 0.2, 0.5; θ = 0.0, perturb_amp=0.1, perturb_width=1.5),
     )
     
     @time for I in CartesianIndices(phase)
@@ -64,6 +69,20 @@ function main()
         for igeom in eachindex(ells)
             if inside(𝐱, ells[igeom])
                 phase[I] = 2
+            end
+        end
+        if 1.0<𝐱[2]<1.5
+            for igeom in eachindex(lays)
+                if inside(𝐱, lays[1])
+                    phase[I] = 2
+                end
+            end
+        end
+        if 𝐱[2]>1.5
+            for igeom in eachindex(lays)
+                if inside(𝐱, lays[2])
+                    phase[I] = 2
+                end
             end
         end
     end
