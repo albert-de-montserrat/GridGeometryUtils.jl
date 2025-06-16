@@ -1,5 +1,4 @@
-abstract type AbstractEllipsoid{T} end
-
+abstract type AbstractEllipsoid{T} <: AbstractGeometryObject{T} end
 
 struct Circle{T} <: AbstractEllipsoid{T}
     center::Point{2, T}

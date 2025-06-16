@@ -16,7 +16,7 @@ function Line(p1::Point{2}, p2::Point{2})
     Δx = p2x - p1x
     Δy = p2y - p1y
     slope = Δy / Δx
-    intercept = p1y - slope * p1x
+    intercept = muladd(-slope, p1x, p1y)
 
     return Line(slope, intercept)
 end

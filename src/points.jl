@@ -50,7 +50,7 @@ for op in (:+, :-)
 end
 
 Base.:*(p1::SMatrix, p2::Point) = p1 * p2.p
-Base.:*(p1::Point, p2::SMatrix) = p2 * p1
+Base.:*(p1::Point, p2::SMatrix) = p2.p * p1
 
 LinearAlgebra.adjoint(p::Point) = Adjoint(p.p)
 

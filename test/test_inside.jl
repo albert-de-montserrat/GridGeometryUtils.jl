@@ -85,3 +85,6 @@ end
     @test !inside(p2, circle) # false
     @test  inside(p3, circle) # true
 end
+
+# @b inside($p, $hex)
+# @edit inside(p, hex)

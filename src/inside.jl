@@ -1,38 +1,18 @@
-function inside(p::Union{Point, SArray}, rect::Rectangle)
-    (; origin, h, l, cosθ, sinθ) = rect
+@inline inside(p::Union{Point, SArray}, object::AbstractGeometryObject) = inside(p, object.box) ? _inside(p, object) : false
 
-    return inside(p, rect.box) ? _inside(p, rect) : false
-end
-
-function inside(p::Union{Point, SArray}, ellipse::Ellipse)
-    (; center, a, b, cosθ, sinθ) = ellipse
-
-    return inside(p, ellipse.box) ? _inside(p, ellipse) : false
-end
-
-function inside(p::Union{Point, SArray}, circle::Circle)
-    (; center, radius) = circle
-
-    return inside(p, circle.box) ? _inside(p, circle) : false
-end
-
-function inside(p::Union{Point, SArray}, hex::Hexagon)
-    (; origin, radius) = hex
-
-    return inside(p, hex.box) ? _inside(p, hex) : false
-end
-
-function inside(p::Union{Point, SArray}, box::BBox)
+@inline function inside(p::Union{Point, SArray}, box::BBox)
     (; origin, h, l) = box
+    px, py = p[1], p[2]
+    ox, oy = origin[1], origin[2]
     # assumes origin is the SW vertex!
-    p[1] < origin[1]     && return false
-    p[2] < origin[2]     && return false
-    p[1] > origin[1] + l && return false
-    p[2] > origin[2] + h && return false
+    px < ox     && return false
+    py < oy     && return false
+    px > ox + l && return false
+    py > oy + h && return false
     return true
 end
 
-function _inside(p::Union{Point, SArray}, rect::Rectangle)
+@inline function _inside(p::Union{Point, SArray}, rect::Rectangle)
     (; origin, h, l, cosθ, sinθ) = rect
 
     iszero(sinθ) && return true # No rotation, just check bounding box
@@ -47,7 +27,7 @@ function _inside(p::Union{Point, SArray}, rect::Rectangle)
     return leq_r(abs(𝐱′[1]), l / 2) && leq_r(abs(𝐱′[2]), h / 2)
 end
 
-function _inside(p::Union{Point, SArray}, ellipse::Ellipse)
+@inline function _inside(p::Union{Point, SArray}, ellipse::Ellipse)
     (; center, a, b, cosθ, sinθ) = ellipse
 
     @inline inside_ellipse(p) = leq_r(((p[1] - center[1]) / a)^2 + ((p[2] - center[2]) / b)^2, 1)
@@ -69,18 +49,18 @@ function _inside(p::Union{Point, SArray}, ellipse::Ellipse)
     return iswithin
 end
 
-function _inside(p::Union{Point, SArray}, circle::Circle)
+@inline function _inside(p::Union{Point, SArray}, circle::Circle)
     (; center, radius) = circle
 
     iswithin = leq_r(sum(@. ((p.p - center.p) / radius)^2), 1)
     return iswithin
 end
 
-function _inside(p::Union{Point, SArray}, hex::Hexagon)
-    (; origin, radius, cosθ, sinθ, box, vertices) = hex
+@inline function _inside(p::Union{Point, SArray}, hex::Hexagon)
+    (; vertices) = hex
 
     # Ray-casting algorithm
-    n = size(vertices, 2)
+    n = 6
     iswithin = false
 
     j = n

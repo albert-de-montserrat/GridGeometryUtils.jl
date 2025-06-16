@@ -1,4 +1,4 @@
-abstract type AbstractPolygon{T} end
+abstract type AbstractPolygon{T} <: AbstractGeometryObject{T} end
 
 """
     BBox{T} <: AbstractPolygon{T}
