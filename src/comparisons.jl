@@ -1,19 +1,18 @@
 @inline function isequal_r(a::T, b::T) where {T}
     a == b && return true
-    α = 1e3
-    ϵ = eps(T)
-    δ = abs((a - b + ϵ) / (a + ϵ))
-    return δ < 1e3 * α * ϵ
+    arequasizero(a, b) && return true
+    δ = abs((a - b + eps(T)) / (a + eps(T)))
+    return δ < 1.0e3 * eps(T)
 end
 
 @inline isequal_r(a::T1, b::T2) where {T1, T2} = isequal_r(promote(a, b)...)
 
 @inline function isequal_r(a::Point{2}, b::Point{2})
-    isequal_r(a[1], b[1]) && isequal_r(a[2], b[2])
+    return isequal_r(a[1], b[1]) && isequal_r(a[2], b[2])
 end
 
 @inline function isequal_r(a::Point{2}, b::Point{3})
-    isequal_r(a[1], b[1]) && isequal_r(a[2], b[2]) && isequal_r(a[3], b[3])
+    return isequal_r(a[1], b[1]) && isequal_r(a[2], b[2]) && isequal_r(a[3], b[3])
 end
 
 @inline function le_r(a::Number, b::Number)
@@ -30,3 +29,6 @@ end
 
 @inline leq_r(a::Number, b::Number) = isequal_r(a, b) || a < b
 @inline geq_r(a::Number, b::Number) = isequal_r(a, b) || a > b
+
+@inline arequasizero(a, b) = isquasizero(a) && isquasizero(b)
+@inline isquasizero(a::T) where {T} = a < 1.0e3 * eps(T)
