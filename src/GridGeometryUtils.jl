@@ -2,6 +2,8 @@ module GridGeometryUtils
 
 using Adapt, StaticArrays, LinearAlgebra
 
+abstract type AbstractGeometryObject{T} end
+
 include("comparisons.jl")
 include("rotation_matrices.jl")
 
