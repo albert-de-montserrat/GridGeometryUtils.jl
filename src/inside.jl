@@ -101,14 +101,14 @@ function inside(p::Union{Point, SArray}, lay::Layering)
     (; center, thickness, ratio, period, sinθ, cosθ, perturb_amp, perturb_width) = lay
 
     iswithin = false
-    
-    # Shift layering 
+
+    # Shift layering
     𝐱 = p - center
     # Rotate geometry
     𝐑 = rotation_matrix(sinθ, cosθ)
     𝐱′ = 𝐑 * 𝐱
 
-    # Gaussian perturbation 
+    # Gaussian perturbation
     δy = perturb_amp * exp(-𝐱′[1]^2 / (2 * perturb_width^2))
 
     # Compute local vertical position in periodic layers

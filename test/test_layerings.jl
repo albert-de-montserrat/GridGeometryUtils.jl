@@ -7,5 +7,5 @@
     @test l.ratio == 0.5
     @test l.period == 0.1
 
-  
+
 end

@@ -19,7 +19,7 @@ struct Layering{T} <: AbstractLayering{T}
     perturb_amp::T
     perturb_width::T
 
-    function Layering(center::NTuple{2, T1}, thickness::T2, ratio::T3, period::T4; θ::T5 = 0.0, perturb_amp::T6=0.0, perturb_width::T7=1.0) where {T1, T2, T3, T4, T5, T6, T7}
+    function Layering(center::NTuple{2, T1}, thickness::T2, ratio::T3, period::T4; θ::T5 = 0.0, perturb_amp::T6 = 0.0, perturb_width::T7 = 1.0) where {T1, T2, T3, T4, T5, T6, T7}
         T = promote_type(T1, T2, T3, T4, T5, T6, T7)
         center_promoted = Point(ntuple(ix -> T(center[ix]), Val(2))...)
 
@@ -35,7 +35,7 @@ struct Layering{T} <: AbstractLayering{T}
     end
 end
 
-Layering(origin::Point{2},   thickness::Number, ratio::Number, period::Number; θ::T = 0.0, perturb_amp=0.0, perturb_width=1.0) where {T} = Layering(totuple(origin), t, r, p; θ = θ, p_amp, p_width)
-Layering(origin::SVector{2}, thickness::Number, ratio::Number, period::Number; θ::T = 0.0, perturb_amp=0.0, perturb_width=1.0) where {T} = Layering(origin.data,     t, r, p; θ = θ, p_amp, p_width)
+Layering(origin::Point{2}, thickness::Number, ratio::Number, period::Number; θ::T = 0.0, perturb_amp = 0.0, perturb_width = 1.0) where {T} = Layering(totuple(origin), t, r, p; θ = θ, p_amp, p_width)
+Layering(origin::SVector{2}, thickness::Number, ratio::Number, period::Number; θ::T = 0.0, perturb_amp = 0.0, perturb_width = 1.0) where {T} = Layering(origin.data, t, r, p; θ = θ, p_amp, p_width)
 
 Adapt.@adapt_structure Layering
