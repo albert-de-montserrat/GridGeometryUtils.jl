@@ -98,7 +98,7 @@ function _inside(p::Union{Point, SArray}, hex::Hexagon)
 end
 
 function inside(p::Union{Point, SArray}, lay::Layering)
-    (; center, thickness, ratio, period, sinθ, cosθ, perturb_amp, perturb_width) = lay
+    (; center, thickness, ratio, sinθ, cosθ, perturb_amp, perturb_width) = lay
 
     iswithin = false
 
