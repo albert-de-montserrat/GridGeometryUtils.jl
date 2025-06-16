@@ -7,7 +7,7 @@ end
 
 @inline arequasizero(a, b) = isquasizero(a) && isquasizero(b)
 
-@inline isquasizero(a::T) where T = a < 1e3 * eps(T)
+@inline isquasizero(a::T) where {T} = a < 1.0e3 * eps(T)
 
 @inline isequal_r(a::T1, b::T2) where {T1, T2} = isequal_r(promote(a, b)...)
 
