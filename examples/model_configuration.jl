@@ -23,15 +23,15 @@ function main()
     )
 
     ells = (
-        Ellipse((-1.1, 0.7), 0.2, 0.1; θ = 1*π / 4),
-        Ellipse((-0.4, -0.7), 0.2, 0.1; θ = 3*π / 4),
+        Ellipse((-1.1, 0.7), 0.2, 0.1; θ = 1 * π / 4),
+        Ellipse((-0.4, -0.7), 0.2, 0.1; θ = 3 * π / 4),
     )
 
     lays = (
-        Layering((-1.1, 0.7), 0.2, 0.1, 0.1; θ = 1*π / 4),        
-        Layering((-0.0, 0.7), 0.14, 0.2, 0.5; θ = 0.0, perturb_amp=0.1, perturb_width=1.5),
+        Layering((-1.1, 0.7), 0.2, 0.1, 0.1; θ = 1 * π / 4),
+        Layering((-0.0, 0.7), 0.14, 0.2, 0.5; θ = 0.0, perturb_amp = 0.1, perturb_width = 1.5),
     )
-    
+
     @time for I in CartesianIndices(phase)
 
         𝐱 = @SVector([xc[I[1]], yc[I[2]]])
@@ -71,14 +71,14 @@ function main()
                 phase[I] = 2
             end
         end
-        if 1.0<𝐱[2]<1.5
+        if 1.0 < 𝐱[2] < 1.5
             for igeom in eachindex(lays)
                 if inside(𝐱, lays[1])
                     phase[I] = 2
                 end
             end
         end
-        if 𝐱[2]>1.5
+        if 𝐱[2] > 1.5
             for igeom in eachindex(lays)
                 if inside(𝐱, lays[2])
                     phase[I] = 2
@@ -89,18 +89,18 @@ function main()
 
     # Visualise
     p = plot()
-    p = heatmap!(xc, yc, phase', aspect_ratio=1)
+    p = heatmap!(xc, yc, phase', aspect_ratio = 1)
     for igeom in eachindex(rects)
-        p = scatter!(rects[igeom].vertices[1,:], rects[igeom].vertices[2,:], label=:none)
+        p = scatter!(rects[igeom].vertices[1, :], rects[igeom].vertices[2, :], label = :none)
     end
     for igeom in eachindex(hexs)
-        p = scatter!(hexs[igeom].vertices[1,:], hexs[igeom].vertices[2,:], label=:none)
+        p = scatter!(hexs[igeom].vertices[1, :], hexs[igeom].vertices[2, :], label = :none)
     end
     for igeom in eachindex(ells)
-        p = scatter!(ells[igeom].vertices[1,:], ells[igeom].vertices[2,:], label=:none)
+        p = scatter!(ells[igeom].vertices[1, :], ells[igeom].vertices[2, :], label = :none)
     end
 
-    display(p)
+    return display(p)
 
 end
 
