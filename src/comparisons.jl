@@ -1,7 +1,7 @@
-@inline function isequal_r(a::T, b::T) where {T} 
+@inline function isequal_r(a::T, b::T) where {T}
     a == b && return true
-    δ = abs((a - b + eps(T)) / (a + eps(T))) 
-    δ < 50 * eps(T) || isone(δ) 
+    δ = abs((a - b + eps(T)) / (a + eps(T)))
+    return δ < 50 * eps(T) || isone(δ)
 end
 
 @inline isequal_r(a::T1, b::T2) where {T1, T2} = isequal_r(promote(a, b)...)

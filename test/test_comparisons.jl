@@ -11,8 +11,8 @@
     @test GridGeometryUtils.isequal_r(0, 0)
     @test GridGeometryUtils.isequal_r(0, 0 + eps())
     @test GridGeometryUtils.isequal_r(0 + eps(), 0)
-    @test GridGeometryUtils.isequal_r(1, 1e0)
-    @test GridGeometryUtils.isequal_r(0, 0e0)
+    @test GridGeometryUtils.isequal_r(1, 1.0e0)
+    @test GridGeometryUtils.isequal_r(0, 0.0e0)
 
     b = 2.0
     @test !GridGeometryUtils.isequal_r(a, b) # false
