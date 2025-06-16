@@ -29,7 +29,6 @@ struct Layering{T} <: AbstractLayering{T}
             sincos(θ)
         end
 
-        @show typeof(center_promoted)
 
         return new{T}(center_promoted, promote(thickness, ratio, period, sinθ, cosθ, perturb_amp, perturb_width)...)
     end
