@@ -12,6 +12,29 @@
     return true
 end
 
+function inside(p::Union{Point, SArray}, lay::Layering)
+    (; center, thickness, ratio, sinθ, cosθ, perturb_amp, perturb_width) = lay
+
+    iswithin = false
+
+    # Shift layering
+    𝐱 = p - center
+    # Rotate geometry
+    𝐑 = rotation_matrix(sinθ, cosθ)
+    𝐱′ = 𝐑 * 𝐱
+
+    # Gaussian perturbation
+    δy = perturb_amp * exp(-𝐱′[1]^2 / (2 * perturb_width^2))
+
+    # Compute local vertical position in periodic layers
+    y_mod = mod(𝐱′[2] - δy, thickness)
+
+    # Determine if within Layer A or Layer B
+    iswithin = y_mod < ratio * thickness
+
+    return iswithin
+end
+
 @inline function _inside(p::Union{Point, SArray}, rect::Rectangle)
     (; origin, h, l, cosθ, sinθ) = rect
 
@@ -73,29 +96,6 @@ end
         end
         j = i
     end
-
-    return iswithin
-end
-
-function inside(p::Union{Point, SArray}, lay::Layering)
-    (; center, thickness, ratio, sinθ, cosθ, perturb_amp, perturb_width) = lay
-
-    iswithin = false
-
-    # Shift layering
-    𝐱 = p - center
-    # Rotate geometry
-    𝐑 = rotation_matrix(sinθ, cosθ)
-    𝐱′ = 𝐑 * 𝐱
-
-    # Gaussian perturbation
-    δy = perturb_amp * exp(-𝐱′[1]^2 / (2 * perturb_width^2))
-
-    # Compute local vertical position in periodic layers
-    y_mod = mod(𝐱′[2] - δy, thickness)
-
-    # Determine if within Layer A or Layer B
-    iswithin = y_mod < ratio * thickness
 
     return iswithin
 end
