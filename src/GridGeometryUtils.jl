@@ -19,6 +19,9 @@ export Triangle, Rectangle, Prism, Trapezoid, Hexagon, BBox
 include("ellipsoids.jl")
 export Ellipse, Circle
 
+include("layering.jl")
+export Layering
+
 include("areas.jl")
 export area, volume, perimeter
 
