@@ -31,4 +31,4 @@ end
 @inline geq_r(a::Number, b::Number) = isequal_r(a, b) || a > b
 
 @inline arequasizero(a, b) = isquasizero(a) && isquasizero(b)
-@inline isquasizero(a::T) where {T} = a < 1.0e3 * eps(T)
+@inline isquasizero(a::T) where {T} = abs(a) < 1.0e3 * eps(T)
