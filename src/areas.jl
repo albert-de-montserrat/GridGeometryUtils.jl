@@ -1,8 +1,6 @@
 area(::T) where {T <: AbstractPolygon} = throw("Area not defined for the AbstractPolygon of type $T")
 area(::T) where {T} = throw("$T is not an AbstractPolygon")
 
-@inline area(r::BBox) = r.h * r.l
-
 @inline function area(t::Triangle{T}) where {T}
     a = distance(t.p1, t.p2)
     b = distance(t.p2, t.p3)
@@ -15,6 +13,7 @@ area(::T) where {T} = throw("$T is not an AbstractPolygon")
 end
 
 @inline area(r::Rectangle) = r.h * r.l
+@inline area(r::BBox{2}) = r.h * r.l
 @inline area(r::Prism) = 2 * ((r.h + r.l) + (r.h + r.d) + (r.d + r.l))
 @inline area(t::Trapezoid) = (t.h1 + t.h2) * t.l / 2
 @inline area(h::Hexagon) = 6 * h.radius
@@ -41,3 +40,4 @@ end
 volume(::T) where {T <: AbstractPolygon} = throw("Volume not defined for the AbstractPolygon of type $T")
 volume(::T) where {T} = throw("$T is not an AbstractPolygon")
 @inline volume(r::Prism) = r.h * r.l * r.d
+@inline volume(r::BBox{3}) = r.h * r.l * r.d
