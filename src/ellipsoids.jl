@@ -3,7 +3,7 @@ abstract type AbstractEllipsoid{T} <: AbstractGeometryObject{T} end
 struct Circle{T} <: AbstractEllipsoid{T}
     center::Point{2, T}
     radius::T
-    box::BBox{2,T}
+    box::BBox{2, T}
 
     function Circle(center::NTuple{2, T1}, r::T2) where {T1, T2}
         T = promote_type(T1, T2)
@@ -27,7 +27,7 @@ struct Ellipse{T} <: AbstractEllipsoid{T}
     b::T # semi-axis 2
     sinθ::T
     cosθ::T
-    box::BBox{2,T}
+    box::BBox{2, T}
     vertices::SMatrix{2, 4, T, 8}
 
     function Ellipse(center::NTuple{2, T1}, a::T2, b::T3; θ::T4 = 0.0e0) where {T1, T2, T3, T4}

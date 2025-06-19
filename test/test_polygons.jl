@@ -32,7 +32,7 @@ end
         @test perimeter(bbox) == 12
     end
 
-     @testset "3D" begin
+    @testset "3D" begin
         origin = (0, 0, 0)
         bbox = BBox(origin, 2, 4, 3)
 
