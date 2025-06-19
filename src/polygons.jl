@@ -9,20 +9,24 @@ A parametric type representing a rectangle with elements of type `T`.
 - `T`: The numeric type used for the rectangle's coordinates (e.g., `Float64`, `Int`).
 
 """
-struct BBox{T} <: AbstractPolygon{T}
-    origin::Point{2, T}
+struct BBox{N, T} <: AbstractPolygon{T}
+    origin::Point{N, T}
     l::T # length
     h::T # height
+    d::T # depth
 
-    function BBox(origin::NTuple{2, T1}, l::T2, h::T3) where {T1, T2, T3}
-        T = promote_type(T1, T2, T3)
-        origin_promoted = Point(ntuple(ix -> T(origin[ix]), Val(2))...)
-        return new{T}(origin_promoted, promote(l, h)...)
+    function BBox(origin::NTuple{N, T1}, l::T2, h::T3, d::T4) where {N, T1, T2, T3, T4}
+        T = promote_type(T1, T2, T3, T4)
+        origin_promoted = Point(ntuple(ix -> T(origin[ix]), Val(N))...)
+        return new{N,T}(origin_promoted, promote(l, h, d)...)
     end
 end
 
-BBox(origin::Point{2}, l::Number, h::Number) = BBox(totuple(origin), l, h)
-BBox(origin::SVector{2}, l::Number, h::Number) = BBox(origin.data, l, h)
+BBox(origin::NTuple{2,Any}, l::Number, h::Number) = BBox(origin, l, h, 0)
+BBox(origin::Point{2}, l::Number, h::Number) = BBox(totuple(origin), l, h, 0)
+BBox(origin::SVector{2}, l::Number, h::Number) = BBox(origin.data, l, h, 0)
+BBox(origin::Point{3}, l::Number, h::Number, d::Number) = BBox(totuple(origin), l, h, d)
+BBox(origin::SVector{3}, l::Number, h::Number, d::Number) = BBox(origin.data, l, h, d)
 
 Adapt.@adapt_structure BBox
 
@@ -68,7 +72,7 @@ struct Rectangle{T} <: AbstractPolygon{T}
     h::T # height
     sinθ::T
     cosθ::T
-    box::BBox{T}
+    box::BBox{2,T}
     vertices::SMatrix{2, 4, T, 8}
 
     function Rectangle(origin::NTuple{2, T1}, l::T2, h::T3; θ::T4 = 0.0) where {T1, T2, T3, T4}
@@ -134,7 +138,7 @@ struct Hexagon{T} <: AbstractPolygon{T}
     radius::T
     sinθ::T
     cosθ::T
-    box::BBox{T}
+    box::BBox{2,T}
     vertices::SMatrix{2, 6, T, 12}
 
     function Hexagon(origin::NTuple{2, T1}, radius::T2; θ::T3 = 0.0) where {T1, T2, T3}
