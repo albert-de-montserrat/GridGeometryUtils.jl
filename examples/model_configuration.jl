@@ -28,8 +28,8 @@ function main()
     )
 
     lays = (
-        Layering((-1.1, 0.7), 0.2, 0.1, 0.1; θ = 1 * π / 4),
-        Layering((-0.0, 0.7), 0.14, 0.2, 0.5; θ = 0.0, perturb_amp = 0.1, perturb_width = 1.5),
+        Layering((-1.1, 0.7), 0.2, 0.1; θ = 1 * π / 4),
+        Layering((-0.0, 0.7), 0.14, 0.2; θ = 0.0, perturb_amp = 0.1, perturb_width = 1.5),
     )
 
     @time for I in CartesianIndices(phase)
