@@ -85,10 +85,10 @@ end
     return iswithin
 end
 
-@inline function _inside(p::Union{Point, SArray}, circle::Circle)
+@inline function _inside(p::Union{Point, SArray}, circle::Union{Circle, Sphere})
     (; center, radius) = circle
 
-    iswithin = leq_r(sum(@. ((p.p - center.p) / radius)^2), 1)
+    iswithin = leq_r(sum(@. (p.p - center.p)^2), radius^2)
     return iswithin
 end
 

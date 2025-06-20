@@ -120,3 +120,43 @@ end
     @test  inside(p3, ellipse2) # true
     @test !inside(p4, ellipse2) # false
 end
+
+@testset "Circle" begin
+    center = 0.0, 0.0
+    r = 2.0
+
+    circle = Circle(center, r)
+
+    @test area(circle) == π * r^2
+    @test perimeter(circle) == 2π * r
+
+    p1 = Point(0.0, 0.0)
+    p2 = Point(2.0, 0.0)
+    p3 = Point(1.5, 1.5)
+    p4 = Point(3.0, 0.0)
+
+    @test inside(p1, circle) # true
+    @test inside(p2, circle) # true (on the boundary)
+    @test !inside(p3, circle) # false (outside)
+    @test !inside(p4, circle) # false (outside)
+end
+
+@testset "Sphere" begin
+    center = (0.0, 0.0, 0.0)
+    r = 2.0
+
+    sphere = Sphere(center, r)
+
+    @test volume(sphere) == (4 / 3) * π * r^3
+    @test area(sphere) == 4 * π * r^2
+
+    p1 = Point(0.0, 0.0, 0.0)
+    p2 = Point(2.0, 0.0, 0.0)
+    p3 = Point(1.5, 1.5, 1.5)
+    p4 = Point(3.0, 0.0, 0.0)
+
+    @test inside(p1, sphere) # true
+    @test inside(p2, sphere) # true (on the boundary)
+    @test !inside(p3, sphere) # false (outside)
+    @test !inside(p4, sphere) # false (outside)
+end

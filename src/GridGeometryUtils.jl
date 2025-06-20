@@ -14,7 +14,7 @@ include("polygons.jl")
 export Triangle, Rectangle, Prism, Trapezoid, Hexagon, BBox
 
 include("ellipsoids.jl")
-export Ellipse, Circle
+export Ellipse, Circle, Sphere
 
 include("layering.jl")
 export Layering

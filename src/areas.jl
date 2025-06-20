@@ -19,6 +19,7 @@ end
 @inline area(h::Hexagon) = 6 * h.radius
 @inline area(circle::Circle) = π * circle.radius^2
 @inline area(ellipse::Ellipse) = π * ellipse.a * ellipse.b
+@inline area(s::Sphere) = 4 * π * s.radius^2
 
 perimeter(::T) where {T <: AbstractPolygon} = throw("Perimeter not defined for the AbstractPolygon of type $T")
 perimeter(::T) where {T} = throw("$T is not an AbstractPolygon")
@@ -40,4 +41,5 @@ end
 volume(::T) where {T <: AbstractPolygon} = throw("Volume not defined for the AbstractPolygon of type $T")
 volume(::T) where {T} = throw("$T is not an AbstractPolygon")
 @inline volume(r::Prism) = r.h * r.l * r.d
+@inline volume(s::Sphere) = (4 * π * s.radius^3) / 3
 @inline volume(r::BBox{3}) = r.h * r.l * r.d

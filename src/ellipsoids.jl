@@ -21,6 +21,26 @@ Circle(center::SVector{2}, radius::Number) = Circle(center.data, radius)
 
 Adapt.@adapt_structure Circle
 
+struct Sphere{T} <: AbstractEllipsoid{T}
+    center::Point{3, T}
+    radius::T
+    box::BBox{3, T}
+
+    function Sphere(center::NTuple{3, T1}, r::T2) where {T1, T2}
+        T = promote_type(T1, T2)
+        center_promoted = Point(ntuple(i -> T(center[i]), Val(3))...)
+        # Create bounding box
+        origin = center .+ @SVector([-r, -r, -r])
+        box = BBox(Point(origin), 2 * r, 2 * r, 2 * r)
+        return new{T}(center_promoted, convert(T, r), box)
+    end
+end
+
+Sphere(center::Point{3}, radius::Number) = Sphere(totuple(center), radius)
+Sphere(center::SVector{3}, radius::Number) = Sphere(center.data, radius)
+
+Adapt.@adapt_structure Sphere
+
 struct Ellipse{T} <: AbstractEllipsoid{T}
     center::Point{2, T}
     a::T # semi-axis 1
