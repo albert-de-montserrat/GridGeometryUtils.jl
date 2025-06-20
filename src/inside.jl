@@ -1,6 +1,6 @@
 @inline inside(p::Union{Point, SArray}, object::AbstractGeometryObject) = inside(p, object.box) ? _inside(p, object) : false
 
-@inline function inside(p::Union{Point, SArray}, box::BBox)
+@inline function inside(p::Union{Point, SArray}, box::BBox{2})
     (; origin, h, l) = box
     px, py = p[1], p[2]
     ox, oy = origin[1], origin[2]
@@ -9,6 +9,19 @@
     py < oy     && return false
     px > ox + l && return false
     py > oy + h && return false
+    return true
+end
+
+@inline function inside(p::Union{Point, SArray}, box::BBox{3})
+    (; origin, h, l, d) = box
+    px, py, pz = p[1], p[2], p[3]
+    ox, oy, oz = origin[1], origin[2], origin[3]
+    # assumes origin is the SW vertex!
+    px < ox     && return false
+    py < oy     && return false
+    px > ox + l && return false
+    py > oy + d && return false
+    pz > oz + h && return false
     return true
 end
 

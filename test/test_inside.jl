@@ -1,10 +1,20 @@
 @testset "In BBox?    " begin
+    @testset "2D" begin
+        o2 = @SVector([0.0, 0.0])
 
-    o2 = @SVector([0.0, 0.0])
+        p2 = @SVector([0.0, 0.0])
+        box = BBox(o2, 2, 4)
+        @test inside(p2, box)
+    end
 
-    p = @SVector([0.0, 0.0])
-    box = BBox(o2, 2, 4)
-    @test inside(p, box)
+    @testset "3D" begin
+        o3 = @SVector([0.0, 0.0, 0.0])
+
+        p3 = @SVector([1.0, 1.0, 1.0])
+        box = BBox(o3, 2, 4, 3)
+        @test inside(p3, box)
+    end
+
 end
 
 @testset "In Hexagon? " begin

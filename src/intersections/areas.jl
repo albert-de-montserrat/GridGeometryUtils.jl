@@ -87,10 +87,6 @@ function intersecting_area(p1, p2, r::Rectangle{T}) where {T}
         area_top_right(ptop, p2, r)
 
     else # it should have crashed before anyway
-        @show p1
-        @show p2
-        @show r
-
         throw("Unsupported intersection case")
     end
 
