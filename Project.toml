@@ -1,7 +1,7 @@
 name = "GridGeometryUtils"
 uuid = "6f784e4f-3d6e-439e-b87e-1b67132dd330"
 authors = ["Albert de Montserrat <albert.de.montserrat@gmail.com>"]
-version = "0.1.8"
+version = "0.1.9"
 
 [deps]
 Adapt = "79e6a3ab-5dfb-504d-930d-738a2a938a0e"
