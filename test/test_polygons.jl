@@ -147,7 +147,7 @@ end
 
     sphere = Sphere(center, r)
 
-    @test volume(sphere) == (4/3) * π * r^3
+    @test volume(sphere) == (4 / 3) * π * r^3
     @test area(sphere) == 4 * π * r^2
 
     p1 = Point(0.0, 0.0, 0.0)
