@@ -4,6 +4,8 @@ using Adapt, StaticArrays, LinearAlgebra
 
 abstract type AbstractGeometryObject{T} end
 
+include("comparisons.jl")
+
 include("points.jl")
 export Point, distance
 
@@ -30,7 +32,6 @@ export intersecting_area
 include("inside.jl")
 export inside
 
-include("comparisons.jl")
 include("rotation_matrices.jl")
 
 end # module GridGeometryUtils

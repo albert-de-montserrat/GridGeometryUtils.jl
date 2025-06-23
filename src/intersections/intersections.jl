@@ -10,11 +10,11 @@ end
 function intersecting_boundary(px, py, r::Rectangle)
     (; origin, h, l) = r
     ox, oy = origin[1], origin[2]
-    if leq_r(oy, py) && leq_r(py, oy + h)
-        isequal_r(px, ox)     && return 1 # :left
-        isequal_r(px, ox + l) && return 2 # :right
+    if @comp oy ≤ py && py ≤ oy + h
+        @comp px == ox     && return 1 # :left
+        @comp px == ox + l && return 2 # :right
     end
-    leq_r(py, oy)     && return 3 # :bottom
-    geq_r(py, oy + h) && return 4 # :top
+    @comp py ≤ oy     && return 3 # :bottom
+    @comp py ≥ oy + h && return 4 # :top
     return 0 # :inside
 end

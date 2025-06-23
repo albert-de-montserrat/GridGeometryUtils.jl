@@ -86,14 +86,14 @@ struct Rectangle{T} <: AbstractPolygon{T}
         end
 
         # Vertices
-        𝐱SW = origin .+ @SVector([-l / 2, -h / 2])
-        𝐱SE = origin .+ @SVector([l / 2, -h / 2])
-        𝐱NW = origin .+ @SVector([-l / 2, h / 2])
-        𝐱NE = origin .+ @SVector([l / 2, h / 2])
+        𝐱SW = origin .+ @SVector [-l / 2, -h / 2]
+        𝐱SE = origin .+ @SVector [l / 2, -h / 2]
+        𝐱NW = origin .+ @SVector [-l / 2, h / 2]
+        𝐱NE = origin .+ @SVector [l / 2, h / 2]
         𝐱 = SMatrix{2, 4}([ 𝐱SW 𝐱NW 𝐱NE 𝐱SE])
 
         vertices, box = if iszero(θ)
-            origin_bbox = origin .+ @SVector([-l / 2, -h / 2])
+            origin_bbox = origin .+ @SVector [-l / 2, -h / 2]
             box = BBox(origin_bbox, l, h)
             vertices = 𝐱
             vertices, box
@@ -107,7 +107,7 @@ struct Rectangle{T} <: AbstractPolygon{T}
             lbox, hbox = maximum(𝐱′[1, :]) - minimum(𝐱′[1, :]), maximum(𝐱′[2, :]) - minimum(𝐱′[2, :])
 
             # shift origin to make further computations faster
-            origin_bbox = origin .+ @SVector([-lbox / 2, -hbox / 2])
+            origin_bbox = origin .+ @SVector [-lbox / 2, -hbox / 2]
             box = BBox(origin_bbox, lbox, hbox)
 
             # Store vertices
@@ -164,7 +164,7 @@ struct Hexagon{T} <: AbstractPolygon{T}
         lbox, hbox = maximum(vertices[1, :]) - minimum(vertices[1, :]), maximum(vertices[2, :]) - minimum(vertices[2, :])
 
         # shift origin to make further computations faster
-        origin_bbox = origin .+ @SVector([-lbox / 2, -hbox / 2])
+        origin_bbox = origin .+ @SVector [-lbox / 2, -hbox / 2]
         box = BBox(origin_bbox, lbox, hbox)
 
         return new{T}(origin_promoted, promote(radius, sinθ, cosθ)..., box, vertices)
