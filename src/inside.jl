@@ -5,10 +5,10 @@
     px, py = p[1], p[2]
     ox, oy = origin[1], origin[2]
     # assumes origin is the SW vertex!
-    px < ox     && return false
-    py < oy     && return false
-    px > ox + l && return false
-    py > oy + h && return false
+    @comp px < ox     && return false
+    @comp py < oy     && return false
+    @comp px > ox + l && return false
+    @comp py > oy + h && return false
     return true
 end
 
@@ -17,11 +17,11 @@ end
     px, py, pz = p[1], p[2], p[3]
     ox, oy, oz = origin[1], origin[2], origin[3]
     # assumes origin is the SW vertex!
-    px < ox     && return false
-    py < oy     && return false
-    px > ox + l && return false
-    py > oy + d && return false
-    pz > oz + h && return false
+    @comp px < ox     && return false
+    @comp py < oy     && return false
+    @comp px > ox + l && return false
+    @comp py > oy + d && return false
+    @comp pz > oz + h && return false
     return true
 end
 
@@ -43,7 +43,7 @@ function inside(p::Union{Point, SArray}, lay::Layering)
     y_mod = mod(𝐱′[2] - δy, thickness)
 
     # Determine if within Layer A or Layer B
-    iswithin = y_mod < ratio * thickness
+    iswithin = @comp y_mod < ratio * thickness
 
     return iswithin
 end
@@ -60,13 +60,13 @@ end
     # Rotate geometry
     𝐱′ = 𝐑 * 𝐱
     # Check if inside
-    return leq_r(abs(𝐱′[1]), l / 2) && leq_r(abs(𝐱′[2]), h / 2)
+    return @comp abs(𝐱′[1]) ≤ l / 2 && abs(𝐱′[2]) ≤ h / 2
 end
 
 @inline function _inside(p::Union{Point, SArray}, ellipse::Ellipse)
     (; center, a, b, cosθ, sinθ) = ellipse
 
-    @inline inside_ellipse(p) = leq_r(((p[1] - center[1]) / a)^2 + ((p[2] - center[2]) / b)^2, 1)
+    @inline inside_ellipse(p) = @comp ((p[1] - center[1]) / a)^2 + ((p[2] - center[2]) / b)^2 ≤ 1
 
     iswithin = if iszero(sinθ) # No rotation, just check bounding box
         inside_ellipse(p)
@@ -88,7 +88,7 @@ end
 @inline function _inside(p::Union{Point, SArray}, circle::Union{Circle, Sphere})
     (; center, radius) = circle
 
-    iswithin = leq_r(sum(@. (p.p - center.p)^2), radius^2)
+    iswithin = @comp sum(@. (p.p - center.p)^2) ≤ radius^2
     return iswithin
 end
 
@@ -103,7 +103,7 @@ end
     for i in 1:n
         xi, yi = vertices[:, i]
         xj, yj = vertices[:, j]
-        if ((yi > p[2]) != (yj > p[2])) &&
+        if @comp ((yi > p[2]) != (yj > p[2])) &&
                 (p[1] < (xj - xi) * (p[2] - yi) / (yj - yi + 1.0e-10) + xi)  # add small number to avoid divide-by-zero
             iswithin = !iswithin
         end

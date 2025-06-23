@@ -1,5 +1,5 @@
-area(::T) where {T <: AbstractPolygon} = throw("Area not defined for the AbstractPolygon of type $T")
-area(::T) where {T} = throw("$T is not an AbstractPolygon")
+@inline area(::T) where {T <: AbstractPolygon} = throw("Area not defined for the AbstractPolygon of type $T")
+@inline area(::T) where {T} = throw("$T is not an AbstractPolygon")
 
 @inline function area(t::Triangle{T}) where {T}
     a = distance(t.p1, t.p2)
@@ -21,8 +21,8 @@ end
 @inline area(ellipse::Ellipse) = π * ellipse.a * ellipse.b
 @inline area(s::Sphere) = 4 * π * s.radius^2
 
-perimeter(::T) where {T <: AbstractPolygon} = throw("Perimeter not defined for the AbstractPolygon of type $T")
-perimeter(::T) where {T} = throw("$T is not an AbstractPolygon")
+@inline perimeter(::T) where {T <: AbstractPolygon} = throw("Perimeter not defined for the AbstractPolygon of type $T")
+@inline perimeter(::T) where {T} = throw("$T is not an AbstractPolygon")
 
 @inline perimeter(r::BBox) = 2 * (r.h + r.l)
 @inline perimeter(t::Triangle{T}) where {T} = distance(t.p1, t.p2) + distance(t.p2, t.p3) + distance(t.p3, t.p1)
@@ -38,8 +38,8 @@ perimeter(::T) where {T} = throw("$T is not an AbstractPolygon")
     return P
 end
 
-volume(::T) where {T <: AbstractPolygon} = throw("Volume not defined for the AbstractPolygon of type $T")
-volume(::T) where {T} = throw("$T is not an AbstractPolygon")
+@inline volume(::T) where {T <: AbstractPolygon} = throw("Volume not defined for the AbstractPolygon of type $T")
+@inline volume(::T) where {T} = throw("$T is not an AbstractPolygon")
 @inline volume(r::Prism) = r.h * r.l * r.d
 @inline volume(s::Sphere) = (4 * π * s.radius^3) / 3
 @inline volume(r::BBox{3}) = r.h * r.l * r.d

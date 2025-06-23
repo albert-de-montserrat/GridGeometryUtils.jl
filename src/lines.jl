@@ -43,7 +43,7 @@ function dointersect(s1::Segment, s2::Segment)
     p = intersection(s1, s2)
 
     # Check if intersect
-    return leq_r(p1[1], p[1]) && leq_r(p[1], p2[1])
+    return @comp  p1[1] ≤ p[1] && p[1] ≤ p2[1]
 end
 
 function intersection(s1::Segment, s2::Segment)

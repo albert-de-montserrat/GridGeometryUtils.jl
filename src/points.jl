@@ -55,3 +55,11 @@ Base.:*(p1::Point, p2::SMatrix) = p2.p * p1
 LinearAlgebra.adjoint(p::Point) = Adjoint(p.p)
 
 @inline distance(p1::Point{N}, p2::Point{N}) where {N} = √sum(((p1.p[i] - p2.p[i])^2) for i in 1:N)
+
+@inline function isequal_r(a::Point{2}, b::Point{2})
+    return isequal_r(a[1], b[1]) && isequal_r(a[2], b[2])
+end
+
+@inline function isequal_r(a::Point{2}, b::Point{3})
+    return isequal_r(a[1], b[1]) && isequal_r(a[2], b[2]) && isequal_r(a[3], b[3])
+end
