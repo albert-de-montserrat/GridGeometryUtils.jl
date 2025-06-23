@@ -9,25 +9,16 @@ end
 
 @inline isequal_r(a::T1, b::T2) where {T1, T2} = isequal_r(promote(a, b)...)
 
-@inline function le_r(a::Number, b::Number)
-    isequal_r(a, b) && return false
-    # If a is not equal to b, we can use the standard comparison
-    return a < b
-end
-
 @inline le_r(a::Integer, b::Integer) = a < b
+@inline le_r(a::Number, b::Number) = isequal_r(a, b) ? false : a < b
 
-@inline function ge_r(a::Number, b::Number)
-    isequal_r(a, b) && return false
-    # If a is not equal to b, we can use the standard comparison
-    return a > b
-end
-
+@inline ge_r(a::Number, b::Number) = isequal_r(a, b) ? false : a > b
 @inline ge_r(a::Integer, b::Integer) = a > b
 
 @inline leq_r(a::Number, b::Number) = isequal_r(a, b) || a < b
-@inline geq_r(a::Number, b::Number) = isequal_r(a, b) || a > b
 @inline leq_r(a::Integer, b::Integer) = a ≤ b
+
+@inline geq_r(a::Number, b::Number) = isequal_r(a, b) || a > b
 @inline geq_r(a::Integer, b::Integer) = a ≥ b
 
 @inline arequasizero(a, b) = isquasizero(a) && isquasizero(b)
@@ -48,21 +39,21 @@ end
     return
 end
 
-@inline function substitute_comp(sym::Symbol) 
-    if sym === :(==) 
+@inline function substitute_comp(sym::Symbol)
+    ex = if sym === :(==)
         :(isequal_r)
-    elseif sym === :(>) 
+    elseif sym === :(>)
         :(ge_r)
-    elseif sym === :(<) 
-        :(le_r) 
-    elseif sym === :(≥) 
+    elseif sym === :(<)
+        :(le_r)
+    elseif sym === :(≥)
         :(geq_r)
-    elseif sym === :(≤) 
-        :(leq_r) 
+    elseif sym === :(≤)
+        :(leq_r)
     else
         sym
     end
-
+    return ex
 end
 
 @inline substitute_comp(x) = x
