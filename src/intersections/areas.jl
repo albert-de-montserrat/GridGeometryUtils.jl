@@ -87,6 +87,10 @@ function intersecting_area(p1, p2, r::Rectangle{T}) where {T}
         area_top_right(ptop, p2, r)
 
     else # it should have crashed before anyway
+        @show p1
+        @show p2
+        @show r
+
         throw("Unsupported intersection case")
     end
 
@@ -130,14 +134,18 @@ end
 
 @inline function area_left_top(p1, p2, r::Rectangle{T}) where {T}
     p3 = Point(r.origin + SA[zero(T), r.h])
-    p1.p === p2.p === p3.p && return zero(T)
+    p1.p === p2.p && return zero(T)
+    p2.p === p3.p && return zero(T)
+    p1.p === p3.p && return zero(T)
     tr = Triangle(p1, p2, p3)
     return area(r) - area(tr)
 end
 
 @inline function area_top_right(p1, p2, r::Rectangle{T}) where {T}
     p3 = Point(r.origin + SA[r.l, r.h])
-    p1.p === p2.p === p3.p && return zero(T)
+    p1.p === p2.p && return zero(T)
+    p2.p === p3.p && return zero(T)
+    p1.p === p3.p && return zero(T)
     tr = Triangle(p1, p2, p3)
     return area(r) - area(tr)
 end
