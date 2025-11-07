@@ -11,7 +11,7 @@ function Circle(center::NTuple{2, T1}, r::T2) where {T1, T2}
     center_promoted = Point(ntuple(i -> T(center[i]), Val(2))...)
     # Create bounding box
     origin = center .+ @SVector([-r, -r])
-    box = BBox(origin, 2 * r, 2 * r, 0e0)
+    box = BBox(origin, 2 * r, 2 * r, 0.0e0)
 
     return Circle{T}(center_promoted, convert(T, r), box)
 end
