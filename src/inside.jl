@@ -1,3 +1,15 @@
+"""
+    inside(p, object) -> Bool
+
+Return `true` when point `p` lies inside `object`.
+
+For geometry objects with a bounding box, a fast coarse BBox check is performed
+before the exact predicate `_inside`. For `BBox` and `Layering` arguments the
+exact test is applied directly.
+
+Supported objects: `BBox{2}`, `BBox{3}`, `Layering`, `Rectangle`, `Ellipse`,
+`Circle`, `Sphere`, `Hexagon`.
+"""
 @inline inside(p::Union{Point, SArray}, object::AbstractGeometryObject) = inside(p, object.box) ? _inside(p, object) : false
 
 @inline function inside(p::Union{Point, SArray}, box::BBox{2})

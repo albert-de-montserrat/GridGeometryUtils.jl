@@ -56,6 +56,20 @@ end
 @inline Triangle(p1::NTuple{2}, p2::NTuple{2}, p3::NTuple{2}) = Triangle(Point(p1), Point(p2), Point(p3))
 @inline Triangle(p1::SVector{2}, p2::SVector{2}, p3::SVector{2}) = Triangle(Point(p1), Point(p2), Point(p3))
 
+"""
+    coordinates(shape) -> Tuple{Point...}
+
+Return the defining vertices (or control points) of a geometry object as a tuple
+of `Point` values.
+
+| Type         | Returns                                      |
+|--------------|----------------------------------------------|
+| `Triangle`   | `(p1, p2, p3)`                               |
+| `Rectangle`  | `(SW, NW, NE, SE)` after rotation            |
+| `Hexagon`    | 6 corner points after rotation               |
+| `Trapezoid`  | `(SW, SE, NE, NW)`                           |
+| `Segment`    | `(p1, p2)`                                   |
+"""
 @inline coordinates(t::Triangle) = (t.p1, t.p2, t.p3)
 
 Adapt.@adapt_structure Triangle
@@ -186,11 +200,17 @@ Adapt.@adapt_structure Hexagon
 """
     Prism{T} <: AbstractPolygon{T}
 
-A parametric type representing a rectangle with elements of type `T`. 
+A parametric type representing a 3-D rectangular prism (box) with elements of
+type `T`.
+
+# Fields
+- `origin::Point{3, T}`: The origin (SW-bottom) corner of the prism.
+- `l::T`: Length along the x-axis.
+- `h::T`: Height along the z-axis.
+- `d::T`: Depth along the y-axis.
 
 # Type Parameters
-- `T`: The numeric type used for the rectangle's coordinates (e.g., `Float64`, `Int`).
-
+- `T`: The numeric type used for the prism's coordinates (e.g., `Float64`, `Int`).
 """
 struct Prism{T} <: AbstractPolygon{T}
     origin::Point{3, T}
@@ -210,6 +230,22 @@ Prism(origin::SVector{2}, l::Number, h::Number, d::Number) = Prism(origin.data, 
 
 Adapt.@adapt_structure Prism
 
+"""
+    Trapezoid{T} <: AbstractPolygon{T}
+
+A parametric type representing a right trapezoid lying in the 2-D plane.
+
+# Fields
+- `origin::Point{2, T}`: The bottom-left vertex.
+- `l::T`: Width (horizontal extent).
+- `h1::T`: Height of the right side.
+- `h2::T`: Height of the left side.
+
+The four vertices (SW, SE, NE, NW) are returned by `coordinates(trap)`.
+
+# Type Parameters
+- `T`: The numeric type used for the trapezoid's coordinates.
+"""
 struct Trapezoid{T} <: AbstractPolygon{T}
     origin::Point{2, T}
     l::T

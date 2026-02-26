@@ -1,3 +1,13 @@
+"""
+    area(shape)
+
+Return the area of the given 2-D geometry object.
+
+Supported types: `Triangle`, `Rectangle`, `BBox{2}`, `Prism`, `Trapezoid`,
+`Hexagon`, `Circle`, `Ellipse`, `Sphere` (surface area).
+
+Throws an informative error when `area` is not implemented for the given type.
+"""
 @inline area(::T) where {T <: AbstractPolygon} = throw("Area not defined for the AbstractPolygon of type $T")
 @inline area(::T) where {T} = throw("$T is not an AbstractPolygon")
 
@@ -21,6 +31,16 @@ end
 @inline area(ellipse::Ellipse) = π * ellipse.a * ellipse.b
 @inline area(s::Sphere) = 4 * π * s.radius^2
 
+"""
+    perimeter(shape)
+
+Return the perimeter (or approximate perimeter) of the given 2-D geometry object.
+
+Supported types: `BBox`, `Triangle`, `Rectangle`, `Hexagon`, `Trapezoid`, `Circle`,
+`Ellipse` (Ramanujan approximation).
+
+Throws an informative error when `perimeter` is not implemented for the given type.
+"""
 @inline perimeter(::T) where {T <: AbstractPolygon} = throw("Perimeter not defined for the AbstractPolygon of type $T")
 @inline perimeter(::T) where {T} = throw("$T is not an AbstractPolygon")
 

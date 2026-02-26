@@ -1,3 +1,12 @@
+"""
+    volume(shape)
+
+Return the volume of the given 3-D geometry object.
+
+Supported types: `Prism`, `Sphere`, `BBox{3}`.
+
+Throws an informative error when `volume` is not implemented for the given type.
+"""
 @inline volume(::T) where {T <: AbstractPolygon} = throw("Volume not defined for the AbstractPolygon of type $T")
 @inline volume(::T) where {T} = throw("$T is not an AbstractPolygon")
 @inline volume(r::Prism) = r.h * r.l * r.d

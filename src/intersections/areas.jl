@@ -1,3 +1,13 @@
+"""
+    intersecting_area(p1, p2, r::Rectangle) -> Number
+
+Return the area of the region swept between the two boundary points `p1` and `p2`
+inside rectangle `r`. `p1` and `p2` must lie on the boundary of `r`; use
+[`intersecting_boundary`](@ref) to classify each point first.
+
+The function dispatches on the pair of boundary codes `(code1, code2)` and
+computes the relevant trapezoidal or triangular sub-area.
+"""
 function intersecting_area(p1, p2, r::Rectangle{T}) where {T}
     intersect_1 = intersecting_boundary(p1, r)
     intersect_2 = intersecting_boundary(p2, r)

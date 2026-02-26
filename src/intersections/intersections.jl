@@ -1,3 +1,12 @@
+"""
+    intersection(l::Line, r::Rectangle) -> Vector{Point{2,T}}
+
+Return the 0, 1, or 2 points where infinite line `l` crosses the boundary of
+rectangle `r`. Works for both axis-aligned and rotated rectangles by iterating
+over the four sides of `r`.
+
+Corner points that would be returned twice are deduplicated.
+"""
 # Returns a Vector of 0, 1, or 2 Point{2,T} where the line crosses the rectangle boundary.
 # Works for both axis-aligned and rotated rectangles (vertices are already transformed).
 function intersection(l::Line, r::Rectangle{T}) where {T}
@@ -28,6 +37,23 @@ end
 
 (∩)(l::Line, r::Rectangle) = intersection(l, r)
 
+"""
+    intersecting_boundary(p::Point{2}, r::Rectangle) -> Int
+    intersecting_boundary(px, py, r::Rectangle) -> Int
+
+Return an integer code indicating which boundary of the axis-aligned rectangle
+`r` the point `(px, py)` lies on:
+
+| Code | Meaning  |
+|------|----------|
+| `1`  | Left     |
+| `2`  | Right    |
+| `3`  | Bottom   |
+| `4`  | Top      |
+| `0`  | Interior |
+
+The `Point` overload throws when the point is interior to `r`.
+"""
 function intersecting_boundary(p::Point{2}, r::Rectangle)
     # Check if the point is on any boundary
     intersect = intersecting_boundary(p[1], p[2], r)

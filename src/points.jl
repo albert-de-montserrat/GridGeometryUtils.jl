@@ -55,8 +55,20 @@ Base.:*(p1::Point, p2::SMatrix) = p2.p * p1
 
 LinearAlgebra.adjoint(p::Point) = Adjoint(p.p)
 
+"""
+    distance(p1::Point{N}, p2::Point{N})
+
+Return the Euclidean distance between two `N`-dimensional points `p1` and `p2`.
+"""
 @inline distance(p1::Point{N}, p2::Point{N}) where {N} = √sum(((p1.p[i] - p2.p[i])^2) for i in 1:N)
 
+"""
+    isequal_r(a::Point{2}, b::Point{2})
+    isequal_r(a::Point{2}, b::Point{3})
+
+Component-wise relative equality for `Point` types using [`isequal_r`](@ref) on
+each coordinate.
+"""
 @inline function isequal_r(a::Point{2}, b::Point{2})
     return isequal_r(a[1], b[1]) && isequal_r(a[2], b[2])
 end

@@ -1,5 +1,20 @@
 abstract type AbstractEllipsoid{T} <: AbstractGeometryObject{T} end
 
+"""
+    Circle{T} <: AbstractEllipsoid{T}
+
+A 2-D circle defined by a `center` and a `radius`.
+
+# Fields
+- `center::Point{2, T}`: The centre point.
+- `radius::T`: The radius of the circle.
+- `box::BBox{2, T}`: Axis-aligned bounding box (auto-computed on construction).
+
+# Constructors
+    Circle(center::NTuple{2}, r)
+    Circle(center::Point{2}, r)
+    Circle(center::SVector{2}, r)
+"""
 struct Circle{T} <: AbstractEllipsoid{T}
     center::Point{2, T}
     radius::T
@@ -21,6 +36,21 @@ Circle(center::SVector{2}, radius::Number) = Circle(center.data, radius)
 
 Adapt.@adapt_structure Circle
 
+"""
+    Sphere{T} <: AbstractEllipsoid{T}
+
+A 3-D sphere defined by a `center` and a `radius`.
+
+# Fields
+- `center::Point{3, T}`: The centre point.
+- `radius::T`: The radius of the sphere.
+- `box::BBox{3, T}`: Axis-aligned bounding box (auto-computed on construction).
+
+# Constructors
+    Sphere(center::NTuple{3}, r)
+    Sphere(center::Point{3}, r)
+    Sphere(center::SVector{3}, r)
+"""
 struct Sphere{T} <: AbstractEllipsoid{T}
     center::Point{3, T}
     radius::T
@@ -41,6 +71,25 @@ Sphere(center::SVector{3}, radius::Number) = Sphere(center.data, radius)
 
 Adapt.@adapt_structure Sphere
 
+"""
+    Ellipse{T} <: AbstractEllipsoid{T}
+
+A 2-D (possibly rotated) ellipse with semi-axes `a` (horizontal) and `b` (vertical).
+
+# Fields
+- `center::Point{2, T}`: The centre point.
+- `a::T`: Semi-major axis length (x-direction when `θ = 0`).
+- `b::T`: Semi-minor axis length (y-direction when `θ = 0`).
+- `sinθ::T`, `cosθ::T`: Rotation angle stored as sine/cosine for fast evaluation.
+- `box::BBox{2, T}`: Axis-aligned bounding box of the rotated ellipse.
+- `vertices::SMatrix{2, 4, T, 8}`: The four axis-points of the ellipse (W, N, E, S)
+  after rotation.
+
+# Constructors
+    Ellipse(center, a, b; θ = 0.0)
+
+`θ` is the counter-clockwise rotation angle in radians.
+"""
 struct Ellipse{T} <: AbstractEllipsoid{T}
     center::Point{2, T}
     a::T # semi-axis 1

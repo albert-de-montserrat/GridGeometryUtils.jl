@@ -1,5 +1,20 @@
 abstract type AbstractLine{T} end
 
+"""
+    Line{T} <: AbstractLine{T}
+
+Represents an infinite 2-D line in slope-intercept form `y = slope * x + intercept`.
+
+# Fields
+- `slope::T`: The gradient of the line.
+- `intercept::T`: The y-intercept of the line.
+
+# Constructors
+    Line(slope, intercept)
+    Line(p1::Point{2}, p2::Point{2})
+
+The two-point constructor derives slope and intercept from two distinct points.
+"""
 struct Line{T} <: AbstractLine{T}
     slope::T
     intercept::T
@@ -23,8 +38,22 @@ end
 
 Adapt.@adapt_structure Line
 
+"""
+    line(l::Line, x)
+
+Evaluate the line equation at abscissa `x`, returning `l.slope * x + l.intercept`.
+"""
 @inline line(l::Line, x::Number) = muladd(l.slope, x, l.intercept)
 
+"""
+    Segment{N, T} <: AbstractLine{T}
+
+Represents a finite 2-D or 3-D line segment defined by two endpoints.
+
+# Fields
+- `p1::Point{N, T}`: The start point.
+- `p2::Point{N, T}`: The end point.
+"""
 struct Segment{N, T} <: AbstractLine{T}
     p1::Point{N, T}
     p2::Point{N, T}
@@ -40,6 +69,11 @@ Adapt.@adapt_structure Segment
 
 Line(s::Segment) = Line(s.p1, s.p2)
 
+"""
+    dointersect(s1::Segment, s2::Segment) -> Bool
+
+Return `true` when segments `s1` and `s2` intersect within the x-range of `s1`.
+"""
 function dointersect(s1::Segment, s2::Segment)
     (; p1, p2) = s1
     p = intersection(s1, s2)
@@ -48,6 +82,11 @@ function dointersect(s1::Segment, s2::Segment)
     return @comp  p1[1] ≤ p[1] && p[1] ≤ p2[1]
 end
 
+"""
+    intersection(s1::Segment, s2::Segment) -> Point
+
+Return the intersection point of two infinite lines that extend through `s1` and `s2`.
+"""
 function intersection(s1::Segment, s2::Segment)
     l1, l2 = Line(s1), Line(s2)
     x = (l2.intercept - l1.intercept) / (l1.slope - l2.slope)
@@ -56,6 +95,13 @@ function intersection(s1::Segment, s2::Segment)
     return Point(x, y)
 end
 
+"""
+    intersection(l::Line, s::Segment{2}) -> (Point, Bool)
+
+Return the candidate intersection point of line `l` with finite segment `s`, and a
+`Bool` indicating whether the point lies within the segment's extent.
+Returns `(Point(0, 0), false)` for segments parallel (or coincident) to `l`.
+"""
 # Returns (Point, Bool) — the candidate intersection and whether it lies within the segment.
 function intersection(l::Line, s::Segment{2, T}) where {T}
     x1, y1 = s.p1[1], s.p1[2]
