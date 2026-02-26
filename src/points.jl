@@ -11,16 +11,17 @@ A parametric type representing a point in N-dimensional space, where `N` is the 
 """
 struct Point{N, T}
     p::SVector{N, T}
-
-    function Point(pᵢ::Vararg{Number, N}) where {N}
-        T = promote_type(typeof.(pᵢ)...)
-        return new{N, T}(SA[T.(pᵢ)...])
-    end
 end
+
+function Point(pᵢ::Vararg{Number, N}) where {N}
+    T = promote_type(typeof.(pᵢ)...)
+    return Point{N, T}(SA[T.(pᵢ)...])
+end
+
+Adapt.@adapt_structure Point
 
 @inline Point(p::Point) = p
 @inline Point(p::NTuple) = Point(p...)
-@inline Point(p::SVector) = Point(p.data...)
 
 @inline totuple(p::Point) = p.p.data
 
