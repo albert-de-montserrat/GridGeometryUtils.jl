@@ -90,14 +90,14 @@ function Rectangle(origin::NTuple{2, T1}, l::T2, h::T3; θ::T4 = 0.0) where {T1,
     end
 
     # Vertices
-    𝐱SW = origin .+ @SVector [-l / 2, -h / 2]
-    𝐱SE = origin .+ @SVector [l / 2, -h / 2]
-    𝐱NW = origin .+ @SVector [-l / 2, h / 2]
-    𝐱NE = origin .+ @SVector [l / 2, h / 2]
+    𝐱SW = origin .+ SA[-l / 2, -h / 2]
+    𝐱SE = origin .+ SA[l / 2, -h / 2]
+    𝐱NW = origin .+ SA[-l / 2, h / 2]
+    𝐱NE = origin .+ SA[l / 2, h / 2]
     𝐱 = SMatrix{2, 4}([ 𝐱SW 𝐱NW 𝐱NE 𝐱SE])
 
     vertices, box = if iszero(θ)
-        origin_bbox = origin .+ @SVector [-l / 2, -h / 2]
+        origin_bbox = origin .+ SA[-l / 2, -h / 2]
         box = BBox(origin_bbox, l, h)
         vertices = 𝐱
         vertices, box
@@ -111,7 +111,7 @@ function Rectangle(origin::NTuple{2, T1}, l::T2, h::T3; θ::T4 = 0.0) where {T1,
         lbox, hbox = maximum(𝐱′[1, :]) - minimum(𝐱′[1, :]), maximum(𝐱′[2, :]) - minimum(𝐱′[2, :])
 
         # shift origin to make further computations faster
-        origin_bbox = origin .+ @SVector [-lbox / 2, -hbox / 2]
+        origin_bbox = origin .+ SA[-lbox / 2, -hbox / 2]
         box = BBox(origin_bbox, lbox, hbox)
 
         # Store vertices
