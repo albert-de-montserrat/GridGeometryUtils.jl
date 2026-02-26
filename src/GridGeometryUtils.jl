@@ -2,6 +2,8 @@ module GridGeometryUtils
 
 using Adapt, StaticArrays, LinearAlgebra
 
+import Base.∩
+
 abstract type AbstractGeometryObject{T} end
 
 include("comparisons.jl")
@@ -22,7 +24,10 @@ include("layering.jl")
 export Layering
 
 include("areas.jl")
-export area, volume, perimeter
+export area, perimeter
+
+include("volumes.jl")
+export volume
 
 include("intersections/intersections.jl")
 
@@ -32,6 +37,7 @@ export intersecting_area
 include("inside.jl")
 export inside
 
-include("rotation_matrices.jl")
+include("rotations.jl")
+export rotate
 
 end # module GridGeometryUtils

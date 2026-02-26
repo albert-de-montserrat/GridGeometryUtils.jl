@@ -36,6 +36,8 @@ end
 
 Adapt.@adapt_structure Segment
 
+@inline coordinates(s::Segment) = (s.p1, s.p2)
+
 Line(s::Segment) = Line(s.p1, s.p2)
 
 function dointersect(s1::Segment, s2::Segment)
@@ -52,4 +54,27 @@ function intersection(s1::Segment, s2::Segment)
     y = muladd(l1.slope, x, l1.intercept)
 
     return Point(x, y)
+end
+
+# Returns (Point, Bool) — the candidate intersection and whether it lies within the segment.
+function intersection(l::Line, s::Segment{2, T}) where {T}
+    x1, y1 = s.p1[1], s.p1[2]
+    x2, y2 = s.p2[1], s.p2[2]
+
+    # Vertical segment: x coordinate is fixed
+    if @comp x1 == x2
+        x   = x1
+        y   = muladd(l.slope, x, l.intercept)
+        ylo, yhi = minmax(y1, y2)
+        return Point(x, y), (@comp ylo ≤ y && y ≤ yhi)
+    end
+
+    ls = Line(s)
+    # Parallel (or coincident) lines — no unique intersection
+    @comp l.slope == ls.slope && return Point(zero(T), zero(T)), false
+
+    x   = (ls.intercept - l.intercept) / (l.slope - ls.slope)
+    y   = muladd(l.slope, x, l.intercept)
+    xlo, xhi = minmax(x1, x2)
+    return Point(x, y), (@comp xlo ≤ x && x ≤ xhi)
 end

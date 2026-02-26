@@ -1,3 +1,33 @@
+# Returns a Vector of 0, 1, or 2 Point{2,T} where the line crosses the rectangle boundary.
+# Works for both axis-aligned and rotated rectangles (vertices are already transformed).
+function intersection(l::Line, r::Rectangle{T}) where {T}
+    v = r.vertices  # 2×4 SMatrix, columns: SW, NW, NE, SE
+    p_SW = Point(v[1, 1], v[2, 1])
+    p_NW = Point(v[1, 2], v[2, 2])
+    p_NE = Point(v[1, 3], v[2, 3])
+    p_SE = Point(v[1, 4], v[2, 4])
+
+    sides = (
+        Segment(p_SW, p_NW),  # left
+        Segment(p_NW, p_NE),  # top
+        Segment(p_NE, p_SE),  # right
+        Segment(p_SE, p_SW),  # bottom
+    )
+
+    points = Point{2, T}[]
+    for s in sides
+        p, hits = intersection(l, s)
+        # accept the point only if it lies on the segment and is not a duplicate (corner)
+        if hits && !any(isequal_r(p, q) for q in points)
+            push!(points, p)
+        end
+    end
+
+    return points
+end
+
+(∩)(l::Line, r::Rectangle) = intersection(l, r)
+
 function intersecting_boundary(p::Point{2}, r::Rectangle)
     # Check if the point is on any boundary
     intersect = intersecting_boundary(p[1], p[2], r)

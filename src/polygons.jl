@@ -55,6 +55,8 @@ end
 @inline Triangle(p1::NTuple{2}, p2::NTuple{2}, p3::NTuple{2}) = Triangle(Point(p1), Point(p2), Point(p3))
 @inline Triangle(p1::SVector{2}, p2::SVector{2}, p3::SVector{2}) = Triangle(Point(p1), Point(p2), Point(p3))
 
+@inline coordinates(t::Triangle) = (t.p1, t.p2, t.p3)
+
 Adapt.@adapt_structure Triangle
 
 """
@@ -122,6 +124,8 @@ end
 Rectangle(origin::Point{2}, l::Number, h::Number; θ::T = 0.0) where {T} = Rectangle(totuple(origin), l, h; θ = θ)
 Rectangle(origin::SVector{2}, l::Number, h::Number; θ::T = 0.0) where {T} = Rectangle(origin.data, l, h; θ = θ)
 
+@inline coordinates(r::Rectangle) = ntuple(i -> Point(r.vertices[:,i]...), Val(4))
+
 Adapt.@adapt_structure Rectangle
 
 """
@@ -176,6 +180,8 @@ Hexagon(origin::SVector{2}, radius::Number; θ::T = 0.0) where {T} = Hexagon(ori
 
 Adapt.@adapt_structure Hexagon
 
+@inline coordinates(hex::Hexagon) = ntuple(i -> Point(hex.vertices[:,i]...), Val(6))
+
 """
     Prism{T} <: AbstractPolygon{T}
 
@@ -220,3 +226,5 @@ Trapezoid(origin::Point{2}, h::Number, l1::Number, l2::Number) = Trapezoid(totup
 Trapezoid(origin::SVector{2}, h::Number, l1::Number, l2::Number) = Trapezoid(origin.data, h, l1, l2)
 
 Adapt.@adapt_structure Trapezoid
+
+@inline coordinates(trap::Trapezoid) = (trap.origin, Point(trap.origin.x + trap.l, trap.origin.y), Point(trap.origin.x + trap.l, trap.origin.y + trap.h1), Point(trap.origin.x, trap.origin.y + trap.h2))
