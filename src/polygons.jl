@@ -139,7 +139,7 @@ end
 Rectangle(origin::Point{2}, l::Number, h::Number; θ::T = 0.0) where {T} = Rectangle(totuple(origin), l, h; θ = θ)
 Rectangle(origin::SVector{2}, l::Number, h::Number; θ::T = 0.0) where {T} = Rectangle(origin.data, l, h; θ = θ)
 
-@inline coordinates(r::Rectangle) = ntuple(i -> Point(r.vertices[:,i]...), Val(4))
+@inline coordinates(r::Rectangle) = ntuple(i -> Point(r.vertices[:, i]...), Val(4))
 
 Adapt.@adapt_structure Rectangle
 
@@ -195,7 +195,7 @@ Hexagon(origin::SVector{2}, radius::Number; θ::T = 0.0) where {T} = Hexagon(ori
 
 Adapt.@adapt_structure Hexagon
 
-@inline coordinates(hex::Hexagon) = ntuple(i -> Point(hex.vertices[:,i]...), Val(6))
+@inline coordinates(hex::Hexagon) = ntuple(i -> Point(hex.vertices[:, i]...), Val(6))
 
 """
     Prism{T} <: AbstractPolygon{T}

@@ -29,10 +29,10 @@ from its rotated vertices.
 """
 @inline rotate(p::Point{2}, origin::Point{2}, θ::Real) = Point((rotation_matrix(θ) * (p - origin) + origin)...)
 
-@inline function rotate(p::NTuple{N,Point{2}}, origin::Point{2}, θ::Real) where N
-    points = mapreduce(x->x.p, hcat, p)
+@inline function rotate(p::NTuple{N, Point{2}}, origin::Point{2}, θ::Real) where {N}
+    points = mapreduce(x -> x.p, hcat, p)
     rotated = rotation_matrix(θ) * (points .- origin.p) .+ origin.p
-    ntuple(i -> Point(rotated[:,i]...), Val(N))
+    return ntuple(i -> Point(rotated[:, i]...), Val(N))
 end
 
 @inline function rotate(s::Segment, origin::Point{2}, θ::Real)

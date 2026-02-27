@@ -109,8 +109,8 @@ function intersection(l::Line, s::Segment{2, T}) where {T}
 
     # Vertical segment: x coordinate is fixed
     if @comp x1 == x2
-        x   = x1
-        y   = muladd(l.slope, x, l.intercept)
+        x = x1
+        y = muladd(l.slope, x, l.intercept)
         ylo, yhi = minmax(y1, y2)
         return Point(x, y), (@comp ylo ≤ y && y ≤ yhi)
     end
@@ -119,8 +119,8 @@ function intersection(l::Line, s::Segment{2, T}) where {T}
     # Parallel (or coincident) lines — no unique intersection
     @comp l.slope == ls.slope && return Point(zero(T), zero(T)), false
 
-    x   = (ls.intercept - l.intercept) / (l.slope - ls.slope)
-    y   = muladd(l.slope, x, l.intercept)
+    x = (ls.intercept - l.intercept) / (l.slope - ls.slope)
+    y = muladd(l.slope, x, l.intercept)
     xlo, xhi = minmax(x1, x2)
     return Point(x, y), (@comp xlo ≤ x && x ≤ xhi)
 end

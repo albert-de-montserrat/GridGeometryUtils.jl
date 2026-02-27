@@ -8,7 +8,7 @@
     pts = intersection(l, r)
     @test length(pts) == 2
     @test Point(-1.0, 0.0) ∈ pts
-    @test Point( 1.0, 0.0) ∈ pts
+    @test Point(1.0, 0.0) ∈ pts
 
     # ── 2. Line that misses the rectangle entirely ────────────────────────────
     # y = 5  →  well above the top edge (y = 1)
@@ -21,7 +21,7 @@
     pts_diag = intersection(l_diag, r)
     @test length(pts_diag) == 2
     @test Point(-1.0, -1.0) ∈ pts_diag
-    @test Point( 1.0,  1.0) ∈ pts_diag
+    @test Point(1.0, 1.0) ∈ pts_diag
 
     # ── 4. Line crossing top and bottom edges ────────────────────────────────
     # y = 4x  →  steep line; hits bottom (y=-1 at x=-0.25) and top (y=1 at x=0.25)
@@ -29,7 +29,7 @@
     pts_steep = intersection(l_steep, r)
     @test length(pts_steep) == 2
     @test Point(-0.25, -1.0) ∈ pts_steep
-    @test Point( 0.25,  1.0) ∈ pts_steep
+    @test Point(0.25, 1.0) ∈ pts_steep
 
     # ── 5. Rotated rectangle (45°) ────────────────────────────────────────────
     # After a 45° rotation the 2×2 rectangle becomes a diamond with
@@ -41,5 +41,5 @@
     @test length(pts_rot) == 2
     s2 = sqrt(2.0)
     @test any(p -> p[1] ≈ -s2 && p[2] ≈ 0.0, pts_rot)
-    @test any(p -> p[1] ≈  s2 && p[2] ≈ 0.0, pts_rot)
+    @test any(p -> p[1] ≈ s2 && p[2] ≈ 0.0, pts_rot)
 end
