@@ -140,6 +140,28 @@ end
     @test inside(SA[0.0, 0.0, 1.0], sphere)
 end
 
+@testset "a shape stays within its bounding box" begin
+    # The box is only ever used to reject candidates cheaply, so a point inside the shape
+    # must always be inside the box; the reverse need not hold.
+    shapes = (
+        Rectangle((0.3, -0.2), 2.0, 4.0),
+        Rectangle((0.3, -0.2), 2.0, 4.0; θ = π / 7),
+        Hexagon((-1.0, 1.0), 2.0),
+        Hexagon((-1.0, 1.0), 2.0; θ = 0.4),
+        Circle((1.0, 2.0), 1.5),
+        Ellipse((1.0, 2.0), 1.5, 0.5),
+        Ellipse((1.0, 2.0), 1.5, 0.5; θ = 0.9),
+    )
+    @testset "$(nameof(typeof(shape)))" for shape in shapes
+        (; origin, l, h) = shape.box
+        # Sample generously beyond the box so points on both sides of it are covered.
+        @test all(1:20_000) do _
+            p = SA[origin[1] + l * (2.4 * rand() - 0.7), origin[2] + h * (2.4 * rand() - 0.7)]
+            !inside(p, shape) || inside(p, shape.box)
+        end
+    end
+end
+
 @testset "inside on unsupported shapes" begin
     @test_throws "`inside` is not defined" inside(Point(0.0, 0.0), Trapezoid((0.0, 0.0), 1.0, 2.0, 3.0))
     @test_throws "`inside` is not defined" inside(Point(0.0, 0.0), Segment(Point(0, 0), Point(1, 1)))

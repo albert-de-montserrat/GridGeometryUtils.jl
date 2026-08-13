@@ -4,8 +4,15 @@
 
 const TOL_FACTOR = 1000
 
+"""
+    isquasizero(a) -> Bool
+
+Test whether `a` is within an absolute `$(TOL_FACTOR) * eps` of zero. The tolerance is
+absolute rather than relative because no relative scale is meaningful near zero.
+"""
 @inline isquasizero(a::T) where {T <: AbstractFloat} = abs(a) < TOL_FACTOR * eps(T)
 @inline isquasizero(a::Integer) = iszero(a)
+
 @inline arequasizero(a, b) = isquasizero(a) && isquasizero(b)
 
 """
@@ -32,11 +39,35 @@ end
     ArgumentError("`isequal_r` needs `eps($T)` to size its tolerance, which is not defined")
 )
 
+"""
+    neq_r(a, b) -> Bool
+
+Negation of [`isequal_r`](@ref): `a` and `b` differ by more than round-off.
+"""
 @inline neq_r(a::Number, b::Number) = !isequal_r(a, b)
 
+"""
+    lt_r(a, b) -> Bool
+    gt_r(a, b) -> Bool
+    leq_r(a, b) -> Bool
+    geq_r(a, b) -> Bool
+
+Ordering comparisons that treat operands within round-off of each other as equal, as
+[`isequal_r`](@ref) does: `lt_r` and `gt_r` are the strict `<` and `>`, `leq_r` and `geq_r`
+their non-strict counterparts. Values that compare equal are therefore neither `lt_r` nor
+`gt_r`, and both `leq_r` and `geq_r`.
+
+These are what [`@comp`](@ref) rewrites comparison operators into.
+"""
 @inline lt_r(a::Number, b::Number) = !isequal_r(a, b) && a < b
+
+@doc (@doc lt_r)
 @inline gt_r(a::Number, b::Number) = !isequal_r(a, b) && a > b
+
+@doc (@doc lt_r)
 @inline leq_r(a::Number, b::Number) = isequal_r(a, b) || a < b
+
+@doc (@doc lt_r)
 @inline geq_r(a::Number, b::Number) = isequal_r(a, b) || a > b
 
 # Comparison operators rewritten by `@comp`. `===`/`!==` are absent on purpose: they test

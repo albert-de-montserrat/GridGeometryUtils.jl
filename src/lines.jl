@@ -49,7 +49,18 @@ Adapt.@adapt_structure Line
 """
     line(l::Line, x::Number) -> Number
 
-Evaluate `l` at `x`.
+Evaluate `l` at `x`, i.e. the ``y`` of the point on `l` with that ``x``.
+
+# Examples
+```jldoctest
+julia> l = Line(2, 1);   # y = 2x + 1
+
+julia> line(l, 3)
+7
+
+julia> line(l, 0.5)
+2.0
+```
 """
 @inline line(l::Line, x::Number) = muladd(l.slope, x, l.intercept)
 

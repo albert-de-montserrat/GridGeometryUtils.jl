@@ -45,6 +45,24 @@ struct Layering{T} <: AbstractLayering{T}
     end
 end
 
+"""
+    Layering(center::Point{2}, thickness, ratio, sinθ, cosθ, perturb_amp, perturb_width)
+
+Rebuild a `Layering` from its fields, promoting them to a common element type. This is the
+form `Adapt.adapt` reconstructs a layering through; prefer the keyword constructor, which
+derives `sinθ` and `cosθ` from an angle.
+"""
+function Layering(
+        center::Point{2, T1}, thickness::T2, ratio::T3, sinθ::T4, cosθ::T5,
+        perturb_amp::T6, perturb_width::T7
+    ) where {T1, T2, T3, T4, T5, T6, T7}
+    T = promote_type(T1, T2, T3, T4, T5, T6, T7)
+    return Layering{T}(
+        Point(SVector{2, T}(center.p)),
+        promote(thickness, ratio, sinθ, cosθ, perturb_amp, perturb_width)...,
+    )
+end
+
 function Layering(
         center::Tuple{Vararg{Number, 2}}, thickness::Number, ratio::Number;
         θ::Number = 0.0, perturb_amp::Number = 0.0, perturb_width::Number = 1.0
