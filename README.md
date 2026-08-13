@@ -1,5 +1,7 @@
 # GridGeometryUtils.jl
 
+[![Stable](https://img.shields.io/badge/docs-stable-blue.svg)](https://albert-de-montserrat.github.io/GridGeometryUtils.jl/stable)
+[![Dev](https://img.shields.io/badge/docs-dev-blue.svg)](https://albert-de-montserrat.github.io/GridGeometryUtils.jl/dev)
 [![Unit tests](https://github.com/albert-de-montserrat/GridGeometryUtils.jl/actions/workflows/UnitTests.yml/badge.svg)](https://github.com/albert-de-montserrat/GridGeometryUtils.jl/actions/workflows/UnitTests.yml)
 
 Geometric primitives and predicates for working with shapes on rectangular grids: point
@@ -12,6 +14,9 @@ to a GPU.
 ```julia
 julia> using Pkg; Pkg.add("GridGeometryUtils")
 ```
+
+The [manual](https://albert-de-montserrat.github.io/GridGeometryUtils.jl/stable) covers
+each shape, predicate and intersection query in full; what follows is a tour.
 
 ## Shapes
 
@@ -33,11 +38,15 @@ julia> Rectangle((0.0, 0.0), 2.0, 4.0; θ = π / 6)   # rotated counter-clockwis
 
 ### Where is the origin?
 
-The two conventions differ by shape, and mixing them up is a common source of off-by-half
+The convention differs by shape, and mixing them up is a common source of off-by-half
 errors:
 
 - `BBox`, and hence `Prism`, takes the corner with the **smallest** coordinate on every axis.
 - `Rectangle`, `Hexagon`, `Circle`, `Ellipse`, `Sphere` and `Layering` take the **center**.
+- `Trapezoid` takes the vertex holding its **right angle**.
+
+`Point`, `Triangle`, `Segment` and `Line` have no anchor of their own: each is given
+directly by the points or coefficients that define it.
 
 Shapes that carry a `box` field expose their axis-aligned bounding box, whose `origin` is
 always the minimum corner:
@@ -63,6 +72,9 @@ julia> volume(Sphere((0.0, 0.0, 0.0), 1.0))
 
 julia> perimeter(Hexagon((0.0, 0.0), 2.0))
 12.0
+
+julia> distance(Point(0, 0), Point(3, 4))
+5.0
 ```
 
 ## Point containment
@@ -95,6 +107,17 @@ julia> dointersect(s1, s2)       # whether the segments themselves cross
 true
 ```
 
+A `Line` is stored in slope-intercept form, whether it is built from its coefficients or
+from two points, and `line` evaluates it:
+
+```julia-repl
+julia> l = Line(Point(0, 0), Point(1, 2))   # y = 2x
+Line{Float64}(2.0, 0.0)
+
+julia> line(l, 3)
+6.0
+```
+
 `boundary_param` locates a point on the boundary of a rectangle, as a parameter running
 counter-clockwise from the south-west corner and covering one unit per edge;
 `intersecting_boundary` reduces that to which edge the point is on:
@@ -123,6 +146,15 @@ julia> intersecting_area(Point(1.0, 0.0), Point(-1.0, 0.0), r)   # the upper hal
 ```
 
 Both queries work on a rotated rectangle, naming its edges in its own frame.
+
+## Moving shapes to a GPU
+
+Every shape is registered with `Adapt`, so `adapt` rebuilds it with converted storage:
+
+```julia
+using Adapt, CUDA
+gpu_circle = adapt(CuArray, Circle((0.0, 0.0), 1.0))
+```
 
 ## Floating-point tolerance
 
