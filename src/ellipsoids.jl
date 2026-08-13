@@ -1,19 +1,34 @@
 abstract type AbstractEllipsoid{T} <: AbstractGeometryObject{T} end
 
+"""
+    Circle{T} <: AbstractEllipsoid{T}
+
+A circle of radius `radius` centered on `center`.
+
+# Fields
+- `center::Point{2, T}`: center.
+- `radius::T`: radius.
+- `box::BBox{2, T}`: enclosing axis-aligned bounding box.
+
+# Examples
+```jldoctest
+julia> c = Circle((0.0, 0.0), 1.0);
+
+julia> inside(Point(0.5, 0.5), c)
+true
+```
+"""
 struct Circle{T} <: AbstractEllipsoid{T}
     center::Point{2, T}
     radius::T
     box::BBox{2, T}
 end
 
-function Circle(center::NTuple{2, T1}, r::T2) where {T1, T2}
-    T = promote_type(T1, T2)
+function Circle(center::Tuple{Vararg{Number, 2}}, r::Number)
+    T = promote_type(eltype(promote(center...)), typeof(r))
     center_promoted = Point(ntuple(i -> T(center[i]), Val(2))...)
-    # Create bounding box
     origin = center .+ @SVector([-r, -r])
-    box = BBox(origin, 2 * r, 2 * r, 0.0e0)
-
-    return Circle{T}(center_promoted, convert(T, r), box)
+    return Circle{T}(center_promoted, convert(T, r), BBox(origin, 2 * r, 2 * r))
 end
 
 Circle(center::Point{2}, radius::Number) = Circle(totuple(center), radius)
@@ -21,19 +36,33 @@ Circle(center::SVector{2}, radius::Number) = Circle(center.data, radius)
 
 Adapt.@adapt_structure Circle
 
+"""
+    Sphere{T} <: AbstractEllipsoid{T}
+
+A sphere of radius `radius` centered on `center`.
+
+# Fields
+- `center::Point{3, T}`: center.
+- `radius::T`: radius.
+- `box::BBox{3, T}`: enclosing axis-aligned bounding box.
+
+# Examples
+```jldoctest
+julia> volume(Sphere((0.0, 0.0, 0.0), 1.0))
+4.1887902047863905
+```
+"""
 struct Sphere{T} <: AbstractEllipsoid{T}
     center::Point{3, T}
     radius::T
     box::BBox{3, T}
 end
 
-function Sphere(center::NTuple{3, T1}, r::T2) where {T1, T2}
-    T = promote_type(T1, T2)
+function Sphere(center::Tuple{Vararg{Number, 3}}, r::Number)
+    T = promote_type(eltype(promote(center...)), typeof(r))
     center_promoted = Point(ntuple(i -> T(center[i]), Val(3))...)
-    # Create bounding box
     origin = center .+ @SVector([-r, -r, -r])
-    box = BBox(Point(origin), 2 * r, 2 * r, 2 * r)
-    return Sphere{T}(center_promoted, convert(T, r), box)
+    return Sphere{T}(center_promoted, convert(T, r), BBox(origin, 2 * r, 2 * r, 2 * r))
 end
 
 Sphere(center::Point{3}, radius::Number) = Sphere(totuple(center), radius)
@@ -41,6 +70,28 @@ Sphere(center::SVector{3}, radius::Number) = Sphere(center.data, radius)
 
 Adapt.@adapt_structure Sphere
 
+"""
+    Ellipse{T} <: AbstractEllipsoid{T}
+    Ellipse(center, a, b; θ = 0)
+
+An ellipse with semi-axes `a` and `b`, optionally rotated counter-clockwise by `θ` radians
+about its center. At `θ == 0`, `a` lies along ``x`` and `b` along ``y``.
+
+# Fields
+- `center::Point{2, T}`: center.
+- `a::T`, `b::T`: semi-axes.
+- `sinθ::T`, `cosθ::T`: sine and cosine of the rotation angle.
+- `box::BBox{2, T}`: enclosing axis-aligned bounding box.
+- `vertices::SMatrix{2, 4, T, 8}`: semi-axis endpoints as columns, ordered W, N, E, S.
+
+# Examples
+```jldoctest
+julia> e = Ellipse((0.0, 0.0), 1.0, 2.0);
+
+julia> area(e)
+6.283185307179586
+```
+"""
 struct Ellipse{T} <: AbstractEllipsoid{T}
     center::Point{2, T}
     a::T # semi-axis 1
@@ -51,9 +102,8 @@ struct Ellipse{T} <: AbstractEllipsoid{T}
     vertices::SMatrix{2, 4, T, 8}
 end
 
-function Ellipse(center::NTuple{2, T1}, a::T2, b::T3; θ::T4 = 0.0e0) where {T1, T2, T3, T4}
-    T = promote_type(T1, T2, T3, T4)
-    center_promoted = Point(ntuple(i -> T(center[i]), Val(2))...)
+function Ellipse(center::Tuple{Vararg{Number, 2}}, a::Number, b::Number; θ::Number = 0.0e0)
+    T = promote_type(eltype(promote(center...)), typeof(a), typeof(b), typeof(θ))
 
     sinθ, cosθ = if iszero(θ)
         zero(T), one(T)
@@ -61,42 +111,29 @@ function Ellipse(center::NTuple{2, T1}, a::T2, b::T3; θ::T4 = 0.0e0) where {T1,
         sincos(θ)
     end
 
-    𝐱W = center .+ @SVector [-a, 0]
-    𝐱N = center .+ @SVector [0, b]
-    𝐱E = center .+ @SVector [a, 0]
-    𝐱S = center .+ @SVector [0, -b]
-    𝐱 = SMatrix{2, 4}([ 𝐱W 𝐱N 𝐱E 𝐱S])
+    # Semi-axis endpoints relative to the center, ordered W, N, E, S
+    𝐱 = SMatrix{2, 4}([(@SVector [-a, 0]) (@SVector [0, b]) (@SVector [a, 0]) (@SVector [0, -b])])
 
     vertices, box = if iszero(θ)
         origin = center .+ @SVector([-a, -b])
-        box = BBox(origin, 2 * a, 2 * b)
-        vertices = 𝐱
-        vertices, box
+        (𝐱 .+ center), BBox(origin, 2 * a, 2 * b)
     else
-        # Define bounding box
         𝐑 = rotation_matrix(sinθ, cosθ)
-        𝐱W = @SVector [-a, 0]
-        𝐱N = @SVector [0, b]
-        𝐱E = @SVector [a, 0]
-        𝐱S = @SVector [0, -b]
-
-        # Rotate geometry
-        𝐱 = SMatrix{2, 4}([ 𝐱W 𝐱N 𝐱E 𝐱S])
         𝐱′ = 𝐑' * 𝐱 .+ center
 
-        # Define bounding box
-        lbox = 2 * sqrt(a^2 * cosθ^2 + b^2 * sinθ^2)
-        hbox = 2 * sqrt(a^2 * sinθ^2 + b^2 * cosθ^2)
+        # Extent of a rotated ellipse along each axis
+        lbox = 2 * √(a^2 * cosθ^2 + b^2 * sinθ^2)
+        hbox = 2 * √(a^2 * sinθ^2 + b^2 * cosθ^2)
         origin_bbox = center .+ @SVector [-lbox / 2, -hbox / 2]
-        box = BBox(origin_bbox, lbox, hbox)
-        vertices = 𝐱′
-        vertices, box
+
+        𝐱′, BBox(origin_bbox, lbox, hbox)
     end
 
+    center_promoted = Point(ntuple(i -> T(center[i]), Val(2))...)
     return Ellipse{T}(center_promoted, promote(a, b, sinθ, cosθ)..., box, vertices)
 end
 
-Ellipse(center::Point{2}, a::Number, b::Number; θ::T = 0.0e0) where {T} = Ellipse(totuple(center), a, b; θ = θ)
-Ellipse(center::SVector{2}, a::Number, b::Number; θ::T = 0.0e0) where {T} = Ellipse(center.data, a, b; θ = θ)
+Ellipse(center::Point{2}, a::Number, b::Number; θ::Number = 0.0e0) = Ellipse(totuple(center), a, b; θ)
+Ellipse(center::SVector{2}, a::Number, b::Number; θ::Number = 0.0e0) = Ellipse(center.data, a, b; θ)
 
 Adapt.@adapt_structure Ellipse

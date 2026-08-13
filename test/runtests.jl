@@ -1,13 +1,9 @@
 using Test, StaticArrays
 using GridGeometryUtils
 
-function main()
-    test_files = filter(x -> contains(x, "test_"), readdir("."))
-
+@testset "GridGeometryUtils" begin
+    test_files = sort(filter(startswith("test_"), readdir(@__DIR__)))
     for f in test_files
-        include(f)
+        include(joinpath(@__DIR__, f))
     end
-    return
 end
-
-main()

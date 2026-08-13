@@ -1,6 +1,19 @@
+"""
+    GridGeometryUtils
+
+Geometric primitives and predicates for working with shapes on rectangular grids: point
+containment ([`inside`](@ref)), measures ([`area`](@ref), [`perimeter`](@ref),
+[`volume`](@ref)), and segment/rectangle intersection ([`intersection`](@ref),
+[`intersecting_area`](@ref)).
+
+Comparisons throughout are made up to a relative tolerance of about `1000 * eps`, so points
+within round-off of a boundary are treated as lying on it.
+"""
 module GridGeometryUtils
 
-using Adapt, StaticArrays, LinearAlgebra
+using Adapt: Adapt
+using LinearAlgebra: norm
+using StaticArrays: SMatrix, SVector, @SMatrix, @SVector
 
 abstract type AbstractGeometryObject{T} end
 
@@ -8,6 +21,10 @@ include("comparisons.jl")
 
 include("points.jl")
 export Point, distance
+
+include("utils.jl")
+
+include("rotation_matrices.jl")
 
 include("lines.jl")
 export Line, Segment, line, dointersect, intersection
@@ -31,7 +48,5 @@ export intersecting_area
 
 include("inside.jl")
 export inside
-
-include("rotation_matrices.jl")
 
 end # module GridGeometryUtils

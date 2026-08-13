@@ -1,20 +1,60 @@
-function intersecting_boundary(p::Point{2}, r::Rectangle)
-    # Check if the point is on any boundary
-    intersect = intersecting_boundary(p[1], p[2], r)
-    # If the point is inside the rectangle, we throw an error
-    iszero(intersect) && throw("Point is inside the rectangle, no intersection")
-    # Otherwise, return the boundary
-    return intersect
+# Edges of a rectangle, identified by the code `intersecting_boundary` returns.
+const BOUNDARY_NONE = 0
+const BOUNDARY_LEFT = 1
+const BOUNDARY_RIGHT = 2
+const BOUNDARY_BOTTOM = 3
+const BOUNDARY_TOP = 4
+
+# Rejects rotated rectangles, whose bounding box is not the rectangle itself. Every
+# boundary query here works in the axis-aligned frame of `r.box`.
+@inline function assert_axis_aligned(r::Rectangle)
+    return iszero(r.sinθ) || throw(
+        ArgumentError(
+            "only axis-aligned rectangles are supported, got one rotated by $(atand(r.sinθ, r.cosθ))°"
+        )
+    )
 end
 
-function intersecting_boundary(px, py, r::Rectangle)
-    (; origin, h, l) = r
+"""
+    boundary_param(p, r::Rectangle) -> Real
+
+Position of `p` along the boundary of `r`, as an arc-length-like parameter in `[0, 4)` that
+runs counter-clockwise from the south-west corner: `[0, 1]` along the bottom edge, `[1, 2]`
+up the right edge, `[2, 3]` back along the top, and `[3, 4]` down the left edge.
+
+Throws an `ArgumentError` if `p` does not lie on the boundary.
+"""
+function boundary_param(p, r::Rectangle)
+    assert_axis_aligned(r)
+    (; origin, l, h) = r.box
     ox, oy = origin[1], origin[2]
-    if @comp oy ≤ py && py ≤ oy + h
-        @comp px == ox     && return 1 # :left
-        @comp px == ox + l && return 2 # :right
-    end
-    @comp py ≤ oy     && return 3 # :bottom
-    @comp py ≥ oy + h && return 4 # :top
-    return 0 # :inside
+    px, py = p[1], p[2]
+
+    withinx = geq_r(px, ox) && leq_r(px, ox + l)
+    withiny = geq_r(py, oy) && leq_r(py, oy + h)
+
+    # Ordered so that each corner is reached by the earlier of the two edges meeting there,
+    # which keeps the parameter of a corner single-valued.
+    withinx && isequal_r(py, oy) && return (px - ox) / l
+    withiny && isequal_r(px, ox + l) && return 1 + (py - oy) / h
+    withinx && isequal_r(py, oy + h) && return 2 + (ox + l - px) / l
+    withiny && isequal_r(px, ox) && return 3 + (oy + h - py) / h
+
+    throw(ArgumentError("$p does not lie on the boundary of the rectangle"))
+end
+
+"""
+    intersecting_boundary(p, r::Rectangle) -> Int
+
+Which edge of `r` the point `p` lies on: `1` for left, `2` for right, `3` for bottom and
+`4` for top. Corners belong to the horizontal edge that meets them.
+
+Throws an `ArgumentError` if `p` does not lie on the boundary of `r`.
+"""
+function intersecting_boundary(p, r::Rectangle)
+    s = boundary_param(p, r)
+    s ≤ 1 && return BOUNDARY_BOTTOM
+    s ≤ 2 && return BOUNDARY_RIGHT
+    s ≤ 3 && return BOUNDARY_TOP
+    return BOUNDARY_LEFT
 end

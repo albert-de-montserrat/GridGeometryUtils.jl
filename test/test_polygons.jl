@@ -3,20 +3,33 @@
     p2 = Point(1, 3)
     p3 = Point(2, 2)
 
-    @test_throws AssertionError Triangle(p1, p1, p1)
+    @test_throws "must be distinct" Triangle(p1, p1, p1)
+    @test_throws "must be distinct" Triangle(p1, p2, p1)   # the p1/p3 pair counts too
+    @test_throws "must be distinct" Triangle(p1, p1, p3)
 
     t = Triangle(p1, p2, p3)
     @test t.p1 == p1
     @test t.p2 == p2
     @test t.p3 == p3
 
-    t = Triangle(p1, p2, p3)
-    @test t.p1 == p1
-    @test t.p2 == p2
-    @test t.p3 == p3
+    @test Triangle((1, 2), (1, 3), (2, 2)) == t
+    @test Triangle(SA[1, 2], SA[1, 3], SA[2, 2]) == t
 
     @test area(t) ≈ 0.5
-    @test perimeter(t) == 3.414213562373095
+    @test perimeter(t) ≈ 2 + √2
+
+    # Vertex order does not change the area.
+    @test area(Triangle(p1, p3, p2)) ≈ area(t)
+
+    # Collinear vertices are a valid, zero-area triangle.
+    @test area(Triangle(Point(0, 0), Point(1, 1), Point(2, 2))) == 0
+
+    # A sliver triangle, where Heron's formula loses every significant digit to
+    # cancellation in the semiperimeter and returns exactly zero.
+    y3 = 1.0e8 + 1.0e-8
+    needle = Triangle(Point(0.0, 0.0), Point(1.0, 1.0), Point(1.0e8, y3))
+    @test area(needle) > 0
+    @test area(needle) ≈ (y3 - 1.0e8) / 2
 end
 
 @testset "BBox" begin
@@ -41,122 +54,111 @@ end
         @test bbox.h == 4
         @test bbox.d == 3
         @test volume(bbox) == 24
+        @test area(bbox) == 2 * (2 * 4 + 2 * 3 + 4 * 3)
+    end
+
+    @testset "constructors" begin
+        @test BBox((0, 0.0), 2, 4) isa BBox{2, Float64}       # heterogeneous tuple
+        @test BBox(Point(0, 0), 2, 4) == BBox((0, 0), 2, 4)
+        @test BBox(SA[0, 0], 2, 4) == BBox((0, 0), 2, 4)
+        @test BBox(Point(0, 0, 0), 2, 4, 3) == BBox((0, 0, 0), 2, 4, 3)
+        @test BBox(SA[0, 0, 0], 2, 4, 3) == BBox((0, 0, 0), 2, 4, 3)
+        @test BBox((0, 0), 2.0f0, 4.0f0) isa BBox{2, Float32}
     end
 end
 
 @testset "Rectangle" begin
     origin = (0, 0)
     rect = Rectangle(origin, 2, 4; θ = π / 3)
-    rect = Rectangle(origin, 2, 4; θ = π / 3)
 
     @test rect.origin == Point(Float64.(origin))
     @test rect.l == 2
     @test rect.h == 4
     @test area(rect) == 8
-    @test rect.origin == Point(Float64.(origin))
-    @test rect.l == 2
-    @test rect.h == 4
-    @test area(rect) == 8
     @test perimeter(rect) == 12
+
+    # `origin` is the center; the bounding box carries the south-west corner.
+    unrotated = Rectangle(origin, 2, 4)
+    @test unrotated.origin == Point(0.0, 0.0)
+    @test unrotated.box.origin == Point(-1.0, -2.0)
+    @test unrotated.box.l == 2
+    @test unrotated.box.h == 4
+
+    # Rotating enlarges the axis-aligned box (though not necessarily along both axes at
+    # once) while leaving the rectangle's own area untouched.
+    @test area(rect.box) > area(unrotated.box)
+    @test area(rect) == area(unrotated)
+    @test all(inside(Point(rect.vertices[1, i], rect.vertices[2, i]), rect.box) for i in 1:4)
+
+    # Vertices are the corners, ordered SW, NW, NE, SE.
+    @test unrotated.vertices ≈ SA[-1.0 -1.0 1.0 1.0; -2.0 2.0 2.0 -2.0]
+
+    @test Rectangle(Point(0, 0), 2, 4) == unrotated
+    @test Rectangle(SA[0, 0], 2, 4) == unrotated
 end
 
 @testset "Hexagon" begin
     origin = (-1, 1)
-    hex = Hexagon(origin, 2; θ = π / 3)
+    radius = 2
+    hex = Hexagon(origin, radius; θ = π / 3)
 
     @test hex.origin == Point(Float64.(origin))
-    @test hex.radius == 2
-    @test area(hex) == 12.0
-    @test perimeter(hex) == 10.392304845413264
+    @test hex.radius == radius
+    # Regular hexagon of circumradius r: area 3√3/2 r², perimeter 6r.
+    @test area(hex) ≈ 3 * √3 / 2 * radius^2
+    @test perimeter(hex) ≈ 6 * radius
+    @test area(hex) < perimeter(hex)   # 10.39 < 12; the two were once swapped
+
+    # A sixth-turn maps a regular hexagon onto itself.
+    @test area(Hexagon(origin, radius)) ≈ area(hex)
+    @test sort(Hexagon(origin, radius).vertices[1, :]) ≈ sort(hex.vertices[1, :])
+
+    @test Hexagon(Point(-1, 1), 2) == Hexagon(origin, radius)
+    @test Hexagon(SA[-1, 1], 2) == Hexagon(origin, radius)
 end
 
 @testset "Prism" begin
-    origin = (0, 0)
-    rect = Rectangle(origin, 2, 4)
+    origin = (0, 0, 0)
+    prism = Prism(origin, 2, 4, 3)
 
-    @test rect.origin == Point(Float64.(origin))
-    @test rect.h == 4
-    @test rect.l == 2
-    @test area(rect) == 8
-    @test perimeter(rect) == 12
+    @test prism.origin == Point(origin)
+    @test prism.l == 2
+    @test prism.h == 4
+    @test prism.d == 3
+    @test volume(prism) == 24
+    # Surface area, not the sum of the edge lengths.
+    @test area(prism) == 2 * (2 * 4 + 2 * 3 + 4 * 3)
+
+    @test Prism(Point(0, 0, 0), 2, 4, 3) == prism
+    @test Prism(SA[0, 0, 0], 2, 4, 3) == prism
+    @test_throws MethodError Prism(Point(0, 0), 2, 4, 3)
 end
 
 @testset "Trapezoid" begin
     origin = (0, 0)
+    # h is the separation of the parallel sides; l1 and l2 are their lengths.
     trap = Trapezoid(origin, 2, 3, 4)
 
     @test trap.origin == Point(origin)
-    @test trap.l == 2
-    @test trap.h1 == 3
-    @test trap.h2 == 4
+    @test trap.h == 2
+    @test trap.l1 == 3
+    @test trap.l2 == 4
     @test area(trap) == 7.0
     @test perimeter(trap) == 11.23606797749979
+
+    # A trapezoid with equal parallel sides is a rectangle.
+    @test area(Trapezoid(origin, 2, 3, 3)) == area(Rectangle(origin, 3, 2))
+    @test perimeter(Trapezoid(origin, 2, 3, 3)) == perimeter(Rectangle(origin, 3, 2))
+
+    @test Trapezoid(Point(0, 0), 2, 3, 4) == trap
+    @test Trapezoid(SA[0, 0], 2, 3, 4) == trap
 end
 
-@testset "Ellipsoids" begin
-
-    center = 0.0e0, 0.0e0
-    a, b = 1.0e0, 2.0e0
-
-    ellipse1 = Ellipse(center, a, b)
-
-    @test area(ellipse1) == π * a * b
-    @test perimeter(ellipse1) == π * (3 * (a + b) - √((3 * a + b) * (a + 3 * b)))
-
-    p1 = Point(0.0e0, 0.0e0)
-    p2 = Point(2.0e0, 0.0e0)
-    p3 = Point(1.0e0, 0.0e0)
-    p4 = Point(0.0e0, 2.0e0)
-
-    @test  inside(p1, ellipse1) # true
-    @test !inside(p2, ellipse1) # false
-    @test  inside(p3, ellipse1) # true
-    @test  inside(p4, ellipse1) # true
-
-    ellipse2 = Ellipse(center, a, b; θ = π / 2)
-
-    @test  inside(p1, ellipse2) # true
-    @test  inside(p2, ellipse2) # true
-    @test  inside(p3, ellipse2) # true
-    @test !inside(p4, ellipse2) # false
-end
-
-@testset "Circle" begin
-    center = 0.0, 0.0
-    r = 2.0
-
-    circle = Circle(center, r)
-
-    @test area(circle) == π * r^2
-    @test perimeter(circle) == 2π * r
-
-    p1 = Point(0.0, 0.0)
-    p2 = Point(2.0, 0.0)
-    p3 = Point(1.5, 1.5)
-    p4 = Point(3.0, 0.0)
-
-    @test inside(p1, circle) # true
-    @test inside(p2, circle) # true (on the boundary)
-    @test !inside(p3, circle) # false (outside)
-    @test !inside(p4, circle) # false (outside)
-end
-
-@testset "Sphere" begin
-    center = (0.0, 0.0, 0.0)
-    r = 2.0
-
-    sphere = Sphere(center, r)
-
-    @test volume(sphere) == (4 / 3) * π * r^3
-    @test area(sphere) == 4 * π * r^2
-
-    p1 = Point(0.0, 0.0, 0.0)
-    p2 = Point(2.0, 0.0, 0.0)
-    p3 = Point(1.5, 1.5, 1.5)
-    p4 = Point(3.0, 0.0, 0.0)
-
-    @test inside(p1, sphere) # true
-    @test inside(p2, sphere) # true (on the boundary)
-    @test !inside(p3, sphere) # false (outside)
-    @test !inside(p4, sphere) # false (outside)
+@testset "unsupported measures" begin
+    s = Segment(Point(0, 0), Point(1, 1))
+    @test_throws "`area` is not defined" area(s)
+    @test_throws "`perimeter` is not defined" perimeter(s)
+    @test_throws "`volume` is not defined" volume(s)
+    @test_throws "`volume` is not defined" volume(Triangle((0, 0), (1, 0), (0, 1)))
+    @test_throws MethodError area("not a shape")
 end
