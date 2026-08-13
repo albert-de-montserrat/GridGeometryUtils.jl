@@ -22,7 +22,23 @@ Position of `p` along the boundary of `r`, as an arc-length-like parameter in `[
 runs counter-clockwise from the south-west corner: `[0, 1]` along the bottom edge, `[1, 2]`
 up the right edge, `[2, 3]` back along the top, and `[3, 4]` down the left edge.
 
-Throws an `ArgumentError` if `p` does not lie on the boundary.
+A corner takes the parameter given to it by the earlier of the two edges meeting there, so
+the south-west corner is `0` rather than `4`.
+
+Throws an `ArgumentError` if `p` does not lie on the boundary, or if `r` is rotated.
+
+# Examples
+```jldoctest
+julia> r = Rectangle((0.0, 0.0), 2.0, 4.0);   # spans x ∈ [-1, 1], y ∈ [-2, 2]
+
+julia> boundary_param(Point(-1.0, -2.0), r)   # south-west corner
+0.0
+
+julia> boundary_param(Point(1.0, 0.0), r)     # halfway up the right edge
+1.5
+```
+
+See also [`intersecting_boundary`](@ref) and [`intersecting_area`](@ref).
 """
 function boundary_param(p, r::Rectangle)
     assert_axis_aligned(r)
@@ -49,7 +65,20 @@ end
 Which edge of `r` the point `p` lies on: `1` for left, `2` for right, `3` for bottom and
 `4` for top. Corners belong to the horizontal edge that meets them.
 
-Throws an `ArgumentError` if `p` does not lie on the boundary of `r`.
+Throws an `ArgumentError` if `p` does not lie on the boundary of `r`, or if `r` is rotated.
+
+# Examples
+```jldoctest
+julia> r = Rectangle((0.0, 0.0), 2.0, 4.0);   # spans x ∈ [-1, 1], y ∈ [-2, 2]
+
+julia> intersecting_boundary(Point(-1.0, 0.0), r)
+1
+
+julia> intersecting_boundary(Point(0.0, 2.0), r)
+4
+```
+
+See also [`boundary_param`](@ref).
 """
 function intersecting_boundary(p, r::Rectangle)
     s = boundary_param(p, r)

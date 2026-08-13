@@ -4,7 +4,7 @@
 Geometric primitives and predicates for working with shapes on rectangular grids: point
 containment ([`inside`](@ref)), measures ([`area`](@ref), [`perimeter`](@ref),
 [`volume`](@ref)), and segment/rectangle intersection ([`intersection`](@ref),
-[`intersecting_area`](@ref)).
+[`boundary_param`](@ref), [`intersecting_area`](@ref)).
 
 Comparisons throughout are made up to a relative tolerance of about `1000 * eps`, so points
 within round-off of a boundary are treated as lying on it.
@@ -42,6 +42,7 @@ include("areas.jl")
 export area, volume, perimeter
 
 include("intersections/intersections.jl")
+export boundary_param, intersecting_boundary
 
 include("intersections/areas.jl")
 export intersecting_area

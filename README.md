@@ -94,8 +94,22 @@ julia> dointersect(s1, s2)       # whether the segments themselves cross
 true
 ```
 
-`intersecting_area` splits an axis-aligned rectangle along a chord between two points on
-its boundary, returning the area of the piece to the **right** of the directed chord:
+`boundary_param` locates a point on the boundary of an axis-aligned rectangle, as a
+parameter running counter-clockwise from the south-west corner and covering one unit per
+edge; `intersecting_boundary` reduces that to which edge the point is on:
+
+```julia-repl
+julia> r = Rectangle((0.0, 0.0), 2.0, 4.0);   # spans x ∈ [-1, 1], y ∈ [-2, 2]
+
+julia> boundary_param(Point(1.0, 0.0), r)     # halfway up the right edge
+1.5
+
+julia> intersecting_boundary(Point(1.0, 0.0), r)   # 1 left, 2 right, 3 bottom, 4 top
+2
+```
+
+`intersecting_area` splits the rectangle along a chord between two points on its boundary,
+returning the area of the piece to the **right** of the directed chord:
 
 ```julia-repl
 julia> r = Rectangle((0.0, 0.0), 2.0, 4.0);   # spans x ∈ [-1, 1], y ∈ [-2, 2]

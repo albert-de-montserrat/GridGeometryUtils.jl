@@ -1,5 +1,3 @@
-using GridGeometryUtils: boundary_param, intersecting_boundary
-
 # x ∈ [-1, 1], y ∈ [-2, 2]; `origin` is the center, `box.origin` the south-west corner.
 const RECT = Rectangle((0.0, 0.0), 2.0, 4.0)
 
