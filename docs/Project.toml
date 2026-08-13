@@ -1,0 +1,6 @@
+[deps]
+Documenter = "e30172f5-a6a5-5a46-863b-614d45cd2de4"
+GridGeometryUtils = "6f784e4f-3d6e-439e-b87e-1b67132dd330"
+
+[compat]
+Documenter = "1"

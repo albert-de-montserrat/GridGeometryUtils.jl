@@ -2,5 +2,9 @@
 /Manifest.toml
 /playground.jl
 /test/Manifest.toml
-/playground.jl
-/test/Manifest.toml
+/docs/build
+/docs/Manifest.toml
+*.jl.cov
+*.jl.*.cov
+*.jl.mem
+lcov.info

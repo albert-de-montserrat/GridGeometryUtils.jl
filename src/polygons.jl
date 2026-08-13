@@ -1,13 +1,31 @@
 abstract type AbstractPolygon{T} <: AbstractGeometryObject{T} end
 
 """
-    BBox{T} <: AbstractPolygon{T}
+    BBox{N, T} <: AbstractPolygon{T}
 
-A parametric type representing a rectangle with elements of type `T`. 
+An axis-aligned bounding box in `N` dimensions.
 
-# Type Parameters
-- `T`: The numeric type used for the rectangle's coordinates (e.g., `Float64`, `Int`).
+`origin` is the corner with the **smallest** coordinate along every axis (the south-west
+corner in 2-D), unlike [`Rectangle`](@ref) and [`Hexagon`](@ref), whose origin is their
+center. The extents run along the positive axes from there: `l` along ``x``, `h` along
+``y``, and `d` along ``z``. `d` is zero for `N == 2`.
 
+# Fields
+- `origin::Point{N, T}`: minimum-coordinate corner.
+- `l::T`: extent along ``x``.
+- `h::T`: extent along ``y``.
+- `d::T`: extent along ``z``, zero in 2-D.
+
+# Examples
+```jldoctest
+julia> box = BBox((0.0, 0.0), 2.0, 4.0);
+
+julia> area(box)
+8.0
+
+julia> inside(Point(1.0, 3.0), box)
+true
+```
 """
 struct BBox{N, T} <: AbstractPolygon{T}
     origin::Point{N, T}
@@ -18,26 +36,36 @@ end
 
 Adapt.@adapt_structure BBox
 
-function BBox(origin::NTuple{N, T1}, l::T2, h::T3, d::T4) where {N, T1, T2, T3, T4}
-    T = promote_type(T1, T2, T3, T4)
+function BBox(origin::Tuple{Vararg{Number, N}}, l::Number, h::Number, d::Number) where {N}
+    T = promote_type(eltype(promote(origin...)), typeof(l), typeof(h), typeof(d))
     origin_promoted = Point(ntuple(ix -> T(origin[ix]), Val(N))...)
     return BBox{N, T}(origin_promoted, promote(l, h, d)...)
 end
 
-BBox(origin::NTuple{2, Any}, l::Number, h::Number) = BBox(origin, l, h, 0)
+BBox(origin::Tuple{Vararg{Number, 2}}, l::Number, h::Number) = BBox(origin, l, h, 0)
 BBox(origin::Point{2}, l::Number, h::Number) = BBox(totuple(origin), l, h, 0)
 BBox(origin::Point{3}, l::Number, h::Number, d::Number) = BBox(totuple(origin), l, h, d)
 BBox(origin::SVector{2}, l::Number, h::Number) = BBox(origin.data, l, h, 0)
-BBox(origin::SVector{2}, l::Number, h::Number, d::Number) = BBox(origin.data, l, h, d)
 BBox(origin::SVector{3}, l::Number, h::Number, d::Number) = BBox(origin.data, l, h, d)
 
 """
     Triangle{T} <: AbstractPolygon{T}
 
-A parametric type representing a triangle with vertices of type `T`. 
+A triangle in 2-D, given by its three vertices.
 
-# Type Parameters
-- `T`: The type used for the coordinates of the triangle's vertices (e.g., `Float64`, `Int`).
+The vertices must be distinct; collinear vertices are permitted but give an
+[`area`](@ref) of zero.
+
+# Fields
+- `p1::Point{2, T}`, `p2::Point{2, T}`, `p3::Point{2, T}`: the vertices.
+
+# Examples
+```jldoctest
+julia> t = Triangle((0, 0), (1, 0), (0, 1));
+
+julia> area(t)
+0.5
+```
 """
 struct Triangle{T} <: AbstractPolygon{T}
     p1::Point{2, T}
@@ -45,10 +73,11 @@ struct Triangle{T} <: AbstractPolygon{T}
     p3::Point{2, T}
 
     function Triangle(p1::Point{2, T1}, p2::Point{2, T2}, p3::Point{2, T3}) where {T1, T2, T3}
-        @assert  p1 !== p2 !== p3
-        points = p1, p2, p3
+        (p1 == p2 || p2 == p3 || p1 == p3) &&
+            throw(ArgumentError("the three vertices of a Triangle must be distinct, got $p1, $p2, $p3"))
         T = promote_type(T1, T2, T3)
-        points_promoted = ntuple(i -> Point(T.(points[i].p)...), Val(3))
+        points = p1, p2, p3
+        points_promoted = ntuple(i -> Point(SVector{2, T}(points[i].p)), Val(3))
         return new{T}(points_promoted...)
     end
 end
@@ -60,12 +89,32 @@ Adapt.@adapt_structure Triangle
 
 """
     Rectangle{T} <: AbstractPolygon{T}
+    Rectangle(origin, l, h; θ = 0)
 
-A parametric type representing a rectangle with elements of type `T`. 
+A rectangle of width `l` and height `h`, optionally rotated counter-clockwise by `θ`
+radians about its center.
 
-# Type Parameters
-- `T`: The numeric type used for the rectangle's coordinates (e.g., `Float64`, `Int`).
+`origin` is the **center** of the rectangle, unlike [`BBox`](@ref), whose origin is its
+minimum-coordinate corner. The enclosing axis-aligned box is available as the `box` field;
+`box.origin` is therefore the south-west corner.
 
+# Fields
+- `origin::Point{2, T}`: center.
+- `l::T`, `h::T`: width and height, measured in the rectangle's own frame.
+- `sinθ::T`, `cosθ::T`: sine and cosine of the rotation angle.
+- `box::BBox{2, T}`: enclosing axis-aligned bounding box.
+- `vertices::SMatrix{2, 4, T, 8}`: corners as columns, ordered SW, NW, NE, SE.
+
+# Examples
+```jldoctest
+julia> rect = Rectangle((0.0, 0.0), 2.0, 4.0);
+
+julia> rect.box.origin
+Point{2, Float64}([-1.0, -2.0])
+
+julia> area(rect)
+8.0
+```
 """
 struct Rectangle{T} <: AbstractPolygon{T}
     origin::Point{2, T}
@@ -77,9 +126,8 @@ struct Rectangle{T} <: AbstractPolygon{T}
     vertices::SMatrix{2, 4, T, 8}
 end
 
-function Rectangle(origin::NTuple{2, T1}, l::T2, h::T3; θ::T4 = 0.0) where {T1, T2, T3, T4}
-    T = promote_type(T1, T2, T3, T4)
-    origin_promoted = Point(ntuple(ix -> T(origin[ix]), Val(2))...)
+function Rectangle(origin::Tuple{Vararg{Number, 2}}, l::Number, h::Number; θ::Number = 0.0)
+    T = promote_type(eltype(promote(origin...)), typeof(l), typeof(h), typeof(θ))
 
     sinθ, cosθ = if iszero(θ)
         zero(T), one(T)
@@ -87,7 +135,7 @@ function Rectangle(origin::NTuple{2, T1}, l::T2, h::T3; θ::T4 = 0.0) where {T1,
         sincos(θ)
     end
 
-    # Vertices
+    # Vertices, ordered SW, NW, NE, SE
     𝐱SW = origin .+ @SVector [-l / 2, -h / 2]
     𝐱SE = origin .+ @SVector [l / 2, -h / 2]
     𝐱NW = origin .+ @SVector [-l / 2, h / 2]
@@ -96,43 +144,53 @@ function Rectangle(origin::NTuple{2, T1}, l::T2, h::T3; θ::T4 = 0.0) where {T1,
 
     vertices, box = if iszero(θ)
         origin_bbox = origin .+ @SVector [-l / 2, -h / 2]
-        box = BBox(origin_bbox, l, h)
-        vertices = 𝐱
-        vertices, box
+        𝐱, BBox(origin_bbox, l, h)
     else
-        # Define bounding box
         𝐑 = rotation_matrix(sinθ, cosθ)
 
-        # Rotate geometry
+        # Rotate the geometry about the center
         𝐱′ = 𝐑' * (𝐱 .- origin) .+ origin
 
-        lbox, hbox = maximum(𝐱′[1, :]) - minimum(𝐱′[1, :]), maximum(𝐱′[2, :]) - minimum(𝐱′[2, :])
-
-        # shift origin to make further computations faster
+        lbox = maximum(𝐱′[1, :]) - minimum(𝐱′[1, :])
+        hbox = maximum(𝐱′[2, :]) - minimum(𝐱′[2, :])
         origin_bbox = origin .+ @SVector [-lbox / 2, -hbox / 2]
-        box = BBox(origin_bbox, lbox, hbox)
 
-        # Store vertices
-        vertices = 𝐱′
-        vertices, box
+        𝐱′, BBox(origin_bbox, lbox, hbox)
     end
 
+    origin_promoted = Point(ntuple(ix -> T(origin[ix]), Val(2))...)
     return Rectangle{T}(origin_promoted, promote(l, h, sinθ, cosθ)..., box, vertices)
 end
 
-Rectangle(origin::Point{2}, l::Number, h::Number; θ::T = 0.0) where {T} = Rectangle(totuple(origin), l, h; θ = θ)
-Rectangle(origin::SVector{2}, l::Number, h::Number; θ::T = 0.0) where {T} = Rectangle(origin.data, l, h; θ = θ)
+Rectangle(origin::Point{2}, l::Number, h::Number; θ::Number = 0.0) = Rectangle(totuple(origin), l, h; θ)
+Rectangle(origin::SVector{2}, l::Number, h::Number; θ::Number = 0.0) = Rectangle(origin.data, l, h; θ)
 
 Adapt.@adapt_structure Rectangle
 
 """
     Hexagon{T} <: AbstractPolygon{T}
+    Hexagon(origin, radius; θ = 0)
 
-A parametric type representing a hexagon with elements of type `T`. 
+A regular hexagon of circumradius `radius`, optionally rotated counter-clockwise by `θ`
+radians about its center.
 
-# Type Parameters
-- `T`: The numeric type used for the hexagon's coordinates (e.g., `Float64`, `Int`).
+`origin` is the **center** of the hexagon. At `θ == 0` a vertex lies at
+`origin + (radius, 0)`.
 
+# Fields
+- `origin::Point{2, T}`: center.
+- `radius::T`: circumradius, i.e. the center-to-vertex distance.
+- `sinθ::T`, `cosθ::T`: sine and cosine of the rotation angle.
+- `box::BBox{2, T}`: enclosing axis-aligned bounding box.
+- `vertices::SMatrix{2, 6, T, 12}`: corners as columns, counter-clockwise from `θ`.
+
+# Examples
+```jldoctest
+julia> hex = Hexagon((0.0, 0.0), 2.0);
+
+julia> perimeter(hex)
+12.0
+```
 """
 struct Hexagon{T} <: AbstractPolygon{T}
     origin::Point{2, T}
@@ -143,9 +201,8 @@ struct Hexagon{T} <: AbstractPolygon{T}
     vertices::SMatrix{2, 6, T, 12}
 end
 
-function Hexagon(origin::NTuple{2, T1}, radius::T2; θ::T3 = 0.0) where {T1, T2, T3}
-    T = promote_type(T1, T2, T3)
-    origin_promoted = Point(ntuple(ix -> T(origin[ix]), Val(2))...)
+function Hexagon(origin::Tuple{Vararg{Number, 2}}, radius::Number; θ::Number = 0.0)
+    T = promote_type(eltype(promote(origin...)), typeof(radius), typeof(θ))
 
     sinθ, cosθ = if iszero(θ)
         zero(T), one(T)
@@ -153,66 +210,86 @@ function Hexagon(origin::NTuple{2, T1}, radius::T2; θ::T3 = 0.0) where {T1, T2,
         sincos(θ)
     end
 
-    # Compute vertices of the hexagon
-    α = @SVector([i * π / 3 + θ for i in 0:5])  # 6 corners
-
+    α = ntuple(i -> (i - 1) * π / 3 + θ, Val(6))
     vertices = hcat(
-        (@SVector [origin[1] + radius * cos(α[i]) for i in 1:6]),
-        (@SVector [origin[2] + radius * sin(α[i]) for i in 1:6]),
+        ntuple(i -> SVector(origin[1] + radius * cos(α[i]), origin[2] + radius * sin(α[i])), Val(6))...
     )
-    vertices = vertices'
 
-    # Define bounding box
-    lbox, hbox = maximum(vertices[1, :]) - minimum(vertices[1, :]), maximum(vertices[2, :]) - minimum(vertices[2, :])
-
-    # shift origin to make further computations faster
+    lbox = maximum(vertices[1, :]) - minimum(vertices[1, :])
+    hbox = maximum(vertices[2, :]) - minimum(vertices[2, :])
     origin_bbox = origin .+ @SVector [-lbox / 2, -hbox / 2]
     box = BBox(origin_bbox, lbox, hbox)
 
+    origin_promoted = Point(ntuple(ix -> T(origin[ix]), Val(2))...)
     return Hexagon{T}(origin_promoted, promote(radius, sinθ, cosθ)..., box, vertices)
 end
 
-Hexagon(origin::Point{2}, radius::Number; θ::T = 0.0) where {T} = Hexagon(totuple(origin), radius; θ = θ)
-Hexagon(origin::SVector{2}, radius::Number; θ::T = 0.0) where {T} = Hexagon(origin.data, radius; θ = θ)
+Hexagon(origin::Point{2}, radius::Number; θ::Number = 0.0) = Hexagon(totuple(origin), radius; θ)
+Hexagon(origin::SVector{2}, radius::Number; θ::Number = 0.0) = Hexagon(origin.data, radius; θ)
 
 Adapt.@adapt_structure Hexagon
 
 """
-    Prism{T} <: AbstractPolygon{T}
+    Prism{T}
+    Prism(origin, l, h, d)
 
-A parametric type representing a rectangle with elements of type `T`. 
+An axis-aligned rectangular cuboid: an alias for `BBox{3, T}`, and hence the very same
+type, sharing its fields and every method defined on it. `Prism` is the name a 3-D box
+prints under.
 
-# Type Parameters
-- `T`: The numeric type used for the rectangle's coordinates (e.g., `Float64`, `Int`).
+`origin` is the corner with the smallest coordinate along every axis, and the extents `l`,
+`h` and `d` run along the positive ``x``, ``y`` and ``z`` axes from there.
+
+# Examples
+```jldoctest
+julia> volume(Prism((0.0, 0.0, 0.0), 2.0, 4.0, 3.0))
+24.0
+
+julia> Prism{Float64} === BBox{3, Float64}
+true
+```
+"""
+const Prism{T} = BBox{3, T}
+
+Prism(origin::Tuple{Vararg{Number, 3}}, l::Number, h::Number, d::Number) = BBox(origin, l, h, d)
+Prism(origin::Point{3}, l::Number, h::Number, d::Number) = BBox(origin, l, h, d)
+Prism(origin::SVector{3}, l::Number, h::Number, d::Number) = BBox(origin, l, h, d)
 
 """
-struct Prism{T} <: AbstractPolygon{T}
-    origin::Point{3, T}
-    l::T # length
-    h::T # height
-    d::T # depth
-end
+    Trapezoid{T} <: AbstractPolygon{T}
+    Trapezoid(origin, h, l1, l2)
 
-function Prism(origin::NTuple{3, T1}, l::T2, h::T3, d::T4) where {T1, T2, T3, T4}
-    T = promote_type(T1, T2, T3, T4)
-    origin_promoted = Point(ntuple(i -> T(origin[i]), Val(3))...)
-    return Prism{T}(origin_promoted, promote(l, h, d)...)
-end
+A right trapezoid: two parallel sides of lengths `l1` and `l2`, separated by `h`, with the
+right angle at `origin`.
 
-Prism(origin::Point{2}, l::Number, h::Number, d::Number) = Prism(totuple(origin), l, h, d)
-Prism(origin::SVector{2}, l::Number, h::Number, d::Number) = Prism(origin.data, l, h, d)
+`l1` runs along the positive ``x`` axis from `origin`; `l2` runs parallel to it from
+`origin + (0, h)`.
 
-Adapt.@adapt_structure Prism
+# Fields
+- `origin::Point{2, T}`: vertex at the right angle.
+- `h::T`: distance between the two parallel sides.
+- `l1::T`, `l2::T`: lengths of the parallel sides, at `origin` and at `origin + (0, h)`.
 
+# Examples
+```jldoctest
+julia> t = Trapezoid((0.0, 0.0), 2.0, 3.0, 4.0);
+
+julia> area(t)
+7.0
+
+julia> inside(Point(3.5, 1.0), t)   # halfway up, on the slanted leg
+true
+```
+"""
 struct Trapezoid{T} <: AbstractPolygon{T}
     origin::Point{2, T}
-    l::T
-    h1::T
-    h2::T
+    h::T
+    l1::T
+    l2::T
 end
 
-function Trapezoid(origin::NTuple{2, T1}, h::T2, l1::T3, l2::T4) where {T1, T2, T3, T4}
-    T = promote_type(T1, T2, T3, T4)
+function Trapezoid(origin::Tuple{Vararg{Number, 2}}, h::Number, l1::Number, l2::Number)
+    T = promote_type(eltype(promote(origin...)), typeof(h), typeof(l1), typeof(l2))
     origin_promoted = Point(ntuple(i -> T(origin[i]), Val(2))...)
     return Trapezoid{T}(origin_promoted, promote(h, l1, l2)...)
 end

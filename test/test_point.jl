@@ -1,4 +1,5 @@
 using StaticArrays
+using GridGeometryUtils: isequal_r
 
 @testset "Point" begin
     @test Point(1, 2.0f0) isa Point{2, Float32}
@@ -78,4 +79,35 @@ using StaticArrays
         1.0
         2.0
     ]'
+
+    @test -p1 == Point(-1.0e0, -2.0e0)
+end
+
+@testset "Point equality" begin
+    # Points holding the same coordinates are equal regardless of how they are stored.
+    @test Point(1, 2) == Point(1.0, 2.0)
+    @test hash(Point(1, 2)) == hash(Point(1.0, 2.0))
+    @test Point(1, 2) != Point(1, 3)
+    @test isequal_r(Point(1.0, 2.0), Point(1.0 + eps(), 2.0))
+    @test isequal_r(Point(1.0, 2.0, 3.0), Point(1.0, 2.0, 3.0))
+end
+
+@testset "Point dimensions must match" begin
+    # Mixing dimensions is a bug, not something to silently truncate or pad.
+    @test_throws MethodError Point(1, 2) + Point(1, 2, 3)
+    @test_throws MethodError Point(1, 2) - Point(1, 2, 3)
+    @test_throws MethodError Point(1, 2) * Point(1, 2, 3)
+    @test_throws MethodError isequal_r(Point(1, 2), Point(1, 2, 3))
+    @test_throws MethodError Point(1, 2) + SA[1, 2, 3]
+    @test_throws MethodError distance(Point(1, 2), Point(1, 2, 3))
+end
+
+@testset "Point construction" begin
+    # Every entry point coerces identically.
+    @test Point{2, Float64}(SA[1, 2]) === Point(1.0, 2.0)
+    @test Point(SA[1.0, 2.0]) === Point(1.0, 2.0)
+    @test Point((1.0, 2.0)) === Point(1.0, 2.0)
+    @test Point(Point(1.0, 2.0)) === Point(1.0, 2.0)
+    @test Point(1, 2.0f0) isa Point{2, Float32}
+    @test GridGeometryUtils.totuple(Point(1.0, 2.0)) === (1.0, 2.0)
 end
