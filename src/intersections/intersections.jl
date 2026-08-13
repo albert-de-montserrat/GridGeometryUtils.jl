@@ -61,7 +61,7 @@ function boundary_param(p, r::Rectangle)
     withinx && isequal_r(py, oy + h) && return 2 + (ox + l - px) / l
     withiny && isequal_r(px, ox) && return 3 + (oy + h - py) / h
 
-    throw(ArgumentError("$p does not lie on the boundary of the rectangle"))
+    throw(ArgumentError("point does not lie on the boundary of the rectangle"))
 end
 
 """

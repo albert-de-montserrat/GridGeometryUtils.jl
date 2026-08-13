@@ -43,7 +43,7 @@ function Line(p1::Point{2}, p2::Point{2})
     p1x, p1y = p1[1], p1[2]
     p2x, p2y = p2[1], p2[2]
     isequal_r(p1x, p2x) && throw(
-        ArgumentError("the vertical line through $p1 and $p2 has no slope-intercept form")
+        ArgumentError("a vertical line has no slope-intercept form")
     )
     slope = (p2y - p1y) / (p2x - p1x)
     return Line(slope, muladd(-slope, p1x, p1y))
@@ -96,7 +96,7 @@ struct Segment{N, T} <: AbstractLine{T}
     p2::Point{N, T}
 
     function Segment{N, T}(p1, p2) where {N, T}
-        p1 == p2 && throw(ArgumentError("a Segment needs two distinct endpoints, got $p1 twice"))
+        p1 == p2 && throw(ArgumentError("a Segment needs two distinct endpoints"))
         return new{N, T}(p1, p2)
     end
 end
@@ -140,7 +140,7 @@ Point{2, Float64}([2.0, 2.0])
 """
 function intersection(s1::Segment{2}, s2::Segment{2})
     tu = _crossing(s1, s2)
-    isnothing(tu) && throw(ArgumentError("segments $s1 and $s2 are parallel and do not cross"))
+    isnothing(tu) && throw(ArgumentError("parallel segments do not cross"))
     t = first(tu)
     return Point(coords(s1.p1) + t * (coords(s1.p2) - coords(s1.p1)))
 end
