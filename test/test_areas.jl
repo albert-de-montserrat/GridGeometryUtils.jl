@@ -69,7 +69,6 @@ end
     # A prism's `area` is its surface area, not the sum of its edge lengths.
     prism = Prism((0.0, 0.0, 0.0), 2.0, 4.0, 3.0)
     @test area(prism) ≈ 2 * (2 * 4 + 2 * 3 + 4 * 3)
-    @test area(prism) == area(BBox((0.0, 0.0, 0.0), 2.0, 4.0, 3.0))
 
     # A bounding box and the shape it bounds agree only when the shape fills it.
     rect = Rectangle((0.0, 0.0), 2.0, 4.0)

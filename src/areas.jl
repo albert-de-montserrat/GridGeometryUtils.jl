@@ -62,7 +62,6 @@ end
 @inline area(r::Rectangle) = r.h * r.l
 @inline area(r::BBox{2}) = r.h * r.l
 @inline area(r::BBox{3}) = 2 * (r.l * r.h + r.l * r.d + r.h * r.d)
-@inline area(r::Prism) = 2 * (r.l * r.h + r.l * r.d + r.h * r.d)
 @inline area(t::Trapezoid) = (t.l1 + t.l2) * t.h / 2
 @inline area(h::Hexagon) = 3 * √3 / 2 * h.radius^2
 @inline area(circle::Circle) = π * circle.radius^2
@@ -85,6 +84,5 @@ end
     return π * (3 * (a + b) - √((3 * a + b) * (a + 3 * b)))
 end
 
-@inline volume(r::Prism) = r.h * r.l * r.d
-@inline volume(s::Sphere) = (4 * π * s.radius^3) / 3
 @inline volume(r::BBox{3}) = r.h * r.l * r.d
+@inline volume(s::Sphere) = (4 * π * s.radius^3) / 3

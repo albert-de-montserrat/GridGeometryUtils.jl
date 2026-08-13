@@ -132,6 +132,16 @@ end
     @test Prism(Point(0, 0, 0), 2, 4, 3) == prism
     @test Prism(SA[0, 0, 0], 2, 4, 3) == prism
     @test_throws MethodError Prism(Point(0, 0), 2, 4, 3)
+    @test_throws MethodError Prism((0, 0), 2, 4)
+
+    @testset "is BBox{3}" begin
+        # One type under two names, so a method written for either applies to both and the
+        # two can never drift apart.
+        @test Prism{Float64} === BBox{3, Float64}
+        @test prism === BBox(origin, 2, 4, 3)
+        @test prism isa BBox
+        @test prism isa GridGeometryUtils.AbstractPolygon
+    end
 end
 
 @testset "Trapezoid" begin

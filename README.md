@@ -18,7 +18,7 @@ julia> using Pkg; Pkg.add("GridGeometryUtils")
 | 2-D | 3-D |
 | --- | --- |
 | `Point`, `Segment`, `Line` | `Point`, `Segment` |
-| `Triangle`, `Rectangle`, `Trapezoid`, `Hexagon`, `BBox` | `Prism`, `BBox` |
+| `Triangle`, `Rectangle`, `Trapezoid`, `Hexagon`, `BBox` | `BBox`, also spelled `Prism` |
 | `Circle`, `Ellipse` | `Sphere` |
 | `Layering` | |
 
@@ -36,7 +36,7 @@ julia> Rectangle((0.0, 0.0), 2.0, 4.0; θ = π / 6)   # rotated counter-clockwis
 The two conventions differ by shape, and mixing them up is a common source of off-by-half
 errors:
 
-- `BBox` and `Prism` take the corner with the **smallest** coordinate on every axis.
+- `BBox`, and hence `Prism`, takes the corner with the **smallest** coordinate on every axis.
 - `Rectangle`, `Hexagon`, `Circle`, `Ellipse`, `Sphere` and `Layering` take the **center**.
 
 Shapes that carry a `box` field expose their axis-aligned bounding box, whose `origin` is

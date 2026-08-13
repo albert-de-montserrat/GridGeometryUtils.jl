@@ -7,7 +7,7 @@ CurrentModule = GridGeometryUtils
 | Dimension | Types |
 | --- | --- |
 | 2-D | [`Point`](@ref), [`Line`](@ref), [`Segment`](@ref), [`Triangle`](@ref), [`Rectangle`](@ref), [`Trapezoid`](@ref), [`Hexagon`](@ref), [`BBox`](@ref), [`Circle`](@ref), [`Ellipse`](@ref), [`Layering`](@ref) |
-| 3-D | [`Point`](@ref), [`Segment`](@ref), [`Prism`](@ref), [`BBox`](@ref), [`Sphere`](@ref) |
+| 3-D | [`Point`](@ref), [`Segment`](@ref), [`BBox`](@ref) (also spelled [`Prism`](@ref)), [`Sphere`](@ref) |
 
 ## Construction
 
@@ -40,8 +40,9 @@ true
 
 This is the single most common source of off-by-half errors, so it is worth stating plainly:
 
-- [`BBox`](@ref) and [`Prism`](@ref) are anchored at the **minimum-coordinate corner** — the
-  south-west corner in 2-D — with their extents running along the positive axes from there.
+- [`BBox`](@ref), and hence [`Prism`](@ref), is anchored at the **minimum-coordinate
+  corner** — the south-west corner in 2-D — with its extents running along the positive axes
+  from there.
 - [`Rectangle`](@ref), [`Hexagon`](@ref), [`Circle`](@ref), [`Ellipse`](@ref),
   [`Sphere`](@ref) and [`Layering`](@ref) are anchored at their **center**.
 - [`Trapezoid`](@ref) is anchored at the vertex holding its right angle.
@@ -63,8 +64,21 @@ Point{2, Float64}([-2.0, -1.7320508075688772])
 
 ## Axis names in 3-D
 
-`BBox{3}` and `Prism` name their extents `l`, `h` and `d`, running along ``x``, ``y`` and
-``z`` respectively. [`inside`](@ref) bounds each axis from below as well as from above.
+`BBox{3}` names its extents `l`, `h` and `d`, running along ``x``, ``y`` and ``z``
+respectively. [`inside`](@ref) bounds each axis from below as well as from above.
+
+[`Prism`](@ref) is an alias for `BBox{3}` rather than a type of its own, so the two share
+every method and a 3-D box prints under the name `Prism` however it was built:
+
+```jldoctest
+julia> using GridGeometryUtils
+
+julia> Prism{Float64} === BBox{3, Float64}
+true
+
+julia> Sphere((0.0, 0.0, 0.0), 1.0).box
+Prism{Float64}(Point{3, Float64}([-1.0, -1.0, -1.0]), 2.0, 2.0, 2.0)
+```
 
 ```jldoctest
 julia> using GridGeometryUtils

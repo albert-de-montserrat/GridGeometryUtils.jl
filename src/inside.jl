@@ -74,11 +74,6 @@ end
     return true
 end
 
-@inline function inside(p::QueryPoint{3}, prism::Prism)
-    (; origin, l, h, d) = prism
-    return inside(p, BBox(origin, l, h, d))
-end
-
 @inline inside(p::QueryPoint{2}, t::Triangle) = _inside_convex(p, (t.p1, t.p2, t.p3))
 
 @inline function inside(p::QueryPoint{2}, t::Trapezoid)

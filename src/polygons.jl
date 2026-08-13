@@ -230,40 +230,30 @@ Hexagon(origin::SVector{2}, radius::Number; θ::Number = 0.0) = Hexagon(origin.d
 Adapt.@adapt_structure Hexagon
 
 """
-    Prism{T} <: AbstractPolygon{T}
+    Prism{T}
+    Prism(origin, l, h, d)
 
-An axis-aligned rectangular cuboid.
+An axis-aligned rectangular cuboid: an alias for `BBox{3, T}`, and hence the very same
+type, sharing its fields and every method defined on it. `Prism` is the name a 3-D box
+prints under.
 
-`origin` is the corner with the smallest coordinate along every axis, and the extents run
-along the positive axes from there, matching [`BBox`](@ref).
-
-# Fields
-- `origin::Point{3, T}`: minimum-coordinate corner.
-- `l::T`, `h::T`, `d::T`: extents along ``x``, ``y`` and ``z``.
+`origin` is the corner with the smallest coordinate along every axis, and the extents `l`,
+`h` and `d` run along the positive ``x``, ``y`` and ``z`` axes from there.
 
 # Examples
 ```jldoctest
 julia> volume(Prism((0.0, 0.0, 0.0), 2.0, 4.0, 3.0))
 24.0
+
+julia> Prism{Float64} === BBox{3, Float64}
+true
 ```
 """
-struct Prism{T} <: AbstractPolygon{T}
-    origin::Point{3, T}
-    l::T # length
-    h::T # height
-    d::T # depth
-end
+const Prism{T} = BBox{3, T}
 
-function Prism(origin::Tuple{Vararg{Number, 3}}, l::Number, h::Number, d::Number)
-    T = promote_type(eltype(promote(origin...)), typeof(l), typeof(h), typeof(d))
-    origin_promoted = Point(ntuple(i -> T(origin[i]), Val(3))...)
-    return Prism{T}(origin_promoted, promote(l, h, d)...)
-end
-
-Prism(origin::Point{3}, l::Number, h::Number, d::Number) = Prism(totuple(origin), l, h, d)
-Prism(origin::SVector{3}, l::Number, h::Number, d::Number) = Prism(origin.data, l, h, d)
-
-Adapt.@adapt_structure Prism
+Prism(origin::Tuple{Vararg{Number, 3}}, l::Number, h::Number, d::Number) = BBox(origin, l, h, d)
+Prism(origin::Point{3}, l::Number, h::Number, d::Number) = BBox(origin, l, h, d)
+Prism(origin::SVector{3}, l::Number, h::Number, d::Number) = BBox(origin, l, h, d)
 
 """
     Trapezoid{T} <: AbstractPolygon{T}
