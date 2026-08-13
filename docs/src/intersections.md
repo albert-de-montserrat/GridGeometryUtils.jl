@@ -52,9 +52,9 @@ ERROR: ArgumentError: the vertical line through Point{2, Int64}([0, 0]) and Poin
 
 ## Rectangle chords
 
-A chord between two points on the boundary of an axis-aligned [`Rectangle`](@ref) cuts it
-in two. [`intersecting_area`](@ref) returns the area of the piece to the **right** of the
-directed chord `p1 → p2`, so swapping the arguments gives the other piece and the two sum to
+A chord between two points on the boundary of a [`Rectangle`](@ref) cuts it in two.
+[`intersecting_area`](@ref) returns the area of the piece to the **right** of the directed
+chord `p1 → p2`, so swapping the arguments gives the other piece and the two sum to
 `area(r)`.
 
 ```jldoctest
@@ -73,13 +73,26 @@ julia> intersecting_area(Point(-1.0, -2.0), Point(1.0, 2.0), r)   # corner to co
 ```
 
 Both endpoints must lie on the boundary; a point elsewhere raises an `ArgumentError`.
-Rotated rectangles are not supported.
+
+A rotated rectangle works the same way. The chord and the corners are taken into the
+rectangle's own frame, where it is axis-aligned by construction, and a rotation leaves area
+alone:
+
+```jldoctest
+julia> using GridGeometryUtils
+
+julia> rot = Rectangle((0.0, 0.0), 2.0, 4.0; θ = π / 2);   # now spans x ∈ [-2, 2], y ∈ [-1, 1]
+
+julia> intersecting_area(Point(0.0, -1.0), Point(0.0, 1.0), rot) ≈ 4.0
+true
+```
 
 ## Locating a point on the boundary
 
 [`boundary_param`](@ref) gives a point's position along the boundary as a parameter running
-counter-clockwise from the south-west corner, one unit per edge.
-[`intersecting_boundary`](@ref) reduces that to an edge index.
+counter-clockwise from the corner the rectangle was built from, one unit per edge.
+[`intersecting_boundary`](@ref) reduces that to an edge index. Both name the edges in the
+rectangle's own frame, so they turn along with a rotated rectangle.
 
 ```jldoctest
 julia> using GridGeometryUtils

@@ -5,27 +5,28 @@ const BOUNDARY_RIGHT = 2
 const BOUNDARY_BOTTOM = 3
 const BOUNDARY_TOP = 4
 
-# Rejects rotated rectangles, whose bounding box is not the rectangle itself. Every
-# boundary query here works in the axis-aligned frame of `r.box`.
-@inline function assert_axis_aligned(r::Rectangle)
-    return iszero(r.sinθ) || throw(
-        ArgumentError(
-            "only axis-aligned rectangles are supported, got one rotated by $(atand(r.sinθ, r.cosθ))°"
-        )
-    )
+# Coordinates of `p` in the frame of `r`: centered on the rectangle with the axes along its
+# own sides, so that it spans [-l/2, l/2] × [-h/2, h/2] however it is rotated. Every
+# boundary query here works in that frame.
+@inline function local_coords(p, r::Rectangle)
+    𝐱 = SVector(p[1] - r.origin[1], p[2] - r.origin[2])
+    return iszero(r.sinθ) ? 𝐱 : rotation_matrix(r.sinθ, r.cosθ) * 𝐱
 end
 
 """
     boundary_param(p, r::Rectangle) -> Real
 
 Position of `p` along the boundary of `r`, as an arc-length-like parameter in `[0, 4)` that
-runs counter-clockwise from the south-west corner: `[0, 1]` along the bottom edge, `[1, 2]`
-up the right edge, `[2, 3]` back along the top, and `[3, 4]` down the left edge.
+runs counter-clockwise from the corner `r` was built from: `[0, 1]` along the bottom edge,
+`[1, 2]` up the right edge, `[2, 3]` back along the top, and `[3, 4]` down the left edge.
+
+Edges are named in the rectangle's own frame, so a rotated rectangle has the same four
+edges carrying the same parameters, turned along with it.
 
 A corner takes the parameter given to it by the earlier of the two edges meeting there, so
-the south-west corner is `0` rather than `4`.
+the starting corner is `0` rather than `4`.
 
-Throws an `ArgumentError` if `p` does not lie on the boundary, or if `r` is rotated.
+Throws an `ArgumentError` if `p` does not lie on the boundary.
 
 # Examples
 ```jldoctest
@@ -36,15 +37,19 @@ julia> boundary_param(Point(-1.0, -2.0), r)   # south-west corner
 
 julia> boundary_param(Point(1.0, 0.0), r)     # halfway up the right edge
 1.5
+
+julia> rot = Rectangle((0.0, 0.0), 2.0, 4.0; θ = π / 2);
+
+julia> boundary_param(Point(2.0, 0.0), rot) ≈ 0.5   # the bottom edge, turned a quarter turn
+true
 ```
 
 See also [`intersecting_boundary`](@ref) and [`intersecting_area`](@ref).
 """
 function boundary_param(p, r::Rectangle)
-    assert_axis_aligned(r)
-    (; origin, l, h) = r.box
-    ox, oy = origin[1], origin[2]
-    px, py = p[1], p[2]
+    (; l, h) = r
+    px, py = local_coords(p, r)
+    ox, oy = -l / 2, -h / 2
 
     withinx = geq_r(px, ox) && leq_r(px, ox + l)
     withiny = geq_r(py, oy) && leq_r(py, oy + h)
@@ -63,9 +68,10 @@ end
     intersecting_boundary(p, r::Rectangle) -> Int
 
 Which edge of `r` the point `p` lies on: `1` for left, `2` for right, `3` for bottom and
-`4` for top. Corners belong to the horizontal edge that meets them.
+`4` for top. Corners belong to the horizontal edge that meets them. The edges are named in
+the rectangle's own frame, so they turn with a rotated `r`.
 
-Throws an `ArgumentError` if `p` does not lie on the boundary of `r`, or if `r` is rotated.
+Throws an `ArgumentError` if `p` does not lie on the boundary of `r`.
 
 # Examples
 ```jldoctest

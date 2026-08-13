@@ -95,9 +95,9 @@ julia> dointersect(s1, s2)       # whether the segments themselves cross
 true
 ```
 
-`boundary_param` locates a point on the boundary of an axis-aligned rectangle, as a
-parameter running counter-clockwise from the south-west corner and covering one unit per
-edge; `intersecting_boundary` reduces that to which edge the point is on:
+`boundary_param` locates a point on the boundary of a rectangle, as a parameter running
+counter-clockwise from the south-west corner and covering one unit per edge;
+`intersecting_boundary` reduces that to which edge the point is on:
 
 ```julia-repl
 julia> r = Rectangle((0.0, 0.0), 2.0, 4.0);   # spans x ∈ [-1, 1], y ∈ [-2, 2]
@@ -121,6 +121,8 @@ julia> intersecting_area(Point(-1.0, 0.0), Point(1.0, 0.0), r)   # the lower hal
 julia> intersecting_area(Point(1.0, 0.0), Point(-1.0, 0.0), r)   # the upper half
 4.0
 ```
+
+Both queries work on a rotated rectangle, naming its edges in its own frame.
 
 ## Floating-point tolerance
 
