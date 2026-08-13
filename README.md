@@ -75,8 +75,9 @@ julia> inside(Point(1.0, 0.0), Circle((0.0, 0.0), 1.0))   # boundaries count as 
 true
 ```
 
-`inside` accepts a `Point` or a bare `SVector`, and works for `BBox`, `Prism`, `Triangle`,
-`Rectangle`, `Hexagon`, `Circle`, `Ellipse`, `Sphere` and `Layering`.
+`inside` accepts a `Point` or a bare `SVector`, and covers every shape in the package. A
+`Line` and a `Segment` enclose nothing, so for those it tests whether the point lies *on*
+the object.
 
 ## Segment intersection
 

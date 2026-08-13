@@ -44,9 +44,9 @@ false
 ## Two conventions worth knowing up front
 
 **Origins differ by shape.** [`BBox`](@ref) and [`Prism`](@ref) are anchored at the corner
-with the smallest coordinate on every axis; every other shape is anchored at its center. A
-shape that carries a `box` field exposes its axis-aligned bounding box, whose origin is
-always the minimum corner:
+with the smallest coordinate on every axis, and [`Trapezoid`](@ref) at the vertex holding
+its right angle; every other shape is anchored at its center. A shape that carries a `box`
+field exposes its axis-aligned bounding box, whose origin is always the minimum corner:
 
 ```jldoctest
 julia> using GridGeometryUtils

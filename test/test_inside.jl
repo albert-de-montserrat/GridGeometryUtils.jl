@@ -56,6 +56,65 @@ end
     @test !inside(Point(0.9, 0.9), reversed)
 end
 
+@testset "In Trapezoid?" begin
+    # Right angle at the origin, `l1 = 3` along x at y = 0, `l2 = 4` at y = 2.
+    trap = Trapezoid((0.0, 0.0), 2.0, 3.0, 4.0)
+
+    @test inside(Point(1.0, 1.0), trap)
+    @test inside(Point(0.0, 0.0), trap)     # the right-angle vertex
+    @test inside(Point(3.0, 0.0), trap)     # far end of l1
+    @test inside(Point(4.0, 2.0), trap)     # far end of l2
+    @test inside(Point(3.5, 1.0), trap)     # on the slanted leg
+    @test inside(SA[0.0, 2.0], trap)        # top of the perpendicular leg
+
+    @test !inside(Point(3.6, 1.0), trap)    # just beyond the slanted leg
+    @test !inside(Point(-0.1, 1.0), trap)   # left of the perpendicular leg
+    @test !inside(Point(1.0, -0.1), trap)
+    @test !inside(Point(1.0, 2.1), trap)
+
+    # The parallel sides may narrow rather than widen, and equal sides give a rectangle.
+    narrowing = Trapezoid((0.0, 0.0), 2.0, 4.0, 3.0)
+    @test inside(Point(3.5, 1.0), narrowing)
+    @test !inside(Point(3.6, 1.0), narrowing)
+
+    rect = Trapezoid((0.0, 0.0), 2.0, 3.0, 3.0)
+    @test inside(Point(3.0, 2.0), rect)
+    @test !inside(Point(3.1, 2.0), rect)
+end
+
+@testset "On a Segment?" begin
+    s = Segment(Point(0.0, 0.0), Point(2.0, 4.0))
+
+    @test inside(Point(1.0, 2.0), s)
+    @test inside(Point(0.0, 0.0), s)        # endpoint
+    @test inside(Point(2.0, 4.0), s)        # endpoint
+    @test inside(SA[0.5, 1.0], s)
+
+    @test !inside(Point(1.0, 2.1), s)       # off the line
+    @test !inside(Point(3.0, 6.0), s)       # on the line, past the end
+    @test !inside(Point(-1.0, -2.0), s)     # on the line, before the start
+
+    # A vertical segment is no different, and works in 3-D too.
+    @test inside(Point(1.0, 0.5), Segment(Point(1.0, 0.0), Point(1.0, 1.0)))
+    s3 = Segment(Point(0.0, 0.0, 0.0), Point(1.0, 1.0, 1.0))
+    @test inside(Point(0.5, 0.5, 0.5), s3)
+    @test !inside(Point(0.5, 0.5, 0.6), s3)
+
+    # The tolerance follows the length of the segment rather than an absolute threshold.
+    tiny = Segment(Point(0.0, 0.0), Point(2.0e-8, 4.0e-8))
+    @test inside(Point(1.0e-8, 2.0e-8), tiny)
+    @test !inside(Point(1.0e-8, 2.1e-8), tiny)
+end
+
+@testset "On a Line?" begin
+    l = Line(2, 1)   # y = 2x + 1
+
+    @test inside(Point(0.0, 1.0), l)
+    @test inside(Point(3.0, 7.0), l)
+    @test inside(SA[-1.0, -1.0], l)
+    @test !inside(Point(3.0, 7.1), l)
+end
+
 @testset "In Hexagon?" begin
     o2 = @SVector([0.0, 0.0])
 
@@ -162,7 +221,10 @@ end
     end
 end
 
-@testset "inside on unsupported shapes" begin
-    @test_throws "`inside` is not defined" inside(Point(0.0, 0.0), Trapezoid((0.0, 0.0), 1.0, 2.0, 3.0))
-    @test_throws "`inside` is not defined" inside(Point(0.0, 0.0), Segment(Point(0, 0), Point(1, 1)))
+@testset "inside on mismatched dimensions" begin
+    # A query point of the wrong dimension matches no method for the shape, and the
+    # fallback names both types rather than failing obscurely.
+    @test_throws "`inside` is not defined" inside(Point(0.0, 0.0), Prism((0.0, 0.0, 0.0), 1.0, 1.0, 1.0))
+    @test_throws "`inside` is not defined" inside(Point(0.0, 0.0, 0.0), Circle((0.0, 0.0), 1.0))
+    @test_throws "`inside` is not defined" inside(Point(0.0, 0.0, 0.0), Segment(Point(0, 0), Point(1, 1)))
 end

@@ -13,6 +13,8 @@ This form cannot represent a vertical line, so constructing one from two points 
 intersection ([`intersection`](@ref), [`dointersect`](@ref)) does not go through `Line` and
 handles vertical segments.
 
+Enclosing no area, a `Line` answers [`inside`](@ref) with whether the point lies *on* it.
+
 # Fields
 - `slope::T`, `intercept::T`
 
@@ -23,6 +25,9 @@ Line{Float64}(1.0, 0.0)
 
 julia> line(l, 3)
 3.0
+
+julia> inside(Point(3.0, 3.0), l)
+true
 ```
 """
 struct Line{T} <: AbstractLine{T}
@@ -70,6 +75,8 @@ julia> line(l, 0.5)
 
 The straight segment bounded by the two distinct endpoints `p1` and `p2`.
 
+Enclosing no area, a `Segment` answers [`inside`](@ref) with whether the point lies *on* it.
+
 # Fields
 - `p1::Point{N, T}`, `p2::Point{N, T}`: the endpoints.
 
@@ -79,6 +86,9 @@ julia> s = Segment(Point(0, 0), Point(1, 1));
 
 julia> intersection(s, Segment(Point(0, 1), Point(1, 0)))
 Point{2, Float64}([0.5, 0.5])
+
+julia> inside(Point(0.5, 0.5), s), inside(Point(2.0, 2.0), s)
+(true, false)
 ```
 """
 struct Segment{N, T} <: AbstractLine{T}

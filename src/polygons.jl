@@ -282,8 +282,13 @@ right angle at `origin`.
 
 # Examples
 ```jldoctest
-julia> area(Trapezoid((0.0, 0.0), 2.0, 3.0, 4.0))
+julia> t = Trapezoid((0.0, 0.0), 2.0, 3.0, 4.0);
+
+julia> area(t)
 7.0
+
+julia> inside(Point(3.5, 1.0), t)   # halfway up, on the slanted leg
+true
 ```
 """
 struct Trapezoid{T} <: AbstractPolygon{T}

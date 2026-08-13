@@ -12,7 +12,7 @@ within round-off of a boundary are treated as lying on it.
 module GridGeometryUtils
 
 using Adapt: Adapt
-using LinearAlgebra: norm
+using LinearAlgebra: dot, norm
 using StaticArrays: SMatrix, SVector, @SMatrix, @SVector
 
 abstract type AbstractGeometryObject{T} end

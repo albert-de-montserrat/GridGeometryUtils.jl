@@ -7,6 +7,9 @@ Test whether the point `p` lies inside `object`, boundary included. `p` may be a
 Comparisons are made with a relative tolerance of about `1000 * eps`, so points within
 round-off of the boundary count as inside.
 
+A [`Line`](@ref) and a [`Segment`](@ref) enclose nothing, so for them the test is whether
+`p` lies *on* the object.
+
 # Examples
 ```jldoctest
 julia> inside(Point(0.5, 0.5), Circle((0.0, 0.0), 1.0))
@@ -14,13 +17,31 @@ true
 
 julia> inside(Point(1.0, 1.0), Circle((0.0, 0.0), 1.0))
 false
+
+julia> inside(Point(0.5, 0.5), Segment(Point(0.0, 0.0), Point(1.0, 1.0)))
+true
 ```
 """
 function inside end
 
 @inline inside(p, object::AbstractGeometryObject) = throw(
-    ArgumentError("`inside` is not defined for $(typeof(object))")
+    ArgumentError("`inside` is not defined for a $(typeof(p)) in a $(typeof(object))")
 )
+
+# A point lies within a convex polygon iff it stays on the same side of every edge, with the
+# vertices taken in order around the boundary. A vanishing cross product puts the point on an
+# edge, which counts as inside. The test is blind to the winding direction.
+@inline function _inside_convex(p, vertices::Tuple)
+    n = length(vertices)
+    has_neg = false
+    has_pos = false
+    for i in eachindex(vertices)
+        d = cross2(vertices[i], vertices[i % n + 1], p)
+        has_neg |= lt_r(d, zero(d))
+        has_pos |= gt_r(d, zero(d))
+    end
+    return !(has_neg && has_pos)
+end
 
 # Objects carrying a bounding box are rejected cheaply before the exact test runs.
 @inline function inside(p::QueryPoint{2}, object::Union{Rectangle, Hexagon, Ellipse, Circle})
@@ -58,16 +79,34 @@ end
     return inside(p, BBox(origin, l, h, d))
 end
 
-@inline function inside(p::QueryPoint{2}, t::Triangle)
-    # The point is inside iff it lies on the same side of all three edges. A zero cross
-    # product means the point is on an edge, which counts as inside.
-    d1 = cross2(t.p1, t.p2, p)
-    d2 = cross2(t.p2, t.p3, p)
-    d3 = cross2(t.p3, t.p1, p)
-    has_neg = lt_r(d1, zero(d1)) || lt_r(d2, zero(d2)) || lt_r(d3, zero(d3))
-    has_pos = gt_r(d1, zero(d1)) || gt_r(d2, zero(d2)) || gt_r(d3, zero(d3))
-    return !(has_neg && has_pos)
+@inline inside(p::QueryPoint{2}, t::Triangle) = _inside_convex(p, (t.p1, t.p2, t.p3))
+
+@inline function inside(p::QueryPoint{2}, t::Trapezoid)
+    (; origin, h, l1, l2) = t
+    ox, oy = origin[1], origin[2]
+    # The right angle, then along `l1`, along `l2`, and back down the perpendicular leg.
+    vertices = (
+        SVector(ox, oy),
+        SVector(ox + l1, oy),
+        SVector(ox + l2, oy + h),
+        SVector(ox, oy + h),
+    )
+    return _inside_convex(p, vertices)
 end
+
+@inline function inside(p::QueryPoint{N}, s::Segment{N}) where {N}
+    𝐫 = coords(s.p2) - coords(s.p1)
+    𝐝 = coords(p) - coords(s.p1)
+    r² = sum(abs2, 𝐫)
+
+    # Position along the segment, and the offset from its infinite line measured as a
+    # fraction of its length so that the tolerance follows the scale of the geometry.
+    t = dot(𝐝, 𝐫) / r²
+    isquasizero(norm(𝐝 - t * 𝐫) / √r²) || return false
+    return _inunitrange(t)
+end
+
+@inline inside(p::QueryPoint{2}, l::Line) = isequal_r(p[2], line(l, p[1]))
 
 function inside(p::QueryPoint{2}, lay::Layering)
     (; center, thickness, ratio, sinθ, cosθ, perturb_amp, perturb_width) = lay

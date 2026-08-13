@@ -31,6 +31,9 @@ end
 
         t = Triangle((0.0, 0.0), (3.0, 0.5), (1.0, 2.0))
         @test area(t) ≈ mc_area(t, BBox((0.0, 0.0), 3.0, 2.0)) rtol = 0.02
+
+        trap = Trapezoid((0.5, -1.0), 2.0, 3.0, 4.0)
+        @test area(trap) ≈ mc_area(trap, BBox((0.5, -1.0), 4.0, 2.0)) rtol = 0.02
     end
 
     @testset "3D" begin

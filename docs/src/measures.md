@@ -21,13 +21,28 @@ julia> inside(Point(1.0, 0.0), circle)   # exactly on the boundary
 true
 ```
 
-It is implemented for [`BBox`](@ref), [`Prism`](@ref), [`Triangle`](@ref),
-[`Rectangle`](@ref), [`Hexagon`](@ref), [`Circle`](@ref), [`Ellipse`](@ref),
-[`Sphere`](@ref) and [`Layering`](@ref). Any other shape raises an `ArgumentError` naming
-itself rather than failing obscurely.
+Every shape in the package implements it. A [`Line`](@ref) and a [`Segment`](@ref) enclose
+nothing, so for those the test is whether the point lies *on* the object:
+
+```jldoctest
+julia> using GridGeometryUtils
+
+julia> inside(Point(0.5, 0.5), Segment(Point(0.0, 0.0), Point(1.0, 1.0)))
+true
+
+julia> inside(Point(2.0, 2.0), Segment(Point(0.0, 0.0), Point(1.0, 1.0)))   # past the end
+false
+```
+
+A point of the wrong dimension for the shape raises an `ArgumentError` naming both, rather
+than failing obscurely.
 
 Shapes that carry a bounding box test it first and only then run the exact predicate, so a
 point far outside is rejected cheaply.
+
+Containment in the convex polygons — [`Triangle`](@ref), [`Trapezoid`](@ref) — is decided
+by the sign of the cross product against each edge in turn, which involves no division and
+is independent of the winding direction.
 
 ## Area, perimeter and volume
 
