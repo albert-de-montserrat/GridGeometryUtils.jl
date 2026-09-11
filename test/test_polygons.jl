@@ -64,23 +64,39 @@ end
         @test BBox(Point(0, 0, 0), 2, 4, 3) == BBox((0, 0, 0), 2, 4, 3)
         @test BBox(SA[0, 0, 0], 2, 4, 3) == BBox((0, 0, 0), 2, 4, 3)
         @test BBox((0, 0), 2.0f0, 4.0f0) isa BBox{2, Float32}
+
+        # The typed form coerces its arguments like every other call form.
+        @test BBox{2, Float64}(Point(0, 0), 1, 2, 0) == BBox((0.0, 0.0), 1.0, 2.0)
+    end
+
+    @testset "extents" begin
+        # `origin` is the minimum corner only while every extent is non-negative.
+        @test_throws "extents must be non-negative" BBox((0, 0), -2, 4)
+        @test_throws "extents must be non-negative" BBox((0, 0), 2, -4)
+        @test_throws "extents must be non-negative" BBox((0, 0, 0), 2, 4, -3)
+        @test_throws "2-D BBox has no depth" BBox((0, 0), 2, 4, 3)
+
+        # A degenerate box is legitimate: a zero-radius circle bounds itself.
+        @test BBox((0, 0), 0, 0) isa BBox{2, Int}
     end
 end
 
 @testset "Rectangle" begin
-    origin = (0, 0)
-    rect = Rectangle(origin, 2, 4; θ = π / 3)
+    center = (0, 0)
+    rect = Rectangle(center, 2, 4; θ = π / 3)
 
-    @test rect.origin == Point(Float64.(origin))
+    @test rect.center == Point(Float64.(center))
     @test rect.l == 2
     @test rect.h == 4
     @test area(rect) == 8
     @test perimeter(rect) == 12
 
-    # `origin` is the center; the bounding box carries the south-west corner.
-    unrotated = Rectangle(origin, 2, 4)
-    @test unrotated.origin == Point(0.0, 0.0)
+    # A rectangle is anchored at its center; the bounding box carries the south-west corner.
+    unrotated = Rectangle(center, 2, 4)
+    @test unrotated.center == Point(0.0, 0.0)
     @test unrotated.box.origin == Point(-1.0, -2.0)
+
+    @test_throws "anchored at its `center`" unrotated.origin
     @test unrotated.box.l == 2
     @test unrotated.box.h == 4
 
@@ -98,11 +114,12 @@ end
 end
 
 @testset "Hexagon" begin
-    origin = (-1, 1)
+    center = (-1, 1)
     radius = 2
-    hex = Hexagon(origin, radius; θ = π / 3)
+    hex = Hexagon(center, radius; θ = π / 3)
 
-    @test hex.origin == Point(Float64.(origin))
+    @test hex.center == Point(Float64.(center))
+    @test_throws "anchored at its `center`" hex.origin
     @test hex.radius == radius
     # Regular hexagon of circumradius r: area 3√3/2 r², perimeter 6r.
     @test area(hex) ≈ 3 * √3 / 2 * radius^2
@@ -110,11 +127,11 @@ end
     @test area(hex) < perimeter(hex)   # 10.39 < 12; the two were once swapped
 
     # A sixth-turn maps a regular hexagon onto itself.
-    @test area(Hexagon(origin, radius)) ≈ area(hex)
-    @test sort(Hexagon(origin, radius).vertices[1, :]) ≈ sort(hex.vertices[1, :])
+    @test area(Hexagon(center, radius)) ≈ area(hex)
+    @test sort(Hexagon(center, radius).vertices[1, :]) ≈ sort(hex.vertices[1, :])
 
-    @test Hexagon(Point(-1, 1), 2) == Hexagon(origin, radius)
-    @test Hexagon(SA[-1, 1], 2) == Hexagon(origin, radius)
+    @test Hexagon(Point(-1, 1), 2) == Hexagon(center, radius)
+    @test Hexagon(SA[-1, 1], 2) == Hexagon(center, radius)
 end
 
 @testset "Prism" begin
@@ -162,6 +179,13 @@ end
 
     @test Trapezoid(Point(0, 0), 2, 3, 4) == trap
     @test Trapezoid(SA[0, 0], 2, 3, 4) == trap
+
+    # `origin` is the right-angled vertex, and hence the minimum corner, only while both
+    # parallel sides run in the positive x direction.
+    @test_throws "side lengths must be non-negative" Trapezoid(origin, 2, -3, 4)
+    @test_throws "side lengths must be non-negative" Trapezoid(origin, 2, 3, -4)
+    @test_throws "height must be positive" Trapezoid(origin, 0, 3, 4)
+    @test_throws "height must be positive" Trapezoid(origin, -2, 3, 4)
 end
 
 @testset "unsupported measures" begin

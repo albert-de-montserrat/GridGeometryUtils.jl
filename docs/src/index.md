@@ -35,7 +35,7 @@ false
 
 ## Where to go next
 
-- [Shapes](@ref) — what each type represents, and where its origin sits.
+- [Shapes](@ref) — what each type represents, and where it is anchored.
 - [Predicates and measures](@ref) — `inside`, `area`, `perimeter` and `volume`.
 - [Intersections](@ref) — segment crossings and rectangle chords.
 - [Tolerant comparisons](@ref) — the floating-point tolerance every predicate is built on.
@@ -43,18 +43,18 @@ false
 
 ## Two conventions worth knowing up front
 
-**Origins differ by shape.** [`BBox`](@ref), also spelled [`Prism`](@ref) in 3-D, is
-anchored at the corner with the smallest coordinate on every axis, and [`Trapezoid`](@ref)
-at the vertex holding its right angle; every other shape is anchored at its center. A shape
-that carries a `box` field exposes its axis-aligned bounding box, whose origin is always the
-minimum corner:
+**Anchors are named for what they are.** A field called `origin` is always the corner with
+the smallest coordinate on every axis, and a field called `center` is always the center.
+[`BBox`](@ref), also spelled [`Prism`](@ref) in 3-D, and [`Trapezoid`](@ref) carry an
+`origin`; every other shape carries a `center`. Either can be given by name when building a
+shape, and [`center`](@ref) and [`boundingbox`](@ref) read them back from any shape at all:
 
 ```jldoctest
 julia> using GridGeometryUtils
 
-julia> rect = Rectangle((0.0, 0.0), 2.0, 4.0);
+julia> rect = Rectangle(; origin = (-1.0, -2.0), l = 2.0, h = 4.0);
 
-julia> rect.origin, rect.box.origin
+julia> center(rect), boundingbox(rect).origin
 (Point{2, Float64}([0.0, 0.0]), Point{2, Float64}([-1.0, -2.0]))
 ```
 

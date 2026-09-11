@@ -38,6 +38,11 @@ export Ellipse, Circle, Sphere
 include("layering.jl")
 export Layering
 
+include("accessors.jl")
+export center, boundingbox
+
+include("constructors.jl")
+
 include("areas.jl")
 export area, volume, perimeter
 
