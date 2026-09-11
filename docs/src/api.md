@@ -9,5 +9,9 @@ Every exported name, with links to where it is documented: shapes on
 [Intersections](@ref). The internal comparison layer is documented on
 [Tolerant comparisons](@ref).
 
+```@docs
+GridGeometryUtils
+```
+
 ```@index
 ```

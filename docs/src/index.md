@@ -12,7 +12,7 @@ so they can be moved to a GPU.
 
 ## Installation
 
-```julia
+```julia-repl
 julia> using Pkg; Pkg.add("GridGeometryUtils")
 ```
 
