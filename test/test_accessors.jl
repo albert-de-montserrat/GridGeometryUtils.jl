@@ -33,9 +33,11 @@ maxcorner(b::BBox{3}) = Point(b.origin[1] + b.l, b.origin[2] + b.h, b.origin[3] 
         @test center(Trapezoid((0.0, 0.0), 2.0, 3.0, 4.0)) == Point(37 / 21, 22 / 21)
 
         # Shapes that store a center hand it back untouched.
-        for shape in (Rectangle((1.0, -2.0), 2.0, 4.0; θ = π / 6), Hexagon((0.5, 0.5), 2.0),
-                      Circle((0.0, 0.0), 1.0), Sphere((1.0, 2.0, 3.0), 1.0),
-                      Ellipse((0.0, 0.0), 1.0, 2.0; θ = 0.3))
+        for shape in (
+                Rectangle((1.0, -2.0), 2.0, 4.0; θ = π / 6), Hexagon((0.5, 0.5), 2.0),
+                Circle((0.0, 0.0), 1.0), Sphere((1.0, 2.0, 3.0), 1.0),
+                Ellipse((0.0, 0.0), 1.0, 2.0; θ = 0.3),
+            )
             @test center(shape) === shape.center
         end
         @test center(Layering((1.0, 2.0), 1.0, 0.5)) === Point(1.0, 2.0)

@@ -262,7 +262,7 @@ Adapt.@adapt_structure Hexagon
     name === :origin && throw(
         ArgumentError(
             "a $(nameof(typeof(shape))) is anchored at its `center`, not at an `origin`; " *
-            "its minimum-coordinate corner is `boundingbox(shape).origin`"
+                "its minimum-coordinate corner is `boundingbox(shape).origin`"
         )
     )
     return getfield(shape, name)
