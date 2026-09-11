@@ -3,6 +3,7 @@ abstract type AbstractLayering{T} end
 """
     Layering{T} <: AbstractLayering{T}
     Layering(center, thickness, ratio; θ = 0, perturb_amp = 0, perturb_width = 1)
+    Layering(; center, thickness, ratio, θ = 0, perturb_amp = 0, perturb_width = 1)
 
 An infinite stack of two alternating parallel layers, A and B, of combined period
 `thickness`. Layer A takes up the fraction `ratio` of each period and layer B the rest;
@@ -12,8 +13,11 @@ The stack is horizontal at `θ == 0` and rotated counter-clockwise by `θ` radia
 `center`. Interfaces are displaced vertically by a Gaussian bump of amplitude
 `perturb_amp` and width `perturb_width`, centered on `center`.
 
+A layering fills the plane, so `center` is the point it turns and is perturbed about rather
+than a centroid, and there is no `origin` to anchor it at instead.
+
 # Fields
-- `center::Point{2, T}`: origin of the layering, on an interface when unperturbed.
+- `center::Point{2, T}`: reference point of the layering, on an interface when unperturbed.
 - `thickness::T`: period of the stack; must be positive.
 - `ratio::T`: fraction of each period occupied by layer A; must lie in `[0, 1]`.
 - `sinθ::T`, `cosθ::T`: sine and cosine of the rotation angle.
