@@ -36,31 +36,61 @@ julia> inside(Point(1.9, 0.0), rect)   # the long side now runs along x
 true
 ```
 
-## Origins
+Every anchored shape also has a keyword form, in which the anchor is named rather than
+positional and everything else follows it. Exactly one of `center` and `origin` may be
+given, so a call can never be read as anchoring the shape somewhere it does not:
 
-This is the single most common source of off-by-half errors, so it is worth stating plainly:
+```jldoctest
+julia> using GridGeometryUtils
 
-- [`BBox`](@ref), and hence [`Prism`](@ref), is anchored at the **minimum-coordinate
-  corner** — the south-west corner in 2-D — with its extents running along the positive axes
-  from there.
-- [`Rectangle`](@ref), [`Hexagon`](@ref), [`Circle`](@ref), [`Ellipse`](@ref),
-  [`Sphere`](@ref) and [`Layering`](@ref) are anchored at their **center**.
-- [`Trapezoid`](@ref) is anchored at the vertex holding its right angle.
+julia> Rectangle(; origin = (-1.0, -2.0), l = 2.0, h = 4.0) == Rectangle((0.0, 0.0), 2.0, 4.0)
+true
 
-Shapes that carry a `box` field expose their axis-aligned bounding box, and a `BBox` origin
-is always the minimum corner, whatever the shape it bounds:
+julia> BBox(; center = (1.0, 2.0), l = 2.0, h = 4.0) == BBox((0.0, 0.0), 2.0, 4.0)
+true
+```
+
+This works for a rotated shape too, where the two anchors sit in genuinely different places:
+`origin` is the minimum corner of the bounding box at whatever angle the shape is turned
+to.
+
+## Anchors
+
+Anchor fields are named for what they hold, and the two names never swap meaning:
+
+- A field called **`origin`** is the corner with the smallest coordinate on every axis, the
+  south-west corner in 2-D. [`BBox`](@ref), and hence [`Prism`](@ref), carries one, with its
+  extents running along the positive axes from there, and so does [`Trapezoid`](@ref), whose
+  right-angled vertex is exactly that corner.
+- A field called **`center`** is the center of the shape. [`Rectangle`](@ref),
+  [`Hexagon`](@ref), [`Circle`](@ref), [`Ellipse`](@ref), [`Sphere`](@ref) and
+  [`Layering`](@ref) carry one.
+
+[`Triangle`](@ref), [`Segment`](@ref) and [`Line`](@ref) have no anchor of their own: each
+is given directly by the points or coefficients that define it.
+
+Code that must work for any shape should reach for [`center`](@ref) and
+[`boundingbox`](@ref) rather than for a field, since between them they cover every type
+whether or not it stores what is asked for. `center` gives the centroid, and
+`boundingbox(shape).origin` gives the minimum corner:
 
 ```jldoctest
 julia> using GridGeometryUtils
 
 julia> hex = Hexagon((0.0, 0.0), 2.0);
 
-julia> hex.origin
+julia> center(hex)
 Point{2, Float64}([0.0, 0.0])
 
-julia> hex.box.origin
+julia> boundingbox(hex).origin
 Point{2, Float64}([-2.0, -1.7320508075688772])
+
+julia> center(Triangle((0.0, 0.0), (3.0, 0.0), (0.0, 3.0)))   # no anchor field at all
+Point{2, Float64}([1.0, 1.0])
 ```
+
+A [`Line`](@ref) has neither, and a [`Layering`](@ref) has a `center` but no bounding box;
+both throw rather than inventing an answer.
 
 ## Axis names in 3-D
 
@@ -119,4 +149,6 @@ Circle
 Ellipse
 Sphere
 Layering
+center
+boundingbox
 ```

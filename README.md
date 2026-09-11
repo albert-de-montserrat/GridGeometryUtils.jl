@@ -49,26 +49,36 @@ julia> inside(Point(1.9, 0.0), rect)   # the long side now runs along x
 true
 ```
 
-### Where is the origin?
+### Where is a shape anchored?
 
-The convention differs by shape, and mixing them up is a common source of off-by-half
-errors:
+Anchor fields are named for what they hold, and the two names never swap meaning:
 
-- `BBox`, and hence `Prism`, takes the corner with the **smallest** coordinate on every axis.
-- `Rectangle`, `Hexagon`, `Circle`, `Ellipse`, `Sphere` and `Layering` take the **center**.
-- `Trapezoid` takes the vertex holding its **right angle**.
+- **`origin`** is the corner with the **smallest** coordinate on every axis. `BBox`, and
+  hence `Prism`, carries one, and so does `Trapezoid`, whose right-angled vertex is exactly
+  that corner.
+- **`center`** is the center of the shape. `Rectangle`, `Hexagon`, `Circle`, `Ellipse`,
+  `Sphere` and `Layering` carry one.
 
 `Point`, `Triangle`, `Segment` and `Line` have no anchor of their own: each is given
 directly by the points or coefficients that define it.
 
-Shapes that carry a `box` field expose their axis-aligned bounding box, whose `origin` is
-always the minimum corner:
+Rather than memorize which is which, give the anchor by name. Every anchored shape accepts
+`center` or `origin` as a keyword, and exactly one of the two:
 
 ```julia-repl
-julia> rect = Rectangle((0.0, 0.0), 2.0, 4.0);
+julia> Rectangle(; origin = (-1.0, -2.0), l = 2.0, h = 4.0) == Rectangle((0.0, 0.0), 2.0, 4.0)
+true
+```
 
-julia> rect.origin, rect.box.origin
-(Point{2, Float64}([0.0, 0.0]), Point{2, Float64}([-1.0, -2.0]))
+Going the other way, `center` and `boundingbox` answer for every shape, including the ones
+that store neither, so generic code never has to reach for a field:
+
+```julia-repl
+julia> center(Triangle((0.0, 0.0), (3.0, 0.0), (0.0, 3.0)))
+Point{2, Float64}([1.0, 1.0])
+
+julia> boundingbox(Hexagon((0.0, 0.0), 2.0)).origin
+Point{2, Float64}([-2.0, -1.7320508075688772])
 ```
 
 ## Measures
