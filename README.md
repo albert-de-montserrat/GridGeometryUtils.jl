@@ -3,6 +3,8 @@
 [![Stable](https://img.shields.io/badge/docs-stable-blue.svg)](https://albert-de-montserrat.github.io/GridGeometryUtils.jl/stable)
 [![Dev](https://img.shields.io/badge/docs-dev-blue.svg)](https://albert-de-montserrat.github.io/GridGeometryUtils.jl/dev)
 [![Unit tests](https://github.com/albert-de-montserrat/GridGeometryUtils.jl/actions/workflows/UnitTests.yml/badge.svg)](https://github.com/albert-de-montserrat/GridGeometryUtils.jl/actions/workflows/UnitTests.yml)
+[![Coverage](https://codecov.io/gh/albert-de-montserrat/GridGeometryUtils.jl/branch/main/graph/badge.svg)](https://codecov.io/gh/albert-de-montserrat/GridGeometryUtils.jl)
+[![Version](https://juliahub.com/docs/General/GridGeometryUtils/stable/version.svg)](https://juliahub.com/ui/Packages/General/GridGeometryUtils)
 
 Geometric primitives and predicates for working with shapes on rectangular grids: point
 containment, areas and volumes, and segment/rectangle intersection. Shapes are immutable,
@@ -11,7 +13,7 @@ to a GPU.
 
 ## Installation
 
-```julia
+```julia-repl
 julia> using Pkg; Pkg.add("GridGeometryUtils")
 ```
 
@@ -31,9 +33,20 @@ Every shape is built from a tuple, a `Point` or an `SVector`, and its scalar arg
 promoted to a common element type:
 
 ```julia-repl
-julia> using GridGeometryUtils
+julia> using GridGeometryUtils, StaticArrays
 
-julia> Rectangle((0.0, 0.0), 2.0, 4.0; θ = π / 6)   # rotated counter-clockwise
+julia> Circle((0, 0), 1.0) == Circle(Point(0.0, 0.0), 1.0) == Circle(SA[0.0, 0.0], 1.0)
+true
+```
+
+Shapes that can be rotated take a `θ` keyword, in radians, counter-clockwise about their
+center:
+
+```julia-repl
+julia> rect = Rectangle((0.0, 0.0), 2.0, 4.0; θ = π / 2);
+
+julia> inside(Point(1.9, 0.0), rect)   # the long side now runs along x
+true
 ```
 
 ### Where is the origin?

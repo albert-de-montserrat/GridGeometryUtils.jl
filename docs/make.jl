@@ -24,7 +24,7 @@ makedocs(
     # Doctests run as part of the test suite, so `Pkg.test()` alone catches doc rot; running
     # them here as well would only repeat that work on every docs build.
     doctest = false,
-    checkdocs = :exported,
+    checkdocs = :exports,
 )
 
 deploydocs(
