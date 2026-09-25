@@ -62,16 +62,16 @@ Anchor fields are named for what they hold, and the two names never swap meaning
 `Point`, `Triangle`, `Segment` and `Line` have no anchor of their own: each is given
 directly by the points or coefficients that define it.
 
-Rather than memorize which is which, give the anchor by name. Every anchored shape accepts
-`center` or `origin` as a keyword, and exactly one of the two:
+Rather than memorize which is which, give the anchor by name. Every bounded, anchored shape
+accepts exactly one of `center` or `origin` as a keyword. `Layering` accepts only `center`:
 
 ```julia-repl
 julia> Rectangle(; origin = (-1.0, -2.0), l = 2.0, h = 4.0) == Rectangle((0.0, 0.0), 2.0, 4.0)
 true
 ```
 
-Going the other way, `center` and `boundingbox` answer for every shape, including the ones
-that store neither, so generic code never has to reach for a field:
+Going the other way, `center` gives the centroid and `boundingbox` the enclosing axis-aligned
+box of bounded shapes, including the ones that store neither:
 
 ```julia-repl
 julia> center(Triangle((0.0, 0.0), (3.0, 0.0), (0.0, 3.0)))
@@ -80,6 +80,14 @@ Point{2, Float64}([1.0, 1.0])
 julia> boundingbox(Hexagon((0.0, 0.0), 2.0)).origin
 Point{2, Float64}([-2.0, -1.7320508075688772])
 ```
+
+`Line` has neither and both queries throw `ArgumentError`. `Layering` has no bounding box;
+its `center` is the reference point for rotation and perturbation, not a centroid. A
+`Trapezoid` with both parallel sides zero also has no centroid.
+
+When updating from v0.2, replace `rect.origin` and `hex.origin` with `.center` (or
+`center(shape)`). Their positional constructors still take the center; for the minimum
+corner, use `boundingbox(shape).origin`.
 
 ## Measures
 

@@ -3,6 +3,10 @@ using GridGeometryUtils: isequal_r
 
 @testset "Point" begin
     @test Point(1, 2.0f0) isa Point{2, Float32}
+    @test convert(Point{2, Float64}, Point(1, 2)) === Point(1.0, 2.0)
+    @test convert(Point{2, Float64}, Point(1.0, 2.0)) === Point(1.0, 2.0)
+    @test_throws InexactError convert(Point{2, Int}, Point(1.5, 2.0))
+    @test_throws MethodError convert(Point{3, Float64}, Point(1, 2))
     @test Point(1, 2.0e0) isa Point{2, Float64}
     @test Point(1.0f0, 2.0e0) isa Point{2, Float64}
     @test Point(1, 2.0f0) isa Point{2, Float32}

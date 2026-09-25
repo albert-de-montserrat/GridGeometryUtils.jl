@@ -31,6 +31,8 @@ maxcorner(b::BBox{3}) = Point(b.origin[1] + b.l, b.origin[2] + b.h, b.origin[3] 
 
         # ȳ = h(l1 + 2 l2) / 3(l1 + l2) and x̄ = (l1² + l1 l2 + l2²) / 3(l1 + l2).
         @test center(Trapezoid((0.0, 0.0), 2.0, 3.0, 4.0)) == Point(37 / 21, 22 / 21)
+        @test center(Trapezoid((1.0, 2.0), 3.0, 6.0, 0.0)) == Point(3.0, 3.0)
+        @test center(Trapezoid((1.0, 2.0), 3.0, 0.0, 6.0)) == Point(3.0, 4.0)
 
         # Shapes that store a center hand it back untouched.
         for shape in (
@@ -110,4 +112,5 @@ end
 
 @testset "degenerate trapezoid has no centroid" begin
     @test_throws "encloses nothing" center(Trapezoid((0.0, 0.0), 2.0, 0.0, 0.0))
+    @test boundingbox(Trapezoid((1.0, 2.0), 3.0, 0.0, 0.0)) == BBox((1.0, 2.0), 0.0, 3.0)
 end

@@ -44,8 +44,8 @@ const ANCHORED = (
         @testset "$(nameof(typeof(shape)))" for (shape, bycenter, byorigin) in ANCHORED
             # A rotated shape puts these two points in different places, so agreeing with
             # both is what pins the convention down.
-            @test bycenter(center(shape)) == shape
-            @test byorigin(boundingbox(shape).origin) == shape
+            @test @inferred(bycenter(center(shape))) == shape
+            @test @inferred(byorigin(boundingbox(shape).origin)) == shape
         end
     end
 
@@ -70,6 +70,7 @@ const ANCHORED = (
         @test Layering(; center = Point(0.0, 0.0), thickness = 1.0, ratio = 0.5, θ = 0.3) ==
             Layering((0.0, 0.0), 1.0, 0.5; θ = 0.3)
         @test_throws UndefKeywordError Layering(; thickness = 1.0, ratio = 0.5)
+        @test_throws MethodError Layering(; center = (0.0, 0.0), origin = (0.0, 0.0), thickness = 1.0, ratio = 0.5)
     end
 
     @testset "exactly one anchor" begin
@@ -83,6 +84,10 @@ const ANCHORED = (
 
     @testset "validation still applies" begin
         @test_throws "extents must be non-negative" BBox(; origin = (0.0, 0.0), l = -1.0, h = 2.0)
+        @test_throws "extents must be non-negative" BBox(; center = (0.0, 0.0), l = -1.0, h = 2.0)
+        @test_throws "2-D BBox has no depth" BBox(; center = (0.0, 0.0), l = 1.0, h = 2.0, d = 3.0)
         @test_throws "height must be positive" Trapezoid(; origin = (0.0, 0.0), h = 0.0, l1 = 1.0, l2 = 2.0)
+        @test_throws "side lengths must be non-negative" Trapezoid(; center = (0.0, 0.0), h = 1.0, l1 = -1.0, l2 = 2.0)
+        @test_throws "encloses nothing" Trapezoid(; center = (0.0, 0.0), h = 1.0, l1 = 0.0, l2 = 0.0)
     end
 end

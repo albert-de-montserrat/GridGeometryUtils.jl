@@ -36,9 +36,8 @@ julia> inside(Point(1.9, 0.0), rect)   # the long side now runs along x
 true
 ```
 
-Every anchored shape also has a keyword form, in which the anchor is named rather than
-positional and everything else follows it. Exactly one of `center` and `origin` may be
-given, so a call can never be read as anchoring the shape somewhere it does not:
+Every bounded, anchored shape also has a keyword form. Exactly one of `center` and `origin`
+must be given. [`Layering`](@ref) accepts only `center`, since it has no minimum corner:
 
 ```jldoctest
 julia> using GridGeometryUtils
@@ -50,9 +49,20 @@ julia> BBox(; center = (1.0, 2.0), l = 2.0, h = 4.0) == BBox((0.0, 0.0), 2.0, 4.
 true
 ```
 
-This works for a rotated shape too, where the two anchors sit in genuinely different places:
-`origin` is the minimum corner of the bounding box at whatever angle the shape is turned
-to.
+For a rotated shape, `origin` is the minimum corner of the bounding box at the requested
+angle, not necessarily a point on the shape:
+
+```jldoctest
+julia> using GridGeometryUtils
+
+julia> rect = Rectangle(; origin = (1.0, 2.0), l = 2.0, h = 4.0, θ = π / 4);
+
+julia> boundingbox(rect).origin ≈ Point(1.0, 2.0)
+true
+```
+
+`BBox` extents must be non-negative; a 2-D box requires zero depth, and a 3-D keyword
+constructor requires `d`. `Trapezoid` requires positive `h` and non-negative `l1` and `l2`.
 
 ## Anchors
 
@@ -69,10 +79,9 @@ Anchor fields are named for what they hold, and the two names never swap meaning
 [`Triangle`](@ref), [`Segment`](@ref) and [`Line`](@ref) have no anchor of their own: each
 is given directly by the points or coefficients that define it.
 
-Code that must work for any shape should reach for [`center`](@ref) and
-[`boundingbox`](@ref) rather than for a field, since between them they cover every type
-whether or not it stores what is asked for. `center` gives the centroid, and
-`boundingbox(shape).origin` gives the minimum corner:
+For bounded shapes, [`center`](@ref) gives the centroid and
+[`boundingbox`](@ref) gives the enclosing axis-aligned box, whether or not the shape stores
+these as fields. `boundingbox(shape).origin` gives the minimum corner:
 
 ```jldoctest
 julia> using GridGeometryUtils
@@ -89,8 +98,25 @@ julia> center(Triangle((0.0, 0.0), (3.0, 0.0), (0.0, 3.0)))   # no anchor field 
 Point{2, Float64}([1.0, 1.0])
 ```
 
-A [`Line`](@ref) has neither, and a [`Layering`](@ref) has a `center` but no bounding box;
-both throw rather than inventing an answer.
+A [`Line`](@ref) has neither: both queries throw `ArgumentError`. A [`Layering`](@ref) has
+no bounding box, so `boundingbox` throws, but `center` returns its reference point for
+rotation and perturbation. This point is not a centroid of the infinite stack.
+
+A [`Trapezoid`](@ref) with `l1 == l2 == 0` has a bounding box but no centroid: `center`
+and construction with the `center` keyword throw `ArgumentError`. Either side alone may
+be zero, giving a triangle with a defined centroid.
+
+### Migrating from v0.2
+
+`Rectangle.origin` and `Hexagon.origin` are now named `center`. Their positional
+constructors keep the same meaning. Replace reads of the old field with `shape.center`
+or `center(shape)`; use `boundingbox(shape).origin` for the minimum corner. Reading the old
+field throws an `ArgumentError` explaining the replacement.
+
+Negative `BBox` extents, non-zero depth on a 2-D box, non-positive `Trapezoid` height and
+negative parallel sides now throw `ArgumentError`. The new exports `center` and
+`boundingbox` may need qualification, such as `GridGeometryUtils.center`, if another
+package exports the same names.
 
 ## Axis names in 3-D
 

@@ -7,6 +7,8 @@ Shapes that store a `center` field return it; the rest compute it. A [`Layering`
 infinite and has no centroid, so for it `center` gives the point the stack is rotated and
 perturbed about. A [`Line`](@ref) has no center at all.
 
+Throws `ArgumentError` for a `Line` or a `Trapezoid` with both parallel sides zero.
+
 # Examples
 ```jldoctest
 julia> center(BBox((0.0, 0.0), 2.0, 4.0))

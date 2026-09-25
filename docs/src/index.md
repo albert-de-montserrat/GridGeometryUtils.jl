@@ -46,8 +46,9 @@ false
 **Anchors are named for what they are.** A field called `origin` is always the corner with
 the smallest coordinate on every axis, and a field called `center` is always the center.
 [`BBox`](@ref), also spelled [`Prism`](@ref) in 3-D, and [`Trapezoid`](@ref) carry an
-`origin`; every other shape carries a `center`. Either can be given by name when building a
-shape, and [`center`](@ref) and [`boundingbox`](@ref) read them back from any shape at all:
+`origin`; `Rectangle`, `Hexagon`, `Circle`, `Ellipse` and `Sphere` carry a `center`.
+These shapes accept either anchor by keyword. [`center`](@ref) gives their centroid, and
+[`boundingbox`](@ref) gives their enclosing axis-aligned box:
 
 ```jldoctest
 julia> using GridGeometryUtils
@@ -57,6 +58,11 @@ julia> rect = Rectangle(; origin = (-1.0, -2.0), l = 2.0, h = 4.0);
 julia> center(rect), boundingbox(rect).origin
 (Point{2, Float64}([0.0, 0.0]), Point{2, Float64}([-1.0, -2.0]))
 ```
+
+`Point`, `Triangle` and `Segment` also support both queries without storing an anchor field.
+`Line` supports neither. `Layering` accepts only `center`, its reference point for rotation
+and perturbation, and has no bounding box. See [Anchors](@ref) for details and migration
+from v0.2.
 
 **Comparisons are tolerant.** Every predicate compares up to a relative tolerance of about
 `1000 * eps`, so a point within round-off of a boundary counts as lying on it. See
