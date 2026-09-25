@@ -2,8 +2,14 @@ abstract type AbstractEllipsoid{T} <: AbstractGeometryObject{T} end
 
 """
     Circle{T} <: AbstractEllipsoid{T}
+    Circle(center, radius)
+    Circle(; center, radius)
+    Circle(; origin, radius)
 
 A circle of radius `radius` centered on `center`.
+
+The keyword forms name the anchor: `center` is the center and `origin` the
+minimum-coordinate corner of the enclosing box. Exactly one of the two is accepted.
 
 # Fields
 - `center::Point{2, T}`: center.
@@ -38,8 +44,14 @@ Adapt.@adapt_structure Circle
 
 """
     Sphere{T} <: AbstractEllipsoid{T}
+    Sphere(center, radius)
+    Sphere(; center, radius)
+    Sphere(; origin, radius)
 
 A sphere of radius `radius` centered on `center`.
+
+The keyword forms name the anchor: `center` is the center and `origin` the
+minimum-coordinate corner of the enclosing box. Exactly one of the two is accepted.
 
 # Fields
 - `center::Point{3, T}`: center.
@@ -73,9 +85,14 @@ Adapt.@adapt_structure Sphere
 """
     Ellipse{T} <: AbstractEllipsoid{T}
     Ellipse(center, a, b; θ = 0)
+    Ellipse(; center, a, b, θ = 0)
+    Ellipse(; origin, a, b, θ = 0)
 
 An ellipse with semi-axes `a` and `b`, optionally rotated counter-clockwise by `θ` radians
 about its center. At `θ == 0`, `a` lies along ``x`` and `b` along ``y``.
+
+The keyword forms name the anchor: `center` is the center and `origin` the
+minimum-coordinate corner of the enclosing box. Exactly one of the two is accepted.
 
 # Fields
 - `center::Point{2, T}`: center.

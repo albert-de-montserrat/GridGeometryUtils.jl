@@ -9,7 +9,7 @@ const BOUNDARY_TOP = 4
 # own sides, so that it spans [-l/2, l/2] × [-h/2, h/2] however it is rotated. Every
 # boundary query here works in that frame.
 @inline function local_coords(p, r::Rectangle)
-    𝐱 = SVector(p[1] - r.origin[1], p[2] - r.origin[2])
+    𝐱 = SVector(p[1] - r.center[1], p[2] - r.center[2])
     return iszero(r.sinθ) ? 𝐱 : rotation_matrix(r.sinθ, r.cosθ) * 𝐱
 end
 
@@ -17,8 +17,9 @@ end
     boundary_param(p, r::Rectangle) -> Real
 
 Position of `p` along the boundary of `r`, as an arc-length-like parameter in `[0, 4)` that
-runs counter-clockwise from the corner `r` was built from: `[0, 1]` along the bottom edge,
-`[1, 2]` up the right edge, `[2, 3]` back along the top, and `[3, 4]` down the left edge.
+runs counter-clockwise from the corner at `(-l/2, -h/2)` in the rectangle's own frame:
+`[0, 1]` along the bottom edge, `[1, 2]` up the right edge, `[2, 3]` back along the top, and
+`[3, 4]` down the left edge.
 
 Edges are named in the rectangle's own frame, so a rotated rectangle has the same four
 edges carrying the same parameters, turned along with it.
