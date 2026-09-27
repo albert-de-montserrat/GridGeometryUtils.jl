@@ -119,13 +119,13 @@ struct Ellipse{T} <: AbstractEllipsoid{T}
     vertices::SMatrix{2, 4, T, 8}
 end
 
-function Ellipse(center::Tuple{Vararg{Number, 2}}, a::Number, b::Number; θ::Number = 0.0e0)
-    T = promote_type(eltype(promote(center...)), typeof(a), typeof(b), typeof(θ))
+function Ellipse(center::Tuple{Vararg{Number, 2}}, a::Number, b::Number; θ::Number = 0)
+    T = float(promote_type(eltype(promote(center...)), typeof(a), typeof(b), typeof(θ)))
 
     sinθ, cosθ = if iszero(θ)
         zero(T), one(T)
     else
-        sincos(θ)
+        sincos(T(θ))
     end
 
     # Semi-axis endpoints relative to the center, ordered W, N, E, S
@@ -150,7 +150,7 @@ function Ellipse(center::Tuple{Vararg{Number, 2}}, a::Number, b::Number; θ::Num
     return Ellipse{T}(center_promoted, promote(a, b, sinθ, cosθ)..., box, vertices)
 end
 
-Ellipse(center::Point{2}, a::Number, b::Number; θ::Number = 0.0e0) = Ellipse(totuple(center), a, b; θ)
-Ellipse(center::SVector{2}, a::Number, b::Number; θ::Number = 0.0e0) = Ellipse(center.data, a, b; θ)
+Ellipse(center::Point{2}, a::Number, b::Number; θ::Number = 0) = Ellipse(totuple(center), a, b; θ)
+Ellipse(center::SVector{2}, a::Number, b::Number; θ::Number = 0) = Ellipse(center.data, a, b; θ)
 
 Adapt.@adapt_structure Ellipse

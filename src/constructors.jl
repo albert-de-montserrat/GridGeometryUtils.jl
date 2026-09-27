@@ -55,13 +55,13 @@ function Trapezoid(; center = nothing, origin = nothing, h::Number, l1::Number, 
     return center === nothing ? build(_astuple(origin)) : _build_at_center(build, _astuple(center))
 end
 
-function Rectangle(; center = nothing, origin = nothing, l::Number, h::Number, θ::Number = 0.0)
+function Rectangle(; center = nothing, origin = nothing, l::Number, h::Number, θ::Number = 0)
     _checkanchor(Rectangle, center, origin)
     build = x -> Rectangle(x, l, h; θ)
     return origin === nothing ? build(_astuple(center)) : _build_at_origin(build, _astuple(origin))
 end
 
-function Hexagon(; center = nothing, origin = nothing, radius::Number, θ::Number = 0.0)
+function Hexagon(; center = nothing, origin = nothing, radius::Number, θ::Number = 0)
     _checkanchor(Hexagon, center, origin)
     build = x -> Hexagon(x, radius; θ)
     return origin === nothing ? build(_astuple(center)) : _build_at_origin(build, _astuple(origin))
@@ -79,7 +79,7 @@ function Sphere(; center = nothing, origin = nothing, radius::Number)
     return origin === nothing ? build(_astuple(center)) : _build_at_origin(build, _astuple(origin))
 end
 
-function Ellipse(; center = nothing, origin = nothing, a::Number, b::Number, θ::Number = 0.0)
+function Ellipse(; center = nothing, origin = nothing, a::Number, b::Number, θ::Number = 0)
     _checkanchor(Ellipse, center, origin)
     build = x -> Ellipse(x, a, b; θ)
     return origin === nothing ? build(_astuple(center)) : _build_at_origin(build, _astuple(origin))
@@ -89,7 +89,7 @@ end
 # rather than a centroid, and there is no minimum corner to offer as an alternative.
 function Layering(;
         center, thickness::Number, ratio::Number,
-        θ::Number = 0.0, perturb_amp::Number = 0.0, perturb_width::Number = 1.0
+        θ::Number = 0, perturb_amp::Number = 0, perturb_width::Number = 1
     )
     return Layering(_astuple(center), thickness, ratio; θ, perturb_amp, perturb_width)
 end
