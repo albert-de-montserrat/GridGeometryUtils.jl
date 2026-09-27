@@ -55,12 +55,14 @@ function intersecting_area(p1, p2, r::Rectangle)
 
     prev = q1
     acc = zero(cross2(prev, prev))
-    s = floor(s1) + 1
-    while s < s2
-        corner = boundary_corner(r, Int(s) % 4)
+    # Keep the loop index an integer. Converting the runtime Float32 parameter to Int
+    # introduces unsupported boxing in Metal kernels.
+    for s in 1:7
+        s <= s1 && continue
+        s >= s2 && continue
+        corner = boundary_corner(r, s % 4)
         acc += cross2(prev, corner)
         prev = corner
-        s += 1
     end
     acc += cross2(prev, q2)
     acc += cross2(q2, q1)
