@@ -42,9 +42,9 @@ struct Layering{T} <: AbstractLayering{T}
     perturb_width::T
 
     function Layering{T}(center, thickness, ratio, sinθ, cosθ, perturb_amp, perturb_width) where {T}
-        thickness > 0 || throw(ArgumentError("layer thickness must be positive, got $thickness"))
-        0 ≤ ratio ≤ 1 || throw(ArgumentError("layer ratio must lie in [0, 1], got $ratio"))
-        perturb_width > 0 || throw(ArgumentError("perturbation width must be positive, got $perturb_width"))
+        thickness > 0 || throw(ArgumentError("layer thickness must be positive"))
+        0 ≤ ratio ≤ 1 || throw(ArgumentError("layer ratio must lie in [0, 1]"))
+        perturb_width > 0 || throw(ArgumentError("perturbation width must be positive"))
         return new{T}(center, thickness, ratio, sinθ, cosθ, perturb_amp, perturb_width)
     end
 end
@@ -69,18 +69,20 @@ end
 
 function Layering(
         center::Tuple{Vararg{Number, 2}}, thickness::Number, ratio::Number;
-        θ::Number = 0.0, perturb_amp::Number = 0.0, perturb_width::Number = 1.0
+        θ::Number = 0, perturb_amp::Number = 0, perturb_width::Number = 1
     )
-    T = promote_type(
-        eltype(promote(center...)), typeof(thickness), typeof(ratio),
-        typeof(θ), typeof(perturb_amp), typeof(perturb_width),
+    T = float(
+        promote_type(
+            eltype(promote(center...)), typeof(thickness), typeof(ratio),
+            typeof(θ), typeof(perturb_amp), typeof(perturb_width),
+        )
     )
     center_promoted = Point(ntuple(ix -> T(center[ix]), Val(2))...)
 
     sinθ, cosθ = if iszero(θ)
         zero(T), one(T)
     else
-        sincos(θ)
+        sincos(T(θ))
     end
 
     return Layering{T}(center_promoted, promote(thickness, ratio, sinθ, cosθ, perturb_amp, perturb_width)...)
@@ -88,14 +90,14 @@ end
 
 function Layering(
         center::Point{2}, thickness::Number, ratio::Number;
-        θ::Number = 0.0, perturb_amp::Number = 0.0, perturb_width::Number = 1.0
+        θ::Number = 0, perturb_amp::Number = 0, perturb_width::Number = 1
     )
     return Layering(totuple(center), thickness, ratio; θ, perturb_amp, perturb_width)
 end
 
 function Layering(
         center::SVector{2}, thickness::Number, ratio::Number;
-        θ::Number = 0.0, perturb_amp::Number = 0.0, perturb_width::Number = 1.0
+        θ::Number = 0, perturb_amp::Number = 0, perturb_width::Number = 1
     )
     return Layering(center.data, thickness, ratio; θ, perturb_amp, perturb_width)
 end

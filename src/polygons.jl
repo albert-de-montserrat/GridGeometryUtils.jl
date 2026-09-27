@@ -42,16 +42,19 @@ struct BBox{N, T} <: AbstractPolygon{T}
         # A negative extent would put `origin` somewhere other than the minimum corner,
         # which every containment and intersection query here relies on.
         (l < 0 || h < 0 || d < 0) && throw(
-            ArgumentError("BBox extents must be non-negative, got l = $l, h = $h, d = $d")
+            ArgumentError("BBox extents must be non-negative")
         )
         N == 2 && !iszero(d) && throw(
-            ArgumentError("a 2-D BBox has no depth, got d = $d")
+            ArgumentError("a 2-D BBox has no depth")
         )
         return new{N, T}(origin, l, h, d)
     end
 end
 
 Adapt.@adapt_structure BBox
+
+Base.convert(::Type{BBox{N, T}}, b::BBox{N}) where {N, T} = BBox{N, T}(b.origin, b.l, b.h, b.d)
+Base.convert(::Type{BBox{N, T}}, b::BBox{N, T}) where {N, T} = b
 
 function BBox(origin::Tuple{Vararg{Number, N}}, l::Number, h::Number, d::Number) where {N}
     T = promote_type(eltype(promote(origin...)), typeof(l), typeof(h), typeof(d))
@@ -91,7 +94,7 @@ struct Triangle{T} <: AbstractPolygon{T}
 
     function Triangle(p1::Point{2, T1}, p2::Point{2, T2}, p3::Point{2, T3}) where {T1, T2, T3}
         (p1 == p2 || p2 == p3 || p1 == p3) &&
-            throw(ArgumentError("the three vertices of a Triangle must be distinct, got $p1, $p2, $p3"))
+            throw(ArgumentError("the three vertices of a Triangle must be distinct"))
         T = promote_type(T1, T2, T3)
         points = p1, p2, p3
         points_promoted = ntuple(i -> Point(SVector{2, T}(points[i].p)), Val(3))
@@ -150,13 +153,13 @@ struct Rectangle{T} <: AbstractPolygon{T}
     vertices::SMatrix{2, 4, T, 8}
 end
 
-function Rectangle(center::Tuple{Vararg{Number, 2}}, l::Number, h::Number; θ::Number = 0.0)
-    T = promote_type(eltype(promote(center...)), typeof(l), typeof(h), typeof(θ))
+function Rectangle(center::Tuple{Vararg{Number, 2}}, l::Number, h::Number; θ::Number = 0)
+    T = float(promote_type(eltype(promote(center...)), typeof(l), typeof(h), typeof(θ)))
 
     sinθ, cosθ = if iszero(θ)
         zero(T), one(T)
     else
-        sincos(θ)
+        sincos(T(θ))
     end
 
     # Vertices, ordered SW, NW, NE, SE
@@ -186,8 +189,8 @@ function Rectangle(center::Tuple{Vararg{Number, 2}}, l::Number, h::Number; θ::N
     return Rectangle{T}(center_promoted, promote(l, h, sinθ, cosθ)..., box, vertices)
 end
 
-Rectangle(center::Point{2}, l::Number, h::Number; θ::Number = 0.0) = Rectangle(totuple(center), l, h; θ)
-Rectangle(center::SVector{2}, l::Number, h::Number; θ::Number = 0.0) = Rectangle(center.data, l, h; θ)
+Rectangle(center::Point{2}, l::Number, h::Number; θ::Number = 0) = Rectangle(totuple(center), l, h; θ)
+Rectangle(center::SVector{2}, l::Number, h::Number; θ::Number = 0) = Rectangle(center.data, l, h; θ)
 
 Adapt.@adapt_structure Rectangle
 
@@ -227,16 +230,16 @@ struct Hexagon{T} <: AbstractPolygon{T}
     vertices::SMatrix{2, 6, T, 12}
 end
 
-function Hexagon(center::Tuple{Vararg{Number, 2}}, radius::Number; θ::Number = 0.0)
-    T = promote_type(eltype(promote(center...)), typeof(radius), typeof(θ))
+function Hexagon(center::Tuple{Vararg{Number, 2}}, radius::Number; θ::Number = 0)
+    T = float(promote_type(eltype(promote(center...)), typeof(radius), typeof(θ)))
 
     sinθ, cosθ = if iszero(θ)
         zero(T), one(T)
     else
-        sincos(θ)
+        sincos(T(θ))
     end
 
-    α = ntuple(i -> (i - 1) * π / 3 + θ, Val(6))
+    α = ntuple(i -> (i - 1) * T(π) / 3 + θ, Val(6))
     vertices = hcat(
         ntuple(i -> SVector(center[1] + radius * cos(α[i]), center[2] + radius * sin(α[i])), Val(6))...
     )
@@ -250,8 +253,8 @@ function Hexagon(center::Tuple{Vararg{Number, 2}}, radius::Number; θ::Number = 
     return Hexagon{T}(center_promoted, promote(radius, sinθ, cosθ)..., box, vertices)
 end
 
-Hexagon(center::Point{2}, radius::Number; θ::Number = 0.0) = Hexagon(totuple(center), radius; θ)
-Hexagon(center::SVector{2}, radius::Number; θ::Number = 0.0) = Hexagon(center.data, radius; θ)
+Hexagon(center::Point{2}, radius::Number; θ::Number = 0) = Hexagon(totuple(center), radius; θ)
+Hexagon(center::SVector{2}, radius::Number; θ::Number = 0) = Hexagon(center.data, radius; θ)
 
 Adapt.@adapt_structure Hexagon
 
@@ -334,11 +337,11 @@ struct Trapezoid{T} <: AbstractPolygon{T}
     l2::T
 
     function Trapezoid{T}(origin, h, l1, l2) where {T}
-        h > 0 || throw(ArgumentError("trapezoid height must be positive, got $h"))
+        h > 0 || throw(ArgumentError("trapezoid height must be positive"))
         # Both parallel sides run along the positive x axis from `origin`, so a negative
         # one would move the minimum corner off it.
         (l1 < 0 || l2 < 0) && throw(
-            ArgumentError("trapezoid side lengths must be non-negative, got l1 = $l1, l2 = $l2")
+            ArgumentError("trapezoid side lengths must be non-negative")
         )
         return new{T}(origin, h, l1, l2)
     end
