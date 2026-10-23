@@ -49,27 +49,45 @@ julia> inside(Point(1.9, 0.0), rect)   # the long side now runs along x
 true
 ```
 
-### Where is the origin?
+### Where is a shape anchored?
 
-The convention differs by shape, and mixing them up is a common source of off-by-half
-errors:
+Anchor fields are named for what they hold, and the two names never swap meaning:
 
-- `BBox`, and hence `Prism`, takes the corner with the **smallest** coordinate on every axis.
-- `Rectangle`, `Hexagon`, `Circle`, `Ellipse`, `Sphere` and `Layering` take the **center**.
-- `Trapezoid` takes the vertex holding its **right angle**.
+- **`origin`** is the corner with the **smallest** coordinate on every axis. `BBox`, and
+  hence `Prism`, carries one, and so does `Trapezoid`, whose right-angled vertex is exactly
+  that corner.
+- **`center`** is the center of the shape. `Rectangle`, `Hexagon`, `Circle`, `Ellipse`,
+  `Sphere` and `Layering` carry one.
 
 `Point`, `Triangle`, `Segment` and `Line` have no anchor of their own: each is given
 directly by the points or coefficients that define it.
 
-Shapes that carry a `box` field expose their axis-aligned bounding box, whose `origin` is
-always the minimum corner:
+Rather than memorize which is which, give the anchor by name. Every bounded, anchored shape
+accepts exactly one of `center` or `origin` as a keyword. `Layering` accepts only `center`:
 
 ```julia-repl
-julia> rect = Rectangle((0.0, 0.0), 2.0, 4.0);
-
-julia> rect.origin, rect.box.origin
-(Point{2, Float64}([0.0, 0.0]), Point{2, Float64}([-1.0, -2.0]))
+julia> Rectangle(; origin = (-1.0, -2.0), l = 2.0, h = 4.0) == Rectangle((0.0, 0.0), 2.0, 4.0)
+true
 ```
+
+Going the other way, `center` gives the centroid and `boundingbox` the enclosing axis-aligned
+box of bounded shapes, including the ones that store neither:
+
+```julia-repl
+julia> center(Triangle((0.0, 0.0), (3.0, 0.0), (0.0, 3.0)))
+Point{2, Float64}([1.0, 1.0])
+
+julia> boundingbox(Hexagon((0.0, 0.0), 2.0)).origin
+Point{2, Float64}([-2.0, -1.7320508075688772])
+```
+
+`Line` has neither and both queries throw `ArgumentError`. `Layering` has no bounding box;
+its `center` is the reference point for rotation and perturbation, not a centroid. A
+`Trapezoid` with both parallel sides zero also has no centroid.
+
+When updating from v0.2, replace `rect.origin` and `hex.origin` with `.center` (or
+`center(shape)`). Their positional constructors still take the center; for the minimum
+corner, use `boundingbox(shape).origin`.
 
 ## Measures
 
