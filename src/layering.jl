@@ -3,6 +3,7 @@ abstract type AbstractLayering{T} end
 """
     Layering{T} <: AbstractLayering{T}
     Layering(center, thickness, ratio; θ = 0, perturb_amp = 0, perturb_width = 1)
+    Layering(; center, thickness, ratio, θ = 0, perturb_amp = 0, perturb_width = 1)
 
 An infinite stack of two alternating parallel layers, A and B, of combined period
 `thickness`. Layer A takes up the fraction `ratio` of each period and layer B the rest;
@@ -12,8 +13,11 @@ The stack is horizontal at `θ == 0` and rotated counter-clockwise by `θ` radia
 `center`. Interfaces are displaced vertically by a Gaussian bump of amplitude
 `perturb_amp` and width `perturb_width`, centered on `center`.
 
+A layering fills the plane, so `center` is the point it turns and is perturbed about rather
+than a centroid, and there is no `origin` to anchor it at instead.
+
 # Fields
-- `center::Point{2, T}`: origin of the layering, on an interface when unperturbed.
+- `center::Point{2, T}`: reference point of the layering, on an interface when unperturbed.
 - `thickness::T`: period of the stack; must be positive.
 - `ratio::T`: fraction of each period occupied by layer A; must lie in `[0, 1]`.
 - `sinθ::T`, `cosθ::T`: sine and cosine of the rotation angle.
@@ -38,9 +42,9 @@ struct Layering{T} <: AbstractLayering{T}
     perturb_width::T
 
     function Layering{T}(center, thickness, ratio, sinθ, cosθ, perturb_amp, perturb_width) where {T}
-        thickness > 0 || throw(ArgumentError("layer thickness must be positive, got $thickness"))
-        0 ≤ ratio ≤ 1 || throw(ArgumentError("layer ratio must lie in [0, 1], got $ratio"))
-        perturb_width > 0 || throw(ArgumentError("perturbation width must be positive, got $perturb_width"))
+        thickness > 0 || throw(ArgumentError("layer thickness must be positive"))
+        0 ≤ ratio ≤ 1 || throw(ArgumentError("layer ratio must lie in [0, 1]"))
+        perturb_width > 0 || throw(ArgumentError("perturbation width must be positive"))
         return new{T}(center, thickness, ratio, sinθ, cosθ, perturb_amp, perturb_width)
     end
 end
@@ -65,18 +69,20 @@ end
 
 function Layering(
         center::Tuple{Vararg{Number, 2}}, thickness::Number, ratio::Number;
-        θ::Number = 0.0, perturb_amp::Number = 0.0, perturb_width::Number = 1.0
+        θ::Number = 0, perturb_amp::Number = 0, perturb_width::Number = 1
     )
-    T = promote_type(
-        eltype(promote(center...)), typeof(thickness), typeof(ratio),
-        typeof(θ), typeof(perturb_amp), typeof(perturb_width),
+    T = float(
+        promote_type(
+            eltype(promote(center...)), typeof(thickness), typeof(ratio),
+            typeof(θ), typeof(perturb_amp), typeof(perturb_width),
+        )
     )
     center_promoted = Point(ntuple(ix -> T(center[ix]), Val(2))...)
 
     sinθ, cosθ = if iszero(θ)
         zero(T), one(T)
     else
-        sincos(θ)
+        sincos(T(θ))
     end
 
     return Layering{T}(center_promoted, promote(thickness, ratio, sinθ, cosθ, perturb_amp, perturb_width)...)
@@ -84,14 +90,14 @@ end
 
 function Layering(
         center::Point{2}, thickness::Number, ratio::Number;
-        θ::Number = 0.0, perturb_amp::Number = 0.0, perturb_width::Number = 1.0
+        θ::Number = 0, perturb_amp::Number = 0, perturb_width::Number = 1
     )
     return Layering(totuple(center), thickness, ratio; θ, perturb_amp, perturb_width)
 end
 
 function Layering(
         center::SVector{2}, thickness::Number, ratio::Number;
-        θ::Number = 0.0, perturb_amp::Number = 0.0, perturb_width::Number = 1.0
+        θ::Number = 0, perturb_amp::Number = 0, perturb_width::Number = 1
     )
     return Layering(center.data, thickness, ratio; θ, perturb_amp, perturb_width)
 end

@@ -1,4 +1,4 @@
-# x ∈ [-1, 1], y ∈ [-2, 2]; `origin` is the center, `box.origin` the south-west corner.
+# x ∈ [-1, 1], y ∈ [-2, 2]; anchored at its center, with `box.origin` the south-west corner.
 const RECT = Rectangle((0.0, 0.0), 2.0, 4.0)
 
 # The point of `RECT` at boundary parameter `s`, built independently of `boundary_param` so

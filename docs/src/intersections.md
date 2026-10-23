@@ -110,8 +110,8 @@ julia> intersecting_boundary(Point(-1.0, 0.0), r)   # 1 left, 2 right, 3 bottom,
 1
 ```
 
-Note that these work in the frame of `r.box`, whose origin is the south-west corner —
-`Rectangle.origin` is the rectangle's center.
+Note that these work in the frame of `r.box`, whose `origin` is the south-west corner; a
+[`Rectangle`](@ref) itself is anchored at its `center`.
 
 ## Reference
 

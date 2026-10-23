@@ -38,6 +38,11 @@ end
 
 Adapt.@adapt_structure Point
 
+# Lets a parametric struct holding a `Point` field coerce it, so that a typed constructor
+# such as `BBox{2, Float64}(Point(0, 0), 1, 2, 0)` behaves like every other call form.
+Base.convert(::Type{Point{N, T}}, p::Point{N}) where {N, T} = Point{N, T}(SVector{N, T}(p.p))
+Base.convert(::Type{Point{N, T}}, p::Point{N, T}) where {N, T} = p
+
 @inline Point(p::Point) = p
 @inline Point(p::NTuple) = Point(p...)
 
