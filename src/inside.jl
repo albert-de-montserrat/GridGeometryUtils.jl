@@ -120,13 +120,13 @@ function inside(p::QueryPoint{2}, lay::Layering)
 end
 
 @inline function _inside(p::QueryPoint{2}, rect::Rectangle)
-    (; origin, h, l, cosθ, sinθ) = rect
+    (; center, h, l, cosθ, sinθ) = rect
 
     # For an axis-aligned rectangle the bounding box is the rectangle itself, and the
     # caller has already tested it.
     iszero(sinθ) && return true
 
-    𝐱′ = rotation_matrix(sinθ, cosθ) * (coords(p) - coords(origin))
+    𝐱′ = rotation_matrix(sinθ, cosθ) * (coords(p) - coords(center))
     return leq_r(abs(𝐱′[1]), l / 2) && leq_r(abs(𝐱′[2]), h / 2)
 end
 
