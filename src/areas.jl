@@ -63,16 +63,18 @@ end
 @inline area(r::BBox{2}) = r.h * r.l
 @inline area(r::BBox{3}) = 2 * (r.l * r.h + r.l * r.d + r.h * r.d)
 @inline area(t::Trapezoid) = (t.l1 + t.l2) * t.h / 2
-@inline area(h::Hexagon) = 3 * √3 / 2 * h.radius^2
+# `π` and `√3` must meet the field before any integer literal: `4 * π` or `√3` alone is a
+# `Float64`, which would promote `Float32` geometry and is unsupported on some GPUs.
+@inline area(h::Hexagon) = 3 * √(oftype(h.radius, 3)) / 2 * h.radius^2
 @inline area(circle::Circle) = π * circle.radius^2
 @inline area(ellipse::Ellipse) = π * ellipse.a * ellipse.b
-@inline area(s::Sphere) = 4 * π * s.radius^2
+@inline area(s::Sphere) = 4 * (π * s.radius^2)
 
 @inline perimeter(r::BBox{2}) = 2 * (r.h + r.l)
 @inline perimeter(t::Triangle) = distance(t.p1, t.p2) + distance(t.p2, t.p3) + distance(t.p3, t.p1)
 @inline perimeter(r::Rectangle) = 2 * (r.h + r.l)
 @inline perimeter(h::Hexagon) = 6 * h.radius
-@inline perimeter(circle::Circle) = 2 * π * circle.radius
+@inline perimeter(circle::Circle) = 2 * (π * circle.radius)
 
 # The right-angled leg is `h`; the slanted one closes the offset between the parallel sides.
 @inline perimeter(t::Trapezoid) = t.l1 + t.l2 + t.h + √(t.h^2 + (t.l1 - t.l2)^2)
@@ -85,4 +87,4 @@ end
 end
 
 @inline volume(r::BBox{3}) = r.h * r.l * r.d
-@inline volume(s::Sphere) = (4 * π * s.radius^3) / 3
+@inline volume(s::Sphere) = 4 * (π * s.radius^3) / 3
