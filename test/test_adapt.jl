@@ -59,3 +59,49 @@ end
         @test intersecting_area(Point(-1.0f0, 0.0f0), Point(1.0f0, 0.0f0), rect) ≈ 4
     end
 end
+
+# Some GPUs (Metal) have no `Float64`, so `Float32` geometry must never promote, whether
+# through a default argument, a literal, or an irrational constant.
+@testset "Float32 geometry stays Float32" begin
+    o2, o3, w = (0.0f0, 0.0f0), (0.0f0, 0.0f0, 0.0f0), 1.0f0
+    @test Rectangle(o2, w, w) isa Rectangle{Float32}
+    @test Rectangle(; origin = o2, l = w, h = w) isa Rectangle{Float32}
+    @test Hexagon(o2, w) isa Hexagon{Float32}
+    @test Hexagon(; origin = o2, radius = w) isa Hexagon{Float32}
+    @test Ellipse(o2, w, w) isa Ellipse{Float32}
+    @test Ellipse(; origin = o2, a = w, b = w) isa Ellipse{Float32}
+    @test Layering(o2, w, w / 2) isa Layering{Float32}
+    @test Layering(; center = o2, thickness = w, ratio = w / 2) isa Layering{Float32}
+
+    shapes2 = (
+        BBox(o2, w, w), Triangle(o2, (w, 0.0f0), (0.0f0, w)), Rectangle(o2, w, w; θ = w),
+        Hexagon(o2, w; θ = w), Trapezoid(o2, w, w, 2w), Circle(o2, w), Ellipse(o2, w, 2w; θ = w),
+    )
+    @testset "$(nameof(typeof(s)))" for s in shapes2
+        @test area(s) isa Float32
+        @test perimeter(s) isa Float32
+    end
+    sphere = Sphere(o3, w)
+    @test area(sphere) isa Float32
+    @test volume(sphere) isa Float32
+    @test volume(Prism(o3, w, w, w)) isa Float32
+
+    # Integer input still yields floating-point shapes wherever a rotation is involved.
+    @test Rectangle((0, 0), 2, 4) isa Rectangle{Float64}
+    @test Hexagon((0, 0), 2) isa Hexagon{Float64}
+    @test Ellipse((0, 0), 1, 2) isa Ellipse{Float64}
+    @test Layering((0, 0), 1, 0) isa Layering{Float64}
+end
+
+# Validation messages are static strings: interpolating runtime values would put string
+# construction in every constructor, which GPU kernels cannot compile.
+@testset "validation messages" begin
+    @test_throws "BBox extents must be non-negative" BBox((0.0f0, 0.0f0), -1.0f0, 1.0f0)
+    @test_throws "a 2-D BBox has no depth" BBox{2, Float32}(Point(0.0f0, 0.0f0), 1, 1, 1)
+    @test_throws "three vertices of a Triangle must be distinct" Triangle((0, 0), (0, 0), (1, 1))
+    @test_throws "trapezoid height must be positive" Trapezoid((0, 0), 0, 1, 1)
+    @test_throws "trapezoid side lengths must be non-negative" Trapezoid((0, 0), 1, -1, 1)
+    @test_throws "layer thickness must be positive" Layering((0, 0), 0, 0.5)
+    @test_throws "layer ratio must lie in [0, 1]" Layering((0, 0), 1, 2)
+    @test_throws "perturbation width must be positive" Layering((0, 0), 1, 0.5; perturb_width = 0)
+end
